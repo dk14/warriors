@@ -1,0 +1,117 @@
+
+<html>
+  <script>
+//import {start,  render} from './shaders/renderer.js' 
+
+let canvas = document.createElement('canvas');
+document.body.appendChild(canvas)
+document.body.style.backgroundColor = 'black'
+canvas.width = 1000;
+canvas.height = 800;
+let context = canvas.getContext("2d");
+
+
+let canvas2 = document.createElement('canvas');
+document.body.appendChild(canvas2)
+canvas2.width = 1000;
+canvas2.height = 800;
+let context2 = canvas2.getContext("2d");
+
+
+
+
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+let radius = 30;
+let color1='yellow'
+
+
+let i = 1
+
+
+let drawCircle = (x, y, radius, color = color1) => {
+    context.beginPath();
+    context.arc(x, y, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.fill();
+    context.lineWidth = 5;
+    context.strokeStyle = color;
+    context.stroke();
+}
+
+//start(canvas2, canvas)  
+
+
+let distance = 100
+let scale = 1.0
+let factor = 0.001
+
+let draw = () => {
+    //distance = 0//(distance - 1) % 70
+    //
+
+    //render()
+
+    i = i + 2
+    let distance1 = (i % 30)
+    let distance2 = (i % 16)
+
+
+    
+    //distance1 = 0
+    distance2 = 0
+
+    
+    if (i < 0) {
+        context.filter = `blur(${20 + i / 12}px)`;
+    } else {
+        context.filter = `blur(${20 + i / 12}px)`;
+    }
+
+
+    
+
+    
+    if (i < 270 || i > 1000) {
+        context.fillStyle = 'rgba(95, 7, 112, 0.1)'; 
+    } else {
+        context.fillStyle = 'rgba(95, 7, 112, 0.5)'; 
+    }
+    
+    //context.fillStyle = '#000000';
+
+    
+    
+    context.fillRect(0, 0, canvas.width, canvas.height)
+
+    drawCircle(centerX, centerY  + distance1, 2 * radius)
+    drawCircle(centerX, centerY + 50 + distance - distance2, 3 * radius)
+    //drawCircle(centerX, centerY  - 200, 2 * radius)
+
+    drawCircle(centerX + 200, centerY  + distance1, 2 * radius)
+    drawCircle(centerX + 200, centerY + 50 + distance - distance2, 3 * radius)
+
+    drawCircle(centerX - 200, centerY  + distance1, 2 * radius)
+    drawCircle(centerX - 200, centerY + 50 + distance - distance2, 3 * radius)
+
+
+   
+    scale -= factor
+   factor * 0.8
+   context2.fillRect(0, 0, canvas.width, canvas.height)
+    context2.filter = `brightness(2.0) contrast(5.0) brightness(0.3) brightness(3.0)  blur(100px) contrast(5.0) ` //blur(${100}px)`
+    context2.drawImage(canvas, 0, 0)
+    
+    //console.log("i = " + i)
+    
+
+}
+
+let step = () => {
+    draw()
+    window.requestAnimationFrame(step)
+}
+
+step()
+    </script>
+</html>
