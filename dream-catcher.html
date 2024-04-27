@@ -1,0 +1,361 @@
+<html>
+<body style="background-color:powderblue;">
+
+
+<video playsinline autoplay style="filter: brightness(3.0) blur(10px) contrast(1.5)" controls muted  ></video>
+
+<br><br><br>
+<button id="request" style="display:block;margin:auto">Enable Gyro</button>
+
+
+<br><br><br><br><br><br><br>
+  
+<br><br><br><br><br><br>
+  <br><br><br><br><br><br>
+    <br><br><br><br><br><br>
+      <br><br><br><br><br><br>
+        <br><br><br><br><br><br>
+          <br><br><br><br><br><br>
+
+<canvas id="canvas"></canvas>
+
+
+<script>
+
+//start.sh
+
+//cd /home
+//python3 -m http.server
+//cat /dev/location > /dev/null &
+
+
+// https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+
+
+setTimeout(() => {  
+  
+  console.log("666")
+  
+  var canvas = document.getElementById("canvas");
+  
+  
+  canvas.height = 1000
+  canvas.width = 1000
+  
+  
+  const permission = () => {
+    DeviceMotionEvent.requestPermission()
+    
+  }
+  const btn = document.getElementById( "request" );
+btn.addEventListener( "click", permission );
+  
+  
+  var n = 100
+  var k = 3.5 //radius
+  var speed = 100
+  
+  var transition_delay = 1
+  
+  var step_orientation = 2
+  var step_mutation = 5 //should be less than orient
+
+  var gravityFactor = 0.00
+  
+  // var cursorDensity = 8
+  // var cursorDensityExpantion = 0
+  
+  var energyThreshold = 0.9
+  var minEnergy = 0.0
+  var energyScale = 1.0
+  
+  var bgFill = "rgba(0,0,255,1.0)"
+  var cellFill = "yellow"
+  
+  var autoExpandThreshold = 0.05
+  var autoExpandTrigger = 30
+  
+  var gameStepFactor = 0.01
+  var cursorStep = 1
+  
+  var gameStep = gameStepFactor * 1.0
+  
+  var cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
+  console.log(cells)
+  
+  //cells[20][30] = 1
+  //cells[20 - 1][30] = 1
+  //cells[20 + 1][30] = 1
+  
+  var ctx=canvas.getContext("2d");
+  
+  var autoexpandCounter = 1
+  
+  
+  const autoexpand = () => {
+    
+    
+    autoexpandCounter+=1
+    autoexpandCounter %= autoExpandTrigger
+    
+    
+    if (autoexpandCounter == 1) {
+      
+      let fl = cells.flat()
+      let cnt = fl.reduce(
+        (acc, b) => acc + (b === undefined ? 0 : b),
+        0,)
+      let size = fl.length
+      
+      
+      if ((cnt / size) > autoExpandThreshold){
+      
+        newcells = [(new Array(n+2).fill(0)), ...cells.map(row => [0, ...row, 0]), (new Array (n+2).fill(0))]
+        
+        cells = newcells
+        
+        n = n + 2
+        
+        //alert(cells.flat())
+        
+      }
+      
+    }
+  }
+  var cursor = [Math.floor(n/2),Math.floor(n/2)]
+  
+  var animate = () => {
+    ctx.clearRect(0,0, canvas.width, canvas.height)
+    //console.log("animate")
+    //console.log(cells)
+      
+    ctx.fillStyle = bgFill
+    ctx.strokeStyle.filter = "brightness(3.0) blur(10px) contrast(1.5)"
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+    cells.forEach((rows, i) => {
+      rows.forEach((cell, j) => {
+        if (cell == 1) {
+          ctx.beginPath()
+          ctx.arc(10 * i * 100 / n, 10 * j * 100 / n, 400 * k / n, 0, 2 * Math.PI);
+          ctx.fillStyle = cellFill
+          
+          if ((i + j) % 3 == 0) {
+            //ctx.fillStyle = "blue"
+          }
+          
+          if ((i + j) % 3 == 1){
+            //ctx.fillStyle = "green"
+          }
+          
+          ctx.fill()
+        }
+        
+      })
+    })
+    
+    ctx.beginPath()
+    ctx.arc(10 * cursor[0] * 100 / n, 10 * cursor[1] * 100 / n, 600 * k / n, 0, 2 * Math.PI);
+    
+    ctx.fillStyle = "red"
+    
+    ctx.fill()
+    
+    
+    window.requestAnimationFrame(animate)
+  }
+
+
+  animate()
+  
+  
+  
+  
+  var prev = [0,0,0]
+  var energy = minEnergy
+  
+  ondevicemotion = (event) => {
+    
+    var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+    var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+    prev = [x, y, z]
+    if (energy < energyThreshold && energy >= minEnergy) {
+      energy = energyScale * dx * dx + dy * dy + dz * dz
+    } else {
+      energy = minEnergy
+    }
+    
+    gameStep = Math.min(10, 1 / (energy * energy))
+    
+    //console.log("energy = " + energy)
+  };
+
+
+
+  var game_i = 0
+  var cursor_i = 0
+  
+  
+  var transition = () => {
+    game_i += 1
+    
+    
+    cursor_i += 1
+    cursor_i %= cursorStep
+    
+    
+    if (game_i > gameStep) {
+      
+      game_i = 0
+      newcells = cells.map((rows, i) => {
+        return rows.map((cell, j) => {
+          if (i == 0 || j == 0 || i == n - 1 || j == n - 1) return 0;
+          
+          //console.log(i)
+          //console.log(j)
+          var count = 0;
+          count += cells[i - 1][j - 1]
+          count += cells[i - 1][j + 1] 
+          count += cells[i + 1][j - 1]
+          count += cells[i + 1][j + 1]
+          
+          
+          count += cells[i][j - 1]
+          count += cells[i][j + 1] 
+          count += cells[i + 1][j]
+          count += cells[i - 1][j]
+            
+          if (i == 0 || j == 0 || i == n - 1 || j== n - 1 ) {
+            //return 1
+          }
+            
+            
+          if (cells[i][j] == 1) {
+            if (count < 2 || count > 3) {
+              return 0
+            }
+          } else {
+            if (count == 3){
+              return 1
+            }
+          }
+          
+          return cells[i][j]
+        })
+      })
+      cells = newcells
+    }
+    autoexpand()
+    
+    if (cursor_i == 0) {
+      update()
+    }
+    
+    
+    
+    
+    
+  }
+  
+  
+  var orientation = [1, 0]
+  
+  
+  var i_orientation = 0
+  var i_mutation = 0
+  
+  
+  
+  
+  
+  var update = () => {
+    let center = [n/2, n/2]
+    
+    let gravity = [- gravityFactor * (cursor[0] - center[0]), - gravityFactor * (cursor[1] - center[1])]
+    
+    i_orientation += step_orientation
+    i_mutation += 1
+    i_orientation %= 4 * step_orientation
+    i_mutation %= step_mutation
+    
+    let state_orientation = i_orientation / step_orientation
+  
+    switch (Math.floor(state_orientation)) {
+      case 0:
+      orientation = [1,0]
+      
+      break
+      case 1:
+      
+      orientation = [0, 1]
+      
+      break
+      case 2:
+      orientation = [-1, 0]
+      
+      break
+      
+      case 3:
+      orientation = [0, -1]
+      
+      break
+    }
+    
+    cursor = [cursor[0] + speed * orientation[0] * energy + gravity[0], cursor[1] + speed * orientation[1] * energy + gravity[1]]
+    
+    if (cursor[0] > n - 1) {
+      cursor[0] = n - 1
+      orientation[0] = - orientation[0]
+    }
+    
+    if (cursor[1] > n - 1) {
+      cursor[1] = n - 1
+      orientation[1] = - orientation[1]
+    }
+    
+    if (cursor[0] < 0) {
+      cursor[0] = 0
+      orientation[0] = - orientation[0]
+    }
+    
+    if (cursor[1] < 0) {
+      cursor[1] = 0
+      orientation[1] = - orientation[1]
+    }
+    
+    
+    if (i_mutation == 0) {
+      var [x, y] = cursor.map(Math.floor)
+      console.log(cursor.map(Math.floor))
+      
+      // https://stackoverflow.com/questions/879152/how-do-i-make-javascript-beep
+      if (x < n - 1 && y < n - 1) {
+        if (cells[x][y] == 0 ) {
+          cells[x][y] = 1
+        } else {
+          cells[x][y] = 0
+        }
+      }
+    }
+  }
+  
+  setInterval(transition, transition_delay)
+  
+  var videoStream = canvas.captureStream(30)
+  const video = document.querySelector('video');
+  
+  video.srcObject = videoStream;
+  
+  
+  
+  console.log('World!'); 
+}, 1000);
+
+
+
+
+
+</script>
+</body>
+
+</html>
