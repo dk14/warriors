@@ -118,7 +118,9 @@ btn2.addEventListener( "click", resetState );
       cells = JSON.parse(storedCells)
       n = cells[0].length
       //alert('load ' + n)
+      //restoreMutations()
     }
+    
   }
   
   tryload()
@@ -126,15 +128,78 @@ btn2.addEventListener( "click", resetState );
   setInterval(saveState, 1000)
   
   
-  const autoexpand = () => {
+  var tick = 0
+  var mutations = []
+  
+  const registerMutation = (x, y, n) => {
+    tick+=1
+    mutations.push([x,y,n])
     
-    
-    autoexpandCounter+=1
-    autoexpandCounter %= autoExpandTrigger
-    
-    
-    if (autoexpandCounter == 1) {
+  }
+  
+  
+  
+  const snapshotMutations = () => {
+    localStorage.setItem('mutations', JSON.stringify(mutations))
+  }
+  
+  
+  const restoreMutations = () => {
+    const storedMut = localStorage.getItem('mutations')
+    if (storedMut != null) {
       
+      mutations = JSON.parse(storedMut)
+      //alert('load ' + n)
+    }
+    
+  }
+  
+  
+  
+  const replayMutations = (upToTick) => {
+    resetState()
+    var savetrigger = autoExpandTrigger
+    autoExpandTrigger = 1000000
+    
+    var curN = 100
+    for (let i = 0; i <= upToTick; i++) {
+      if (curN != mutations[i][2]) {
+        
+        expand()
+        curN = mutations[i][2]
+      }
+      cells[mutations[i][0]][mutations[i][1]] = 1 - cells[mutations[i][0]][mutations[i][1]]
+    }
+    
+    autoExpandTrigger = savetrigger
+  }
+  
+  
+  
+  
+  const rewind = (ticks) => {
+    
+  }
+  
+  var lastInputCellState = 0
+  var inputCounter = 0
+  
+  var processInput = (state) => {
+    //String.fromCharCode(state)
+    
+  }
+  
+  var detectInput = (inputCellState) => {
+    if (lastInputCellState != inputCellState) {
+      processInput(inputCounter)
+      inputCounter = 0 
+    }
+    
+    lastInputCellState = inputCellState
+  }
+  
+  
+  const expand = () => {
       let fl = cells.flat()
       let cnt = fl.reduce(
         (acc, b) => acc + (b === undefined ? 0 : b),
@@ -149,10 +214,23 @@ btn2.addEventListener( "click", resetState );
         cells = newcells
         
         n = n + 2
-        
-        //alert(cells.flat())
-        
       }
+    
+  }
+  
+  const autoexpand = () => {
+    
+    
+    autoexpandCounter+=1
+    autoexpandCounter %= autoExpandTrigger
+    
+    
+    if (autoexpandCounter == 1) {
+      
+      
+        expand()
+        
+      
       
     }
   }
