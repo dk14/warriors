@@ -7,6 +7,10 @@
 <br><br><br>
 <button id="request" style="display:block;margin:auto">Enable Gyro</button>
 
+<br>
+<br>
+
+<button id="reset" style="display:block;margin:auto">Reset</button>
 
 <br><br><br><br><br><br><br>
   
@@ -47,9 +51,21 @@ setTimeout(() => {
     DeviceMotionEvent.requestPermission()
     
   }
+  
   const btn = document.getElementById( "request" );
 btn.addEventListener( "click", permission );
+
+  const resetState = () => {
+    alert('reset')
+    n = 100
+    cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
+    localStorage.setItem('cells', null)
+    
+    
+  }
   
+  const btn2 = document.getElementById( "reset" );
+btn2.addEventListener( "click", resetState );
   
   var n = 100
   var k = 3.5 //radius
@@ -90,6 +106,24 @@ btn.addEventListener( "click", permission );
   var ctx=canvas.getContext("2d");
   
   var autoexpandCounter = 1
+  
+  const saveState = () => {
+    localStorage.setItem('cells', JSON.stringify(cells))
+  }
+  
+  const tryload = () => {
+    const storedCells = localStorage.getItem('cells')
+    if (storedCells != null) {
+      
+      cells = JSON.parse(storedCells)
+      n = cells[0].length
+      //alert('load ' + n)
+    }
+  }
+  
+  tryload()
+  
+  setInterval(saveState, 1000)
   
   
   const autoexpand = () => {
