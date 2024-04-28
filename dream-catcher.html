@@ -4,10 +4,10 @@
 
 <video playsinline autoplay style="filter: brightness(3.0) blur(10px) contrast(1.5)" controls muted  ></video>
 
-<br><br><br>
-<button id="request" style="display:block;margin:auto">Enable Gyro</button>
+<br><br>
+<button id="request" style="display:block;margin:auto">Start</button>
 
-<br><br><br>
+<br><br>
 <button id="initBeeps" onclick='init=true; test1();' style="display:block;margin:auto" >Enable Audio</button>
 <br>
 
@@ -17,6 +17,12 @@
 <br>
 
 <button id="reset" style="display:block;margin:auto">Reset</button>
+
+<br>
+  
+<button id="savestate" style="display:block;margin:auto">Save</button>
+<br>
+<button id="loadstate" style="display:block;margin:auto">Load</button>
 
 <br><br><br><br><br><br><br>
   
@@ -120,7 +126,6 @@ setTimeout(() => {
 btn.addEventListener( "click", permission );
 
   const resetState = () => {
-    alert('reset')
     n = 100
     cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
     localStorage.setItem('cells', null)
@@ -130,6 +135,40 @@ btn.addEventListener( "click", permission );
   
   const btn2 = document.getElementById( "reset" );
 btn2.addEventListener( "click", resetState );
+  
+  
+  const loadStateFromTxt = (event) => {
+    navigator.clipboard
+  .readText().then((stateTxt) => {
+      let state = JSON.parse(atob(stateTxt))
+      cells = state.cells
+      n = cells[0].length
+      mutations = state.mutations
+      
+    })
+    
+    
+  }
+  
+  const saveStateToTxt = () => {
+    state = {
+      cells: cells,
+      mutations: mutations
+    }
+    navigator.clipboard.writeText(btoa(JSON.stringify(state)))
+    
+  }
+  
+  
+  const btnSave = document.getElementById( "savestate" );
+  
+  btnSave.addEventListener( "click", saveStateToTxt );
+  
+  
+  const btnLoad = document.getElementById( "loadstate" );
+  
+  btnLoad.addEventListener( "click", loadStateFromTxt)
+  
   
   var n = 100
   var k = 3.5 //radius
