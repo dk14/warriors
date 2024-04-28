@@ -7,6 +7,12 @@
 <br><br><br>
 <button id="request" style="display:block;margin:auto">Enable Gyro</button>
 
+<br><br><br>
+<button id="initBeeps" onclick='init=true; test1();' style="display:block;margin:auto" >Enable Audio</button>
+<br>
+
+<button id="killBeeps" onclick='init=false;' style="display:block;margin:auto" >Disable Audio</button>
+
 <br>
 <br>
 
@@ -22,6 +28,64 @@
           <br><br><br><br><br><br>
 
 <canvas id="canvas"></canvas>
+
+<script>
+var audioContext = null;
+var oscillatorNode = null;
+var gainNodr = null;
+var stopTime = 0;
+var init = false
+var au_mutex = 0
+var frequency = 45
+var maxFreq = 250
+
+function beep (frequency, gain = 1.0)
+{
+  
+    if (!init) {
+      if (oscillatorNode != null) {
+        oscillatorNode.stop ()
+        oscillatorNode = null;
+        gainNode = null
+        
+      }
+      return
+    }
+    
+    if (oscillatorNode == null) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+        stopTime = audioContext.currentTime;
+
+        oscillatorNode = audioContext.createOscillator();
+        oscillatorNode.type = "sine";
+        gainNode = new GainNode(audioContext);
+        
+        oscillatorNode.connect(gainNode).connect (audioContext.destination);
+        
+        oscillatorNode.start ();
+        gainNode.start()
+        oscillatorNode.onended = function() {
+            oscillatorNode = null;
+            audioContext = null;
+        }
+    }
+    //frequency = Math.max(45, frequency)
+    oscillatorNode.frequency.value = frequency;
+    
+    
+    gainNode.gain.value = gain
+
+}
+function test1()
+{
+        beep (0, 1.0);
+}
+    
+
+</script>
+    
+
+
 
 
 <script>
@@ -198,7 +262,6 @@ btn2.addEventListener( "click", resetState );
     lastInputCellState = inputCellState
   }
   
-  
   const expand = () => {
       let fl = cells.flat()
       let cnt = fl.reduce(
@@ -344,10 +407,13 @@ btn2.addEventListener( "click", resetState );
             
           if (cells[i][j] == 1) {
             if (count < 2 || count > 3) {
+              beep(45)
               return 0
             }
           } else {
             if (count == 3){
+              beep(65)
+              //beep (250)
               return 1
             }
           }
@@ -376,8 +442,9 @@ btn2.addEventListener( "click", resetState );
   var i_orientation = 0
   var i_mutation = 0
   
-  
-  
+  var gain_i = 0
+  var energyGain = 0
+  var energy_sum = 0
   
   
   var update = () => {
@@ -442,9 +509,16 @@ btn2.addEventListener( "click", resetState );
       
       // https://stackoverflow.com/questions/879152/how-do-i-make-javascript-beep
       if (x < n - 1 && y < n - 1) {
+        
         if (cells[x][y] == 0 ) {
+          
+          //beep (45, 1.0)
+            
           cells[x][y] = 1
         } else {
+          
+          beep (Math.log(1 / energy))
+          
           cells[x][y] = 0
         }
       }
