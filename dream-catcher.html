@@ -1,41 +1,163 @@
 <html>
-<body style="background-color:powderblue;">
+  
+  <head>
+<style>
+body {background-color: powderblue;}
+h1   {color: blue;}
+p    {color: red;}
+
+.original {
+   position:absolute;width: 100%; margin: 0 auto; ;background: black; height:8000px; color:black;overflow:auto;font-family: 'Courier Prime';font-size: 66px;
+}
+
+#dummy{
+  color:rgb(170,255,0);
+}
+#board{
+  z-index:11;background:transparent;color:transparent;caret-color: rgb(170, 255, 0);
+}
+.original span.highlightedRed {
+    color:red;
+}
+
+.original span.highlightedYellow {
+    color:yellow;
+}
+
+.original span.highlightedBlue {
+    color:blue;
+}
+
+</style>
+</head>
+  
+<body>
 
 
 <video playsinline autoplay style="filter: brightness(3.0) blur(10px) contrast(1.5)" controls muted  ></video>
 
 <br><br>
-<button id="request" style="display:block;margin:auto">Start</button>
+<br><br>
+<div style="display:block;">
+<button id="request" style="margin:auto;font-size:25px">Start Cursor</button>
+&nbsp
+<button onclick="gyro_enabled=false;" style="margin:auto;font-size:25px">Stop Cursor</button>
+&nbsp &nbsp &nbsp
+<button id="initBeeps" onclick='init=true; test1();' style="margin:auto;font-size:25px" >Enable Audio</button>
+&nbsp
+<button id="killBeeps" onclick='init=false;' style="margin:auto;font-size:25px" >Disable Audio</button>
+
+<br>
+<br>
+<br>
+
+
+<button id="reset" style="margin:auto;font-size:25px">Reset State</button>
+
+&nbsp&nbsp
+<button id="savestate" style="margin:auto;font-size:25px">Save To Clipboard</button>
+&nbsp
+<button id="loadstate" style="margin:auto; font-size:25px">Load From Clipboard</button>
 
 <br><br>
-<button id="initBeeps" onclick='init=true; test1();' style="display:block;margin:auto" >Enable Audio</button>
-<br>
-
-<button id="killBeeps" onclick='init=false;' style="display:block;margin:auto" >Disable Audio</button>
-
-<br>
-<br>
-
-<button id="reset" style="display:block;margin:auto">Reset</button>
-
-<br>
+<br><br>
   
-<button id="savestate" style="display:block;margin:auto">Save</button>
-<br>
-<button id="loadstate" style="display:block;margin:auto">Load</button>
+<button 
+   style="margin:auto;font-size:25px"
+  onclick="expandArea()"> Expand </button>
 
-<br><br><br><br><br><br><br>
-  
+
+<button hidden
+   style="margin:auto;font-size:25px"
+  onclick="rewind(1000)"> Rewind </button>
+
+</div>
+
 <br><br><br><br><br><br>
-  <br><br><br><br><br><br>
-    <br><br><br><br><br><br>
-      <br><br><br><br><br><br>
-        <br><br><br><br><br><br>
-          <br><br><br><br><br><br>
 
-<canvas id="canvas"></canvas>
+
+<div id="board" class="original" contenteditable="true">
+
+  cellFill = 'green'<br>
+  flag = false <br>
+  if (flag == true) {
+    alert('hello')
+  }
+</div>
+<div id="dummy" class="original"></div>
+
 
 <script>
+// SQL keywords
+  
+    // Keyup event
+    
+  var keywordsRed = ["\'.+?\'"]
+  
+  // 
+  
+  var regexFromMyArrayRed = new RegExp(keywordsRed.join("|"), 'ig');
+    
+  let formatRed = (str) => {
+       return '<span class="highlightedRed">'+str+'</span>'
+  }
+  
+  
+  
+   var keywordsBlue = ["[^ \r\n]+(?=\\([^\\(\\)\r\n]*?\\))", "\\=\\>"]
+    
+  
+  var regexFromMyArrayBlue = new RegExp(keywordsBlue.join("|"), 'ig');
+  
+  
+  
+  let formatBlue = (str) => {
+       return '<span class="highlightedBlue">'+str+'</span>'
+  }
+  
+   var keywordsYellow = ["\=\>", "\\(", "\\)", " \= ", "\\{", "\\}"]
+  
+  
+  //alert('hi')
+  
+  var regexFromMyArrayYellow = new RegExp(keywordsYellow.join("|"), 'ig');
+    
+  
+    
+  let formatYellow = (str) => {
+       return '<span class="highlightedYellow">'+str+'</span>'
+  }
+  
+    
+  var board = document.getElementById('board')
+    
+  var target = document.getElementById('dummy')
+    
+  board.onkeyup = (e) => {
+    let result = board.innerHTML.replaceAll('\u2019', '\'')
+    .replaceAll('\u2018', '\'')
+    .replace(regexFromMyArrayRed, formatRed).replace(regexFromMyArrayBlue,formatBlue).replace(regexFromMyArrayYellow,formatYellow)
+        
+    target.innerHTML = result
+  }
+
+  board.onkeyup()
+
+  board.onscroll = () => {
+    target.scrollTop = this.scrollTop;
+    target.scrollLeft = this.scrollLeft;
+  }
+  
+  board.onscroll()
+  
+  setInterval(() => {
+    let str = board.innerHTML
+    eval(str.replaceAll("<br>", "\n").replaceAll("<div>", "").replaceAll("</div>",""))
+  }, 3000)
+  
+    
+//audio 
+
 var audioContext = null;
 var oscillatorNode = null;
 var gainNodr = null;
@@ -92,10 +214,7 @@ function test1()
     
 
 
-
-
 <script>
-
 //start.sh
 
 //cd /home
@@ -110,7 +229,7 @@ setTimeout(() => {
   
   console.log("666")
   
-  var canvas = document.getElementById("canvas");
+  var canvas = document.createElement("canvas");
   
   
   canvas.height = 1000
@@ -118,6 +237,7 @@ setTimeout(() => {
   
   
   const permission = () => {
+    gyro_enabled = true
     DeviceMotionEvent.requestPermission()
     
   }
@@ -128,8 +248,27 @@ btn.addEventListener( "click", permission );
   const resetState = () => {
     n = 100
     cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
-    localStorage.setItem('cells', null)
     
+    localStorage.setItem('cells', null)
+    localStorage.setItem('mutations', null)
+    
+    
+    i_mutation = 0
+    game_i=0
+    cursor_i=0
+    orientation = [1, 0]
+    i_orientation = 0
+    
+    
+    
+    cursor = [Math.floor(n/2),Math.floor(n/2)]
+    
+    gameStep = gameStepFactor * 1.0
+    
+    if (!replayInProgress) {
+      mutations = []
+      tick = 0
+    }
     
   }
   
@@ -169,37 +308,43 @@ btn2.addEventListener( "click", resetState );
   
   btnLoad.addEventListener( "click", loadStateFromTxt)
   
+  gyro_enabled = true
   
-  var n = 100
-  var k = 3.5 //radius
-  var speed = 100
+  window.n = 100
+  window.k = 3.5 //radius
+  window.speed = 500
   
-  var transition_delay = 1
+  window.transition_delay = 1
   
-  var step_orientation = 2
-  var step_mutation = 5 //should be less than orient
+  window.step_orientation = 16
+  window.step_mutation = 1 //should be less than orient
 
-  var gravityFactor = 0.00
+  window.gravityFactor = 0.00
   
   // var cursorDensity = 8
   // var cursorDensityExpantion = 0
+
+
+
   
-  var energyThreshold = 0.9
-  var minEnergy = 0.0
-  var energyScale = 1.0
+  window.energyThreshold = 0.9
+  window.minEnergy = 0.0
+  window.energyScale = 1.0
   
-  var bgFill = "rgba(0,0,255,1.0)"
-  var cellFill = "yellow"
+  window.bgFill = "rgba(0,0,255,1.0)"
+  window.cellFill = "green"
   
-  var autoExpandThreshold = 0.05
-  var autoExpandTrigger = 30
+  window.autoExpandThreshold = 0.2
+  window.autoExpandTrigger = 30
   
-  var gameStepFactor = 0.01
-  var cursorStep = 1
+  window.gameStepFactor = 0.01
+  window.cursorStep = 1
   
-  var gameStep = gameStepFactor * 1.0
+  window.gameStep = gameStepFactor * 1.0
   
-  var cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
+
+  
+  window.cells = new Array(n).fill(0).map( (x) => { return new Array(n).fill(0)})
   console.log(cells)
   
   //cells[20][30] = 1
@@ -214,9 +359,14 @@ btn2.addEventListener( "click", resetState );
     localStorage.setItem('cells', JSON.stringify(cells))
   }
   
+    
+  
   const tryload = () => {
     const storedCells = localStorage.getItem('cells')
-    if (storedCells != null) {
+    
+    
+    if (storedCells !== null && storedCells !== "null") {
+      //alert(storedCells)
       
       cells = JSON.parse(storedCells)
       n = cells[0].length
@@ -224,20 +374,31 @@ btn2.addEventListener( "click", resetState );
       //restoreMutations()
     }
     
+    
   }
+  
+  
   
   tryload()
   
+  //alert('aaaaa')
+  
   setInterval(saveState, 1000)
+  
+   
+   
   
   
   var tick = 0
   var mutations = []
+  var replayInProgress = false
   
-  const registerMutation = (x, y, n) => {
-    tick+=1
-    mutations.push([x,y,n])
-    
+  const registerMutation = (energy, n) => {
+    if (!replayInProgress){
+      tick+=1
+      mutations.push([energy, n])
+      
+    }
   }
   
   
@@ -249,47 +410,85 @@ btn2.addEventListener( "click", resetState );
   
   const restoreMutations = () => {
     const storedMut = localStorage.getItem('mutations')
-    if (storedMut != null) {
+    if (storedMut != null && stiredMut !== "null") {
       
       mutations = JSON.parse(storedMut)
       //alert('load ' + n)
     }
     
   }
-  
-  
-  
+ 
+ 
   const replayMutations = (upToTick) => {
+    
+    if (upToTick < 0) {
+      alert("nothing to rewind")
+    }
+    
+    replayInProgress = true
+    gyro_enabled = true
     resetState()
+    mutations = mutations.slice(0, upToTick)
+    
+    
     var savetrigger = autoExpandTrigger
     autoExpandTrigger = 1000000
     
     var curN = 100
-    for (let i = 0; i <= upToTick; i++) {
-      if (curN != mutations[i][2]) {
+    
+    
+    try {
+      
+      for (let i = 0; i <= upToTick; i++) {
         
-        expand()
-        curN = mutations[i][2]
+        if (curN != Math.abs(mutations[i][1])) {
+        
+          expand()
+          
+          curN = Math.abs(mutations[i][1])
+        }
+        
+        if (mutations[i][1] > 0) {
+          gyro_enabled = true
+        } else {
+          gyro_enabled = false
+        }
+        energy=mutations[i][0]
+      
+        transition()
+      
       }
-      cells[mutations[i][0]][mutations[i][1]] = 1 - cells[mutations[i][0]][mutations[i][1]]
+    } catch (e){
+      //alert(e + " ")
     }
     
     autoExpandTrigger = savetrigger
-  }
-  
-  
-  
-  
-  const rewind = (ticks) => {
     
+    replayInProgress = false
+    gyro_enabled = false
   }
+  
+  
+  
+  
+  window.rewind = (ticks) => {
+    replayMutations(tick-ticks)
+  }
+  
+    
   
   var lastInputCellState = 0
   var inputCounter = 0
+  var input = ""
+  var output = ""
   
   var processInput = (state) => {
-    //String.fromCharCode(state)
-    
+    var ch = String.fromCharCode(state)
+    input+=ch
+    input= input.slice(-50)
+    if (input.slice(-7) === "/enter") {
+      output = eval(input.slice(0, -7))
+    }
   }
   
   var detectInput = (inputCellState) => {
@@ -299,6 +498,15 @@ btn2.addEventListener( "click", resetState );
     }
     
     lastInputCellState = inputCellState
+  }
+  
+  window.expandArea = () => {
+    newcells = [(new Array(n+2).fill(0)), ...cells.map(row => [0, ...row, 0]), (new Array (n+2).fill(0))]
+        
+        cells = newcells
+        
+        n = n + 2
+    
   }
   
   const expand = () => {
@@ -338,6 +546,31 @@ btn2.addEventListener( "click", resetState );
   }
   var cursor = [Math.floor(n/2),Math.floor(n/2)]
   
+  
+  window.pickCellColor = (i, j) => {
+    return cellFill
+  }
+  
+  window.drawCell = (ctx, i, j, cell) => {
+    if (cell == 1) {
+        ctx.beginPath()
+        ctx.arc(10 * i * 100 / n, 10 * j * 100 / n, 400 * k / n, 0, 2 * Math.PI);
+        
+        
+        ctx.fillStyle = pickCellColor(i, j)
+          
+          if ((i + j) % 3 == 0) {
+            //ctx.fillStyle = "blue"
+          }
+          
+          if ((i + j) % 3 == 1){
+            //ctx.fillStyle = "green"
+          }
+          
+          ctx.fill()
+    }
+  }
+  
   var animate = () => {
     ctx.clearRect(0,0, canvas.width, canvas.height)
     //console.log("animate")
@@ -349,22 +582,7 @@ btn2.addEventListener( "click", resetState );
       
     cells.forEach((rows, i) => {
       rows.forEach((cell, j) => {
-        if (cell == 1) {
-          ctx.beginPath()
-          ctx.arc(10 * i * 100 / n, 10 * j * 100 / n, 400 * k / n, 0, 2 * Math.PI);
-          ctx.fillStyle = cellFill
-          
-          if ((i + j) % 3 == 0) {
-            //ctx.fillStyle = "blue"
-          }
-          
-          if ((i + j) % 3 == 1){
-            //ctx.fillStyle = "green"
-          }
-          
-          ctx.fill()
-        }
-        
+        window.drawCell(ctx, i, j, cell)
       })
     })
     
@@ -389,6 +607,9 @@ btn2.addEventListener( "click", resetState );
   var energy = minEnergy
   
   ondevicemotion = (event) => {
+    if (replayInProgress) {
+      return
+    }
     
     var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
     var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
@@ -399,7 +620,7 @@ btn2.addEventListener( "click", resetState );
       energy = minEnergy
     }
     
-    gameStep = Math.min(10, 1 / (energy * energy))
+    
     
     //console.log("energy = " + energy)
   };
@@ -411,11 +632,23 @@ btn2.addEventListener( "click", resetState );
   
   
   var transition = () => {
+    
+    if (window.gyro_enabled) {
+      registerMutation(energy, n)
+    } else {
+      registerMutation(energy, -n)
+    }
+    
+    
+    
+    
     game_i += 1
     
     
     cursor_i += 1
     cursor_i %= cursorStep
+    
+    gameStep = Math.min(10, 1 / (energy * energy))
     
     
     if (game_i > gameStep) {
@@ -447,11 +680,17 @@ btn2.addEventListener( "click", resetState );
           if (cells[i][j] == 1) {
             if (count < 2 || count > 3) {
               beep(45)
+              if (i == n/2 && j ==n/2) {
+                detectInput(0)
+              }
               return 0
             }
           } else {
             if (count == 3){
               beep(65)
+              if (i == n/2 && j ==n/2) {
+                detectInput(1)
+              }
               //beep (250)
               return 1
             }
@@ -481,12 +720,17 @@ btn2.addEventListener( "click", resetState );
   var i_orientation = 0
   var i_mutation = 0
   
-  var gain_i = 0
-  var energyGain = 0
-  var energy_sum = 0
+  window.oncellmutation = (x, y, state) => {
+    
+  }
   
   
   var update = () => {
+    if (!window.gyro_enabled) {
+      //alert('noupdate')
+      return
+    }
+    
     let center = [n/2, n/2]
     
     let gravity = [- gravityFactor * (cursor[0] - center[0]), - gravityFactor * (cursor[1] - center[1])]
@@ -546,20 +790,22 @@ btn2.addEventListener( "click", resetState );
       var [x, y] = cursor.map(Math.floor)
       console.log(cursor.map(Math.floor))
       
-      // https://stackoverflow.com/questions/879152/how-do-i-make-javascript-beep
       if (x < n - 1 && y < n - 1) {
         
         if (cells[x][y] == 0 ) {
           
-          //beep (45, 1.0)
+          beep (55)
+          window.oncellmutation(x, y, 1)
             
           cells[x][y] = 1
         } else {
           
-          beep (Math.log(1 / energy))
+          beep (100)
           
+          window.oncellmutation(x, y, 1)
           cells[x][y] = 0
         }
+        
       }
     }
   }
