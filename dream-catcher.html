@@ -10,14 +10,21 @@ p    {color: red;}
    position:absolute;width: 100%; margin: 0 auto; ;background: black; height:8000px; color:black;overflow:auto;font-family: 'Courier Prime';font-size: 66px;
 }
 
-#dummy{
+.output {
+  background: black; 
+  font-family: 'Courier Prime';font-size: 66px;
   color:rgb(170,255,0);
+  
+}
+
+#dummy{
+  color:#90ee90;
 }
 #board{
   z-index:11;background:transparent;color:transparent;caret-color: rgb(170, 255, 0);
 }
 .original span.highlightedRed {
-    color:red;
+    color:#ffcccb;
 }
 
 .original span.highlightedYellow {
@@ -25,7 +32,7 @@ p    {color: red;}
 }
 
 .original span.highlightedBlue {
-    color:blue;
+    color:lightblue;
 }
 
 </style>
@@ -60,7 +67,6 @@ p    {color: red;}
 <button id="loadstate" style="margin:auto; font-size:25px">Load From Clipboard</button>
 
 <br><br>
-<br><br>
   
 <button 
    style="margin:auto;font-size:25px"
@@ -72,9 +78,21 @@ p    {color: red;}
   onclick="rewind(1000)"> Rewind </button>
 
 </div>
+<br> 
+  
+<div style="font-size:60px;color:blue"> Console: </div>
+
+<div id="commandInput" class="output" style="color:rgb(170,255,0);"></div>
 
 <br><br><br><br><br><br>
+  
+<div style="font-size:60px;color:blue"> Editor Errors: </div>
 
+<div id="editorError" class="output" style="color:red; font-size:40px"></div>
+
+<br>
+
+<div style="font-size:60px;color:blue"> Editor </div>
 
 <div id="board" class="original" contenteditable="true">
 
@@ -104,7 +122,9 @@ p    {color: red;}
   
   
   
-   var keywordsBlue = ["[^ \r\n]+(?=\\([^\\(\\)\r\n]*?\\))", "\\=\\>"]
+   var keywordsBlue = ['false', "[0-9]","true"]
+  
+  //["[^ \r\n]+(?=\\([^\\(\\)\r\n]*?\\))", "\\=\\>"]
     
   
   var regexFromMyArrayBlue = new RegExp(keywordsBlue.join("|"), 'ig');
@@ -115,7 +135,7 @@ p    {color: red;}
        return '<span class="highlightedBlue">'+str+'</span>'
   }
   
-   var keywordsYellow = ["\=\>", "\\(", "\\)", " \= ", "\\{", "\\}"]
+   var keywordsYellow = [" \=&gt ", "\\(", "\\)", " \= ", "\\{", "\\}", "if", "\=\="]
   
   
   //alert('hi')
@@ -129,17 +149,49 @@ p    {color: red;}
   }
   
     
-  var board = document.getElementById('board')
+  window.board = document.getElementById('board')
     
   var target = document.getElementById('dummy')
+  
+  var editorError = document.getElementById('editorError')
+  
+  
+  if(localStorage.getItem('codehtml') !== null) {
+    //alert(localStorage.getItem('codehtml'))
+    board.innerHTML = localStorage.getItem('codehtml')
+  }
     
   board.onkeyup = (e) => {
+    //alert('keyup')
+
+    editorError.textContent = 'stuck'
+    
     let result = board.innerHTML.replaceAll('\u2019', '\'')
     .replaceAll('\u2018', '\'')
     .replace(regexFromMyArrayRed, formatRed).replace(regexFromMyArrayBlue,formatBlue).replace(regexFromMyArrayYellow,formatYellow)
         
     target.innerHTML = result
+    
+    try {
+      let str = board.innerHTML
+      eval(str.replaceAll('\u2019', '\'')
+    .replaceAll('\u2018', '\'').replaceAll("<br>", "\n").replaceAll("<div>", "\n").replaceAll("</div>","").replaceAll('\r\n', '\n').replaceAll('&nbsp', ' ').replaceAll('&gt;', '>').replaceAll('&lt;', '<'))
+    
+      editorError.textContent = 'none'
+    
+      localStorage.setItem('codehtml', str)
+    
+      
+    } catch (e){
+      editorError.textContent = e
+      //alert(board.innerHTML)
+      
+      
+    }
+    
   }
+  
+  
 
   board.onkeyup()
 
@@ -150,10 +202,12 @@ p    {color: red;}
   
   board.onscroll()
   
-  setInterval(() => {
-    let str = board.innerHTML
-    eval(str.replaceAll("<br>", "\n").replaceAll("<div>", "").replaceAll("</div>",""))
-  }, 3000)
+  
+  
+  //setInterval(() => {
+    //alert(board.innerHTML)
+  //}, 5000)
+  
   
     
 //audio 
@@ -479,13 +533,15 @@ btn2.addEventListener( "click", resetState );
   
   var lastInputCellState = 0
   var inputCounter = 0
-  var input = ""
-  var output = ""
+  window.input = ""
+  window.output = ""
   
   var processInput = (state) => {
     var ch = String.fromCharCode(state)
     input+=ch
     input= input.slice(-50)
+    document.getElementById("commandInput").textContent = input
+    
     if (input.slice(-7) === "/enter") {
       output = eval(input.slice(0, -7))
     }
@@ -494,7 +550,7 @@ btn2.addEventListener( "click", resetState );
   var detectInput = (inputCellState) => {
     if (lastInputCellState != inputCellState) {
       processInput(inputCounter)
-      inputCounter = 0 
+      inputCounter = 0
     }
     
     lastInputCellState = inputCellState
@@ -530,18 +586,12 @@ btn2.addEventListener( "click", resetState );
   
   const autoexpand = () => {
     
-    
-    autoexpandCounter+=1
+    autoexpandCounter += 1
     autoexpandCounter %= autoExpandTrigger
     
     
     if (autoexpandCounter == 1) {
-      
-      
         expand()
-        
-      
-      
     }
   }
   var cursor = [Math.floor(n/2),Math.floor(n/2)]
@@ -633,6 +683,7 @@ btn2.addEventListener( "click", resetState );
   
   var transition = () => {
     
+    
     if (window.gyro_enabled) {
       registerMutation(energy, n)
     } else {
@@ -640,7 +691,7 @@ btn2.addEventListener( "click", resetState );
     }
     
     
-    
+    inputCounter++
     
     game_i += 1
     
@@ -680,15 +731,15 @@ btn2.addEventListener( "click", resetState );
           if (cells[i][j] == 1) {
             if (count < 2 || count > 3) {
               beep(45)
-              if (i == n/2 && j ==n/2) {
-                detectInput(0)
+              if (i == n/2 && j == n/2) {
+               detectInput(0)
               }
               return 0
             }
           } else {
             if (count == 3){
               beep(65)
-              if (i == n/2 && j ==n/2) {
+              if (i == n/2 && j == n/2) {
                 detectInput(1)
               }
               //beep (250)
@@ -706,10 +757,6 @@ btn2.addEventListener( "click", resetState );
     if (cursor_i == 0) {
       update()
     }
-    
-    
-    
-    
     
   }
   
@@ -802,7 +849,7 @@ btn2.addEventListener( "click", resetState );
           
           beep (100)
           
-          window.oncellmutation(x, y, 1)
+          window.oncellmutation(x, y, 0)
           cells[x][y] = 0
         }
         
