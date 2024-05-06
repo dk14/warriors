@@ -80,8 +80,10 @@ p    {color: red;}
 </div>
 <br> 
 <br>
+<br>
   
 <div style="font-size:60px;color:blue"> Console: </div>
+<br><br>
 
 <div id="commandInput" class="output" style="color:rgb(170,255,0);"></div>
 
@@ -538,9 +540,9 @@ btn2.addEventListener( "click", resetState );
   window.output = ""
   
   var processInput = (state) => {
-    var ch = String.fromCharCode(state)
+    var ch = String.fromCharCode(state % 95 + 32)
     input+=ch
-    input= input.slice(-50)
+    input= input.slice(-25)
     document.getElementById("commandInput").textContent = input
     
     if (input.slice(-7) === "/enter") {
