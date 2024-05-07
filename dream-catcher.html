@@ -41,7 +41,7 @@ p    {color: red;}
 <body>
 
 
-<video playsinline autoplay style="filter: brightness(3.0) blur(10px) contrast(1.5)" controls muted  ></video>
+<video playsinline autoplay controls muted  ></video>
 
 <br><br>
 <br><br>
@@ -381,7 +381,7 @@ btn2.addEventListener( "click", resetState );
   // var cursorDensity = 8
   // var cursorDensityExpantion = 0
 
-
+  window.rulestring = "life"
 
   
   window.energyThreshold = 0.9
@@ -684,6 +684,41 @@ btn2.addEventListener( "click", resetState );
   var cursor_i = 0
   
   
+  
+  window.applyRule = (cell, count) => {
+    if (rulestring == "life") {
+      if (cell == 1) {
+        if (count < 2 || count > 3) {
+          return 0
+        }
+      } else {
+        if (count == 3){
+          return 1
+        } 
+      }
+      return cell
+    } else if (rulestring == "highlife") {
+      if (cell == 1) {
+        if (count == 3 || count == 2) {
+          return 1
+        } else {
+          return 0
+        }
+      } else {
+        if (count == 3 || count == 6) {
+          return 1
+        } else {
+          return 0
+        }
+      }
+    } else {
+      return cell
+    }
+          
+          
+  }
+  
+  
   var transition = () => {
     
     
@@ -726,31 +761,18 @@ btn2.addEventListener( "click", resetState );
           count += cells[i + 1][j]
           count += cells[i - 1][j]
             
-          if (i == 0 || j == 0 || i == n - 1 || j== n - 1 ) {
-            //return 1
-          }
+          let result = applyRule(cells[i][j], count)
             
-            
-          if (cells[i][j] == 1) {
-            if (count < 2 || count > 3) {
-              beep(45)
-              if (i == n/2 && j == n/2) {
-               detectInput(0)
-              }
-              return 0
-            }
+          if (result == 0){
+            beep(45)
           } else {
-            if (count == 3){
-              beep(65)
-              if (i == n/2 && j == n/2) {
-                detectInput(1)
-              }
-              //beep (250)
-              return 1
-            }
+            beep(65)
           }
           
-          return cells[i][j]
+          if (i == n/2 && j == n/2) {
+            detectInput(result)
+          }
+          return result
         })
       })
       cells = newcells
@@ -863,7 +885,9 @@ btn2.addEventListener( "click", resetState );
   setInterval(transition, transition_delay)
   
   var videoStream = canvas.captureStream(30)
-  const video = document.querySelector('video');
+  window.video = document.querySelector('video');
+  
+  video.style = 'filter: brightness(3.0) blur(10px) contrast(1.5)'
   
   video.srcObject = videoStream;
   
