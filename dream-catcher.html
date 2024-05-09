@@ -670,10 +670,9 @@ btn2.addEventListener( "click", resetState );
     var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
     var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
     prev = [x, y, z]
-    if (energy < energyThreshold && energy >= minEnergy) {
-      energy = energyScale * dx * dx + dy * dy + dz * dz
-    } else {
-      energy = 0.0001
+    energy = energyScale * (dx * dx + dy * dy + dz * dz)
+    if (energy > energyThreshold || energy < minEnergy) {
+      energy = 0.0000001 * energyScale
     }
     
     
@@ -894,7 +893,10 @@ btn2.addEventListener( "click", resetState );
   
   video.srcObject = videoStream;
   
-  
+  try {
+    board.onkeyup()
+  } catch {
+  }
   
   console.log('World!'); 
 }, 1000);
