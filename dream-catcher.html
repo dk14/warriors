@@ -673,7 +673,7 @@ btn2.addEventListener( "click", resetState );
     if (energy < energyThreshold && energy >= minEnergy) {
       energy = energyScale * dx * dx + dy * dy + dz * dz
     } else {
-      energy = 0.0
+      energy = 0.0001
     }
     
     
