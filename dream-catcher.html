@@ -159,10 +159,7 @@ p    {color: red;}
   var editorError = document.getElementById('editorError')
   
   
-  if(localStorage.getItem('codehtml') !== null) {
-    //alert(localStorage.getItem('codehtml'))
-    board.innerHTML = localStorage.getItem('codehtml')
-  }
+
     
   board.onkeyup = (e) => {
     //alert('keyup')
@@ -192,6 +189,12 @@ p    {color: red;}
       
     }
     
+  }
+  
+  if(localStorage.getItem('codehtml') !== null) {
+    //alert(localStorage.getItem('codehtml'))
+    board.innerHTML = localStorage.getItem('codehtml')
+    board.onkeyup()
   }
   
   
@@ -670,7 +673,7 @@ btn2.addEventListener( "click", resetState );
     if (energy < energyThreshold && energy >= minEnergy) {
       energy = energyScale * dx * dx + dy * dy + dz * dz
     } else {
-      energy = minEnergy
+      energy = 0.0
     }
     
     
