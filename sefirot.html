@@ -1,0 +1,194 @@
+<html>
+  
+  <head>
+<style>
+body {background-color: powderblue;}
+h1   {color: blue;}
+p    {color: red;}
+
+.original {
+   position:absolute;width: 100%; margin: 0 auto; ;background: black; height:8000px; color:black;overflow:auto;font-family: 'Courier Prime';font-size: 66px;
+}
+
+.output {
+  background: black; 
+  font-family: 'Courier Prime';font-size: 66px;
+  color:rgb(170,255,0);
+  
+}
+
+#dummy{
+  color:#90ee90;
+}
+#board{
+  z-index:11;background:transparent;color:transparent;caret-color: rgb(170, 255, 0);
+}
+.original span.highlightedRed {
+    color:#ffcccb;
+}
+
+.original span.highlightedYellow {
+    color:yellow;
+}
+
+.original span.highlightedBlue {
+    color:lightblue;
+}
+
+</style>
+</head>
+  
+<body>
+
+
+<video playsinline autoplay controls muted  ></video>
+
+<br><br>
+<br><br>
+<div style="display:block;">
+<button id="request" style="margin:auto;font-size:25px">Start Cursor</button>
+
+
+<br>
+<br>
+<br>
+
+
+
+<br>
+<br> 
+<br>
+
+
+
+
+<script>
+  
+   
+  
+  
+    
+//audio 
+
+var audioContext = null;
+var oscillatorNode = null;
+var gainNodr = null;
+var stopTime = 0;
+var init = false
+var au_mutex = 0
+var frequency = 45
+var maxFreq = 250
+
+function beep (frequency, gain = 1.0)
+{
+  
+    if (!init) {
+      if (oscillatorNode != null) {
+        oscillatorNode.stop ()
+        oscillatorNode = null;
+        gainNode = null
+        
+      }
+      return
+    }
+    
+    if (oscillatorNode == null) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+        stopTime = audioContext.currentTime;
+
+        oscillatorNode = audioContext.createOscillator();
+        oscillatorNode.type = "sine";
+        gainNode = new GainNode(audioContext);
+        
+        oscillatorNode.connect(gainNode).connect (audioContext.destination);
+        
+        oscillatorNode.start ();
+        gainNode.start()
+        oscillatorNode.onended = function() {
+            oscillatorNode = null;
+            audioContext = null;
+        }
+    }
+    //frequency = Math.max(45, frequency)
+    oscillatorNode.frequency.value = frequency;
+    
+    
+    gainNode.gain.value = gain
+
+}
+function test1()
+{
+        beep (0, 1.0);
+}
+    
+
+</script>
+    
+
+
+<script>
+//start.sh
+
+//cd /home
+//python3 -m http.server
+//cat /dev/location > /dev/null &
+
+
+// https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+
+
+setTimeout(() => {  
+  
+  console.log("666")
+  
+  
+  const permission = () => {
+    gyro_enabled = true
+    DeviceMotionEvent.requestPermission()
+    
+  }
+  
+  const btn = document.getElementById( "request" );
+btn.addEventListener( "click", permission );
+  
+  var prev = [0,0,0]
+  var energy = minEnergy
+  
+  ondevicemotion = (event) => {
+    if (replayInProgress) {
+      return
+    }
+    
+    var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+    var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+    prev = [x, y, z]
+    energy = energyScale * (dx * dx + dy * dy + dz * dz)
+    if (energy > energyThreshold || energy < minEnergy) {
+      energy = 0.0000001 * energyScale
+    }
+  }
+  
+  var history = []
+  var n = 100
+  var max = 100000
+  
+  
+  var transition = () => {
+    
+    
+    pattern = history.slice(Math.max(history.length - n, 0))
+    
+    
+    prediction = findPartern(pattern)
+    beep(energy * 20000)
+    
+  }
+  
+  
+  setInterval(transition, 100)
+
+
+</script>
+</body>
+
+</html>
