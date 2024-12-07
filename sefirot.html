@@ -1,194 +1,291 @@
 <html>
   
   <head>
-<style>
-body {background-color: powderblue;}
-h1   {color: blue;}
-p    {color: red;}
-
-.original {
-   position:absolute;width: 100%; margin: 0 auto; ;background: black; height:8000px; color:black;overflow:auto;font-family: 'Courier Prime';font-size: 66px;
-}
-
-.output {
-  background: black; 
-  font-family: 'Courier Prime';font-size: 66px;
-  color:rgb(170,255,0);
+    <style>
+      body {background-color: powderblue;}
+      h1   {color: blue;}
+      p    {color: red;}
+      
+    </style>
+  </head>
   
-}
-
-#dummy{
-  color:#90ee90;
-}
-#board{
-  z-index:11;background:transparent;color:transparent;caret-color: rgb(170, 255, 0);
-}
-.original span.highlightedRed {
-    color:#ffcccb;
-}
-
-.original span.highlightedYellow {
-    color:yellow;
-}
-
-.original span.highlightedBlue {
-    color:lightblue;
-}
-
-</style>
-</head>
-  
-<body>
-
-
-<video playsinline autoplay controls muted  ></video>
-
-<br><br>
-<br><br>
-<div style="display:block;">
-<button id="request" style="margin:auto;font-size:25px">Start Cursor</button>
-
-
-<br>
-<br>
-<br>
-
-
-
-<br>
-<br> 
-<br>
-
-
-
-
-<script>
-  
-   
-  
-  
+  <body>
     
-//audio 
-
-var audioContext = null;
-var oscillatorNode = null;
-var gainNodr = null;
-var stopTime = 0;
-var init = false
-var au_mutex = 0
-var frequency = 45
-var maxFreq = 250
-
-function beep (frequency, gain = 1.0)
-{
-  
-    if (!init) {
-      if (oscillatorNode != null) {
-        oscillatorNode.stop ()
-        oscillatorNode = null;
-        gainNode = null
-        
-      }
-      return
-    }
+    <div style="display:block;">
+      <button id="request" style="margin:auto;font-size:25px">Start</button>
+      <span id="out"> 9 </span>
+    </div>
     
-    if (oscillatorNode == null) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext) ();
-        stopTime = audioContext.currentTime;
-
-        oscillatorNode = audioContext.createOscillator();
-        oscillatorNode.type = "sine";
-        gainNode = new GainNode(audioContext);
+    <script>
+      
+      //cd /home
+      //python3 -m http.server
+      //cat /dev/location > /dev/null &
+      const audioElem = new Audio()
+      
+      var canvas = document.createElement("canvas");
+      canvas.width = 1000
+      canvas.height = 1000
+      
+      if (canvas.getContext) {
+        const ctx = canvas.getContext("2d");
         
-        oscillatorNode.connect(gainNode).connect (audioContext.destination);
-        
-        oscillatorNode.start ();
-        gainNode.start()
-        oscillatorNode.onended = function() {
-            oscillatorNode = null;
-            audioContext = null;
+        draw = () => {
+          ctx.fillStyle = "rgb(0 0 0)";
+          ctx.fillRect(25, 25, 100, 100);
+          //ctx.clearRect(45, 45, 60, 60);
+          //ctx.strokeRect(50, 50, 50, 50);
         }
-    }
-    //frequency = Math.max(45, frequency)
-    oscillatorNode.frequency.value = frequency;
-    
-    
-    gainNode.gain.value = gain
-
-}
-function test1()
-{
-        beep (0, 1.0);
-}
-    
-
-</script>
-    
-
-
-<script>
-//start.sh
-
-//cd /home
-//python3 -m http.server
-//cat /dev/location > /dev/null &
-
-
-// https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
-
-
-setTimeout(() => {  
+        window.requestAnimationFrame(draw)
+      }
+      
+      var canvasStream = canvas.captureStream()
+      
+      
+      
+      const videoElem = document.createElement("video");
+      videoElem.srcObject = canvasStream
+      
+      audioElem.controls = true;
+      audioElem.autoplay = true;
+      
+      videoElem.autoplay = true
+      videoElem.controls = true
+      
+      document.body.appendChild(canvas)
+      document.body.appendChild(audioElem);
+      document.body.appendChild(videoElem);
+      
+      
+      console.log("666")
   
-  console.log("666")
-  
-  
-  const permission = () => {
-    gyro_enabled = true
-    DeviceMotionEvent.requestPermission()
+      
+      
+      setTimeout(() => {  
+        
+        const span = document.getElementById("out")
+        
+        const print = (msg) => {
+          span.textContent = msg
+        }
+        
+        console.log("666")
+        
+              
+        const beep = (frequency) => {
+          if (window.oscillatorNode) {
+            window.oscillatorNode.frequency.value = Math.ceil(frequency, 0);
+            //console.log("f" + Math.ceil(frequency, 0))
+          }
+        }
+        
+        
+        
+        const permission = () => {
+          
+          window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+          window.oscillatorNode = audioContext.createOscillator();
+          oscillatorNode.type = "sine"
+          const streamNode = audioContext.createMediaStreamDestination();
+          oscillatorNode.connect(streamNode);
+          
     
-  }
-  
-  const btn = document.getElementById( "request" );
-btn.addEventListener( "click", permission );
-  
-  var prev = [0,0,0]
-  var energy = minEnergy
-  
-  ondevicemotion = (event) => {
-    if (replayInProgress) {
-      return
-    }
-    
-    var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
-    var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
-    prev = [x, y, z]
-    energy = energyScale * (dx * dx + dy * dy + dz * dz)
-    if (energy > energyThreshold || energy < minEnergy) {
-      energy = 0.0000001 * energyScale
-    }
-  }
-  
-  var history = []
-  var n = 100
-  var max = 100000
-  
-  
-  var transition = () => {
-    
-    
-    pattern = history.slice(Math.max(history.length - n, 0))
-    
-    
-    prediction = findPartern(pattern)
-    beep(energy * 20000)
-    
-  }
-  
-  
-  setInterval(transition, 100)
+          
+          //const source = audioContext.createMediaStreamSource(combinedStream);
+          audioElem.srcObject = streamNode.stream
+          
+          //oscillatorNode.connect(audioContext.destination);
+          oscillatorNode.start();
+          
+          videoElem.play()
+          
+          DeviceMotionEvent.requestPermission()
+          print('666999')
+          beep(45)
+        }
+        
+        const btn = document.getElementById( "request" );
+        btn.addEventListener( "click", permission );
+        
+        print("6666")
+        
+        
+        var prev = [0,0,0]
+        var energy = 0.001
+        
+        var energyThreshold = 0.9
+        var minEnergy = 0.0
+        var energyScale = 1.0
+        
+        ondevicemotion = (event) => {
+          
+          var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+          var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+          prev = [x, y, z]
+          energy = energyScale * (dx * dx + dy * dy + dz * dz)
+          if (energy > energyThreshold || energy < minEnergy) {
+            energy = energyThreshold * energyScale
+          }
+          //span.textContent = energy.toString()
+        }
+        
+        print("999")
+        
+        var history = []
+        var n = 700
+        var m = 1000000
+        
+        //  50/1000 at 40ms interval, speed 3.0, gravity = 0.1
+        
+        const lag = 5 //5
+        const minprefixboundary = 50
+        
+        
+        var max = 100000
+        
+        const longlag = 0
+        
+        function mode(arr){
+          //return arr.sort((a,b) =>
+            //arr.filter(v => v===a).length - arr.filter(v => v===b).length
+          //).pop();
+          return arr[Math.min(longlag, arr.length - 1)]
+        }
+        
+        let compare = (arr1, arr2) => {
+          for (const [i, x] in arr1.entries()) {
+            if (x !== arr2[i]) {
+              return false
+            }
+          }
+          
+          return true
+        }
+        
+        
+        
+        let predict = (pattern, history) => {
+          if (pattern.length <= minprefixboundary) return 0
+          if (history.length < pattern.length + lag) return 0
+          const N = history.length - pattern.length - lag
+          let candidates = [...Array(N)].map((_, i) => {
+            let chunk = history.slice(i, i + pattern.length)
+            if (compare(chunk, pattern)) {
+              return history[i + pattern.length]
+            } else {
+              return 0
+            }
+          }).filter(x => x !== 0)
+          if (candidates.length == 0){
+            return predict(pattern.slice(2), history) 
+          }
+          candidates.reverse()
+          return mode(candidates)
+          
+        }
+        
+        const maxfreq = 150
+        const basefreq = 100
+        
+        var pos = 0.0
+        var orient = 1.0
+        const speed = 6.0
+        const gravity = 0.1
+        const posscale = 1.00
+        var tick = 0
+        
+        var last = 0
+        
+        const precision = 10000
+        
+        const lim = 2.0
+        
+        const posAmpBase = 0.8
+        const posAmplification = 1.0 / posAmpBase
+        
+        const inferOutput = (pos, output) => {
+          if (output == 0) {
+            return pos * precision
+          } else {
+            return (1.0 + pos) * output
+          }
+          
+          if (Math.abs(pos) < posAmpBase) {
+            return output + pos * precision
+          } else {
+            
+            //if (pos > 0) {
+              //return output * pos * posAmplification
+            //} else {
+              return output / (pos * posAmplification)
+            //}
+            
+          }
+          
+        }
+        
+        
+        const transition = () => {
+          //console.log("777")
+          pos = pos + orient * speed * energy - gravity * pos
+          tick += 1
+          if (tick % 120 == 0) {
+            orient = - orient
+          }
+          
+          
+          
+          if (pos > lim) {
+            pos = lim
+            orient = - orient
+          }
+          
+          if (pos < - lim) {
+            pos = - lim
+            orient = - orient
+          }
+          
+          history.splice(0, history.length - m)
+          
+          
+          const pattern = history.slice(1).slice(-n)
+            
+          const prediction = Number.parseFloat(predict(pattern, history))
+            
+          //console.log("p="+ prediction)
+          //console.log("e="+ pos.toFixed(2))
+          
+          var output = inferOutput(posscale * pos, prediction) / posscale
+            
+          //output = Number.parseFloat(output).toFixed(2)
+          
+          //console.log("o=" + output)
+          //console.log("pattern="+pattern)
+          //console.log(history)
+          
+          //if (output.toFixed(0) != last) {
+            //last = output.toFixed(0)
+            history.push(output.toFixed(0))
+          //} else {
+            //m = m + 1
+            //history.splice(0, history.length - 1)
+         // }
+          
+          
+          
+            
+          //print("" + (pos*precision).toFixed(0) + " => " + Math.abs(output.toFixed(0)))
+          //beep(output * basefreq / precision)
+          beep(Math.min(maxfreq, basefreq * Math.pow (2, output / precision)))
+          
+          
+        }
+        
+        setInterval(transition, 10)
+      }, 100)
+      
 
-
-</script>
-</body>
+    </script>
+  </body>
 
 </html>
