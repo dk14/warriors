@@ -138,7 +138,7 @@
         //  50/1000 at 40ms interval, speed 3.0, gravity = 0.1
         
         const lag = 5 //5
-        const minprefixboundary = 50
+        const minprefixboundary = 500
         
         
         var max = 100000
@@ -184,8 +184,9 @@
           
         }
         
-        const maxfreq = 150
-        const basefreq = 100
+        const maxfreq = 50
+        const basefreq = 30
+        const discretisation = 10
         
         var pos = 0.0
         var orient = 1.0
@@ -204,10 +205,10 @@
         const posAmplification = 1.0 / posAmpBase
         
         const inferOutput = (pos, output) => {
-          if (output == 0) {
-            return pos * precision
+          if (output < 5) {
+            return (1.0 - Math.abs(pos)) * precision
           } else {
-            return (1.0 + pos) * output
+            return (1.0 - Math.abs(pos)) * output
           }
           
           if (Math.abs(pos) < posAmpBase) {
@@ -281,7 +282,7 @@
           
         }
         
-        setInterval(transition, 10)
+        setInterval(transition, discretisation)
       }, 100)
       
 
