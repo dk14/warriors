@@ -138,18 +138,25 @@
         //  50/1000 at 40ms interval, speed 3.0, gravity = 0.1
         
         const lag = 5 //5
-        const minprefixboundary = 500
+        const minprefixboundary = 70
         
         
         var max = 100000
         
-        const longlag = 0
+        const longlag = 7
         
         function mode(arr){
-          //return arr.sort((a,b) =>
-            //arr.filter(v => v===a).length - arr.filter(v => v===b).length
-          //).pop();
-          return arr[Math.min(longlag, arr.length - 1)]
+          return arr.sort((a,b) =>
+            arr.filter(v => v===a).length - arr.filter(v => v===b).length
+          ).pop();
+          //return arr[Math.min(longlag, arr.length - 1)]
+        }
+        
+        function amode(arr){
+          return arr.sort((a,b) =>
+            arr.filter(v => v===b).length - arr.filter(v => v===a).length
+          ).pop();
+          //return arr[Math.min(longlag, arr.length - 1)]
         }
         
         let compare = (arr1, arr2) => {
@@ -180,7 +187,7 @@
             return predict(pattern.slice(2), history) 
           }
           candidates.reverse()
-          return mode(candidates)
+          return amode(candidates.slice(0, longlag))
           
         }
         
@@ -205,23 +212,15 @@
         const posAmplification = 1.0 / posAmpBase
         
         const inferOutput = (pos, output) => {
+          if (Math.abs(pos) < 0.1) {
+            pos = 0
+          }
           if (output < 5) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
             return (1.0 - Math.abs(pos)) * output
           }
           
-          if (Math.abs(pos) < posAmpBase) {
-            return output + pos * precision
-          } else {
-            
-            //if (pos > 0) {
-              //return output * pos * posAmplification
-            //} else {
-              return output / (pos * posAmplification)
-            //}
-            
-          }
           
         }
         
@@ -277,7 +276,7 @@
             
           //print("" + (pos*precision).toFixed(0) + " => " + Math.abs(output.toFixed(0)))
           //beep(output * basefreq / precision)
-          beep(Math.min(maxfreq, basefreq * Math.pow (2, output / precision)))
+          beep(Math.min(maxfreq, basefreq * Math.pow (2, (output / precision))))
           
           
         }
