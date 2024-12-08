@@ -198,7 +198,7 @@
         var pos = 0.0
         var orient = 1.0
         const speed = 6.0
-        const gravity = 0.1
+        const gravity = 0.3
         const posscale = 1.00
         var tick = 0
         
@@ -215,7 +215,7 @@
           if (Math.abs(pos) < 0.1) {
             pos = 0
           }
-          if (output < 5) {
+          if (output < 2) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
             return (1.0 - Math.abs(pos)) * output
