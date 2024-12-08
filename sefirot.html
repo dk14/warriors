@@ -52,6 +52,14 @@
       videoElem.autoplay = true
       videoElem.controls = true
       
+      videoElem.onpause = () => {
+        audioElem.pause()
+      } 
+      
+      videoElem.onplay = () => {
+        audioElem.play()
+      }
+      
       document.body.appendChild(canvas)
       document.body.appendChild(audioElem);
       document.body.appendChild(videoElem);
@@ -63,25 +71,31 @@
       
       setTimeout(() => {  
         
-        const channels = 4
+        const channels = 3
         
         var history = []
-        var n = 400
-        var m = 10000
+        var n = 1000
+        var m = 1000000
         
         window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
         window.oscillatorNode = []
         
         
         const streamNode = audioContext.createMediaStreamDestination();
-      
+        const gainNode = audioContext.createGain()
+        gainNode.connect(streamNode)
+        
+        
+        const activeChannells = []
+        
         
         const initChannells = () => {
           for (i = 0; i < channels; i ++) {
             window.oscillatorNode.push(audioContext.createOscillator())
             window.oscillatorNode[i].type = "sine"
-            window.oscillatorNode[i].connect(streamNode);
+            window.oscillatorNode[i].connect(gainNode);
             history.push([])
+            activeChannells.push(0)
           }
         }
         
@@ -100,9 +114,24 @@
           if (window.oscillatorNode[i]) {
             let delay = 0.05
             
+            if (frequency == 0) {
+              activeChannells[i] = 0
+            } else {
+              activeChannells[i] = 1
+            }
+            
+            const activity = activeChannells.reduce((accumulator, current) => accumulator + current, 0);
+            
+            if (activity > 1) {
+              gainNode.gain.setTargetAtTime(1.0 / activity, window.audioContext.currentTime, discretisation / 1000)
+            } else {
+              gainNode.gain
+                .setTargetAtTime(1.0, window.audioContext.currentTime + delay + discretisation * (channels + 1) / 1000, discretisation * (channels + 1) / 1000)
+            }
+             
             window.oscillatorNode[i]
               .frequency.linearRampToValueAtTime(frequency, 
-                window.audioContext.currentTime + delay)
+                window.audioContext.currentTime + discretisation / 1000 + delay)
             //console.log("f" + Math.ceil(frequency, 0))
           }
         }
@@ -155,8 +184,8 @@
         print("999")
         
         const lag = 5 //5
-        const minprefixboundary = 10
-        const longlag = 7
+        const minprefixboundary = 5
+        const longlag = 4
         
         function mode(arr){
           return arr.sort((a,b) =>
@@ -206,7 +235,7 @@
         
         const maxfreq = 120
         const basefreq = 60
-        const discretisation = 40
+        const discretisation = 20.0
         
         const speed = 6.0
         const gravity = 0.4
