@@ -63,20 +63,44 @@
       
       setTimeout(() => {  
         
+        const channels = 4
+        
+        var history = []
+        var n = 400
+        var m = 10000
+        
+        window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+        window.oscillatorNode = []
+        
+        
+        const streamNode = audioContext.createMediaStreamDestination();
+      
+        
+        const initChannells = () => {
+          for (i = 0; i < channels; i ++) {
+            window.oscillatorNode.push(audioContext.createOscillator())
+            window.oscillatorNode[i].type = "sine"
+            window.oscillatorNode[i].connect(streamNode);
+            history.push([])
+          }
+        }
+        
+        initChannells()
+        
         const span = document.getElementById("out")
         
         const print = (msg) => {
           span.textContent = msg
         }
         
-        console.log("666")
+        console.log("6669")
         
               
-        const beep = (frequency) => {
-          if (window.oscillatorNode) {
+        const beep = (frequency, i = 0) => {
+          if (window.oscillatorNode[i]) {
             let delay = 0.05
             
-            window.oscillatorNode
+            window.oscillatorNode[i]
               .frequency.linearRampToValueAtTime(frequency, 
                 window.audioContext.currentTime + delay)
             //console.log("f" + Math.ceil(frequency, 0))
@@ -87,19 +111,14 @@
         
         const permission = () => {
           
-          window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
-          window.oscillatorNode = audioContext.createOscillator();
-          oscillatorNode.type = "sine"
-          const streamNode = audioContext.createMediaStreamDestination();
-          oscillatorNode.connect(streamNode);
-          
-    
-          
           //const source = audioContext.createMediaStreamSource(combinedStream);
           audioElem.srcObject = streamNode.stream
           
           //oscillatorNode.connect(audioContext.destination);
-          oscillatorNode.start();
+          
+          for (i = 0; i < channels; i ++) {
+            oscillatorNode[i].start();
+          }
           
           videoElem.play()
           
@@ -130,23 +149,13 @@
           if (energy > energyThreshold || energy < minEnergy) {
             energy = energyThreshold * energyScale
           }
-          //span.textContent = energy.toString()
+          
         }
         
         print("999")
         
-        var history = []
-        var n = 400
-        var m = 10000
-        
-        //  50/1000 at 40ms interval, speed 3.0, gravity = 0.1
-        
         const lag = 5 //5
-        const minprefixboundary = 70
-        
-        
-        var max = 100000
-        
+        const minprefixboundary = 10
         const longlag = 7
         
         function mode(arr){
@@ -198,46 +207,43 @@
         const maxfreq = 120
         const basefreq = 60
         const discretisation = 40
-        var pos = 0.0
-        var orient = 1.0
+        
         const speed = 6.0
         const gravity = 0.4
         const posscale = 1.00
-        var tick = 0
         
-        var last = 0
-        
-        const precision = 100
-        
+        const precision = 10
         const lim = 1.0
         
-        const posAmpBase = 0.8
-        const posAmplification = 1.0 / posAmpBase
+        var pos = 0.0
+        var orient = 1.0
+        var tick = 0
+        var i = 0
         
         const inferOutput = (pos, output) => {
-          if (Math.abs(pos) < 0.1) {
+          if (Math.abs(pos) < 0.2) {
             pos = 0
           }
           if (output < 2) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
-            return (1.0 - Math.abs(pos)) * output
+            if (pos == 0) {
+              return output
+            } else {
+              return (1.0 - Math.abs(pos)) * precision
+            }
           }
-          
-          
         }
         
         
         const transition = () => {
-          //console.log("777")
+          
           pos = pos + orient * speed * energy - gravity * pos
           tick += 1
           if (tick % 120 == 0) {
             orient = - orient
           }
-          
-          
-          
+
           if (pos > lim) {
             pos = lim
             orient = - orient
@@ -248,68 +254,26 @@
             orient = - orient
           }
           
-          history.splice(0, history.length - m)
           
-          
-          const pattern = history.slice(1).slice(-n)
-            
-          const prediction = Number.parseFloat(predict(pattern, history))
-            
-          //console.log("p="+ prediction)
-          //console.log("e="+ pos.toFixed(2))
-          
-          var output = inferOutput(posscale * pos, prediction) / posscale
-            
-          //output = Number.parseFloat(output).toFixed(2)
-          
-          //console.log("o=" + output)
-          //console.log("pattern="+pattern)
-          //console.log(history)
-          
-          //if (output.toFixed(0) != last) {
-            //last = output.toFixed(0)
-
-
-          
-          
-          
-          //} else {
-            //m = m + 1
-            //history.splice(0, history.length - 1)
-         // }
-          
-          
+          i += 1
+          i %= channels
           
             
-          //print("" + (pos*precision).toFixed(0) + " => " + Math.abs(output.toFixed(0)))
-          
-          
-          
+          history[i].splice(0, history[i].length - m)
+          const pattern = history[i].slice(1).slice(-n)
+          const prediction = Number.parseFloat(predict(pattern, history[i]))
+    
+          const output = inferOutput(posscale * pos, prediction) / posscale 
+            
           const freq = (basefreq + 
-            output * (maxfreq - basefreq) / precision)
-            
-          //console.log(freq)
-          //console.log(output / precision)
-          
-          
-          
+              output * (maxfreq - basefreq) / precision)
+              
           if (freq >= maxfreq - 1) {
-            beep(0)
+            beep(0, i)
           } else {
-            
-            history.push(output.toFixed(0))
-          
-            beep(freq)
+            history[0].push(output.toFixed(0))
+            beep(freq, i)
           }
-          
-          
-          //beep(
-            //Math.min(maxfreq, 
-              //(basefreq + (maxfreq - basefreq) * 
-                //Math.pow (2, 
-                  //output / precision) / 2).toFixed(0)
-              //))
-          
           
         }
         
