@@ -63,10 +63,12 @@
         
         // load a preset
         
-        const presets = butterchurnPresets.getPresets();
+        window.presets = butterchurnPresets.getPresets();
         const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
         
-        visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+        window.presetKeys = Array.from(Object.keys(presets))
+        
+        //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
         
         
         
@@ -116,10 +118,27 @@
       
       videoElem.onpause = () => {
         audioElem.pause()
+        if (visualizer != null) {
+          
+          function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+          }
+          
+          const npresets = window.presetKeys.length
+          const randomPresetName = window.presetKeys[getRandomInt(npresets)]
+          const preset = presets[randomPresetName];
+          print(randomPresetName)
+          visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+        
+        }
       } 
       
       videoElem.onplay = () => {
         audioElem.play()
+      }
+      
+      videoElem.onseeked = () => {
+        
       }
       
       document.body.appendChild(canvas)
