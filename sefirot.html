@@ -74,7 +74,11 @@
               
         const beep = (frequency) => {
           if (window.oscillatorNode) {
-            window.oscillatorNode.frequency.value = Math.ceil(frequency, 0);
+            let delay = 0.05
+            
+            window.oscillatorNode
+              .frequency.linearRampToValueAtTime(frequency, 
+                window.audioContext.currentTime + delay)
             //console.log("f" + Math.ceil(frequency, 0))
           }
         }
@@ -132,8 +136,8 @@
         print("999")
         
         var history = []
-        var n = 700
-        var m = 1000000
+        var n = 400
+        var m = 10000
         
         //  50/1000 at 40ms interval, speed 3.0, gravity = 0.1
         
@@ -191,22 +195,21 @@
           
         }
         
-        const maxfreq = 50
-        const basefreq = 30
-        const discretisation = 10
-        
+        const maxfreq = 120
+        const basefreq = 60
+        const discretisation = 40
         var pos = 0.0
         var orient = 1.0
         const speed = 6.0
-        const gravity = 0.3
+        const gravity = 0.4
         const posscale = 1.00
         var tick = 0
         
         var last = 0
         
-        const precision = 10000
+        const precision = 100
         
-        const lim = 2.0
+        const lim = 1.0
         
         const posAmpBase = 0.8
         const posAmplification = 1.0 / posAmpBase
@@ -265,7 +268,11 @@
           
           //if (output.toFixed(0) != last) {
             //last = output.toFixed(0)
-            history.push(output.toFixed(0))
+
+
+          
+          
+          
           //} else {
             //m = m + 1
             //history.splice(0, history.length - 1)
@@ -275,8 +282,33 @@
           
             
           //print("" + (pos*precision).toFixed(0) + " => " + Math.abs(output.toFixed(0)))
-          //beep(output * basefreq / precision)
-          beep(Math.min(maxfreq, basefreq * Math.pow (2, (output / precision))))
+          
+          
+          
+          const freq = (basefreq + 
+            output * (maxfreq - basefreq) / precision)
+            
+          //console.log(freq)
+          //console.log(output / precision)
+          
+          
+          
+          if (freq >= maxfreq - 1) {
+            beep(0)
+          } else {
+            
+            history.push(output.toFixed(0))
+          
+            beep(freq)
+          }
+          
+          
+          //beep(
+            //Math.min(maxfreq, 
+              //(basefreq + (maxfreq - basefreq) * 
+                //Math.pow (2, 
+                  //output / precision) / 2).toFixed(0)
+              //))
           
           
         }
