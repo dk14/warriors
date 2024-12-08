@@ -118,7 +118,16 @@
       
       videoElem.onpause = () => {
         audioElem.pause()
-        if (visualizer != null) {
+        
+      } 
+      
+      videoElem.onplay = () => {
+        audioElem.play()
+      }
+      
+      videoElem.onvolumechange = () => {
+        
+        if (visualizer != null && videoElem.muted) {
           
           function getRandomInt(max) {
             return Math.floor(Math.random() * max);
@@ -131,14 +140,6 @@
           visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
         
         }
-      } 
-      
-      videoElem.onplay = () => {
-        audioElem.play()
-      }
-      
-      videoElem.onseeked = () => {
-        
       }
       
       document.body.appendChild(canvas)
