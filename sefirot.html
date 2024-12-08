@@ -16,27 +16,89 @@
       <span id="out"> 9 </span>
     </div>
     
+    <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
+  <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
+  <script type="text/javascript" src="https://unpkg.com/butterchurn-presets/lib/butterchurnPresetsExtra.min.js"></script>
+  
+    
     <script>
       
       //cd /home
       //python3 -m http.server
       //cat /dev/location > /dev/null &
+      
+      const span = document.getElementById("out")
+        
+      const print = (msg) => {
+        span.textContent = msg
+      }
+      
+      
       const audioElem = new Audio()
       
       var canvas = document.createElement("canvas");
       canvas.width = 1000
       canvas.height = 1000
       
+      window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
+      
+        
+        
+      const streamNode = audioContext.createMediaStreamDestination();
+       
+      
+      var visualizer = null
+      
+      try {
+        visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
+          width: 1000,
+          height: 1000
+        });
+        
+        // get audioNode from audio source or microphone
+        
+        
+        const mediaSource = audioContext.createMediaStreamSource(streamNode.stream)
+        visualizer.connectAudio(mediaSource);
+        
+        // load a preset
+        
+        const presets = butterchurnPresets.getPresets();
+        const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
+        
+        visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+        
+        
+        
+        visualizer.render();
+        
+      } catch (error) {
+        print(error)
+      }
+      
       if (canvas.getContext) {
         const ctx = canvas.getContext("2d");
         
-        draw = () => {
-          ctx.fillStyle = "rgb(0 0 0)";
-          ctx.fillRect(25, 25, 100, 100);
+        const draw = () => {
+        
+          
+          //ctx.fillStyle = "rgb(0 0 0)";
+          //ctx.fillRect(25, 25, 100, 100);
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
+          if (visualizer != null) {
+            visualizer.render();
+          }
+          window.requestAnimationFrame(draw)
+        
         }
-        window.requestAnimationFrame(draw)
+        try {
+          window.requestAnimationFrame(draw)
+        } catch (message) {
+          print(message)
+        }
+        
+        
       }
       
       var canvasStream = canvas.captureStream()
@@ -66,10 +128,16 @@
       
       
       console.log("666")
+      
+      
   
       
       
       setTimeout(() => {  
+        
+        window.oscillatorNode = []
+        
+        console.log(butterchurn)
         
         const channels = 3
         
@@ -77,11 +145,6 @@
         var n = 1000
         var m = 1000000
         
-        window.audioContext = new (window.AudioContext || window.webkitAudioContext) ();
-        window.oscillatorNode = []
-        
-        
-        const streamNode = audioContext.createMediaStreamDestination();
         const gainNode = audioContext.createGain()
         gainNode.connect(streamNode)
         
@@ -101,11 +164,7 @@
         
         initChannells()
         
-        const span = document.getElementById("out")
         
-        const print = (msg) => {
-          span.textContent = msg
-        }
         
         console.log("6669")
         
@@ -152,14 +211,14 @@
           videoElem.play()
           
           DeviceMotionEvent.requestPermission()
-          print('666999')
+          // print('666999')
           beep(45)
         }
         
         const btn = document.getElementById( "request" );
         btn.addEventListener( "click", permission );
         
-        print("6666")
+       // print("6666")
         
         
         var prev = [0,0,0]
@@ -181,7 +240,7 @@
           
         }
         
-        print("999")
+        //print("999")
         
         const lag = 5 //5
         const minprefixboundary = 5
