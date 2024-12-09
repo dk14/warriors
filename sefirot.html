@@ -157,13 +157,48 @@
         
         window.oscillatorNode = []
         
-        console.log(butterchurn)
+        
         
         const channels = 3
         
         var history = []
         var n = 1000
         var m = 1000000
+        
+        const saveState = () => {
+          localStorage.setItem('memory', JSON.stringify(history))
+        }
+        
+          
+        
+        const tryload = () => {
+          const stored = localStorage.getItem('memory')
+          
+          
+          if (stored !== null && stored !== "null") {
+            //alert(storedCells)
+            
+            const memory = JSON.parse(stored)
+            if (channels === memory.length) {
+              history = memory
+              console.log(history)
+            } else {
+              console.log("ignoring history")
+            }
+            
+          }
+          
+        }
+        
+        
+        
+        
+        
+        window.memory = history
+        
+        setInterval(saveState, 5000)
+        
+              
         
         const gainNode = audioContext.createGain()
         gainNode.connect(streamNode)
@@ -183,6 +218,8 @@
         }
         
         initChannells()
+        
+        tryload()
         
         
         
@@ -366,6 +403,7 @@
           i += 1
           i %= channels
           
+          
             
           history[i].splice(0, history[i].length - m)
           const pattern = history[i].slice(1).slice(-n)
@@ -379,7 +417,7 @@
           if (freq >= maxfreq - 1) {
             beep(0, i)
           } else {
-            history[0].push(output.toFixed(0))
+            history[i].push(output.toFixed(0))
             beep(freq, i)
           }
           
