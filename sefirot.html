@@ -20,6 +20,7 @@
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets/lib/butterchurnPresetsExtra.min.js"></script>
   
+    <script src="https://unpkg.com/gpu.js@latest/dist/gpu-browser.min.js"></script>
     
     <script>
       
@@ -31,6 +32,39 @@
         
       const print = (msg) => {
         span.textContent = msg
+      }
+      
+      var gpu = null 
+      
+      try {
+        gpu = new GPU();
+      } catch (err) {
+        
+      }
+      
+      
+      
+      const createBlur = (n, m) => {
+        if (gpu != null) {
+          const blur = gpu.createKernel(function(a) {
+              const i = this.thread.x
+              const j = this.thread.y
+              
+              let sum = 
+                a[i-1][j-1] + a[i-1][j] + a[i-1][j+1]
+                + a[i][j-1] + a[i][j]   + a[1][j+1] 
+                + a[i+1][j-1] + a[i+1][j] + a[i+1][j+1]
+              
+              return sum;
+          }).setOutput([n, m]);
+          return blur
+        } else return null
+        
+      }
+      
+      const barycentric = (m1, m2, m3, ax, ay, bx, by, cx, cy) => {
+        let norm = m1 + m2 + m3
+        return [(m1 * ax + m2 * bx + m3 * cx) / norm, (m1 * ay + m2 * by + m3 * cy) / norm]
       }
       
       
