@@ -28,6 +28,8 @@
       //python3 -m http.server
       //cat /dev/location > /dev/null &
       
+      const channels = 3
+      
       const span = document.getElementById("out")
         
       const print = (msg) => {
@@ -62,10 +64,11 @@
         
       }
       
-      const barycentric = (m1, m2, m3, ax, ay, bx, by, cx, cy) => {
+      const barycentric = (m1, m2, m3, ax = 0.5, ay = 0.0, bx = 0.0, by = 1.0, cx = 1.0, cy = 1.0) => {
         let norm = m1 + m2 + m3
         return [(m1 * ax + m2 * bx + m3 * cx) / norm, (m1 * ay + m2 * by + m3 * cy) / norm]
       }
+      
       
       
       const audioElem = new Audio()
@@ -112,6 +115,8 @@
         print(error)
       }
       
+      var renderqueue = []
+      
       if (canvas.getContext) {
         const ctx = canvas.getContext("2d");
         
@@ -122,9 +127,33 @@
           //ctx.fillRect(25, 25, 100, 100);
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
-          if (visualizer != null) {
-            visualizer.render();
+          
+          if (channels == 5 && gpu != 0) {
+            const m1s = renderqueue.filter(x => x[0] === 0)
+            const m2s = renderqueue.filter(x => x[0] === 1)
+            const m3s = renderqueue.filter(x => x[0] === 2)
+            const lights = renderqueue.filter(x => x[0] === 3)
+            const blurs = renderqueue.filter(x => x[0] === 4)
+            
+            const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length])
+            for (i=0; i < elems; i++) {
+              ctx.fillStyle = `hls(170, 100%, ${(100 * lights[i]).toFixed(0)}%)`
+              const coords = barycentric(m1s[i], m2s[i], m3s[i])
+              ctx.beginPath();
+              ctx.arc(coords[0] * 1000, coords[1] * 1000, 3, 0, 2 * Math.PI);
+              ctx.stroke();
+              const imageData = ctx.getImageData(0, 0, 1000, 1000)
+              ctx.putImageData(imageData, 0, 0);
+            }
+            
+            
+            renderqueue = []
+          } else {
+            if (visualizer != null) {
+              visualizer.render();
+            }
           }
+          
           window.requestAnimationFrame(draw)
         
         }
@@ -193,7 +222,7 @@
         
         
         
-        const channels = 3
+        
         
         var history = []
         var n = 1000
@@ -452,6 +481,8 @@
             beep(0, i)
           } else {
             history[i].push(output.toFixed(0))
+            renderqueue.push([i, output * 1.0 / precision])
+            
             beep(freq, i)
           }
           
