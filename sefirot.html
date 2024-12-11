@@ -150,19 +150,23 @@
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
           
-          if (channels == 5 && gpu != 0) {
+          if (channels == 8 && gpu != 0) {
             const m1s = renderqueue.filter(x => x[0] === 0)
             const m2s = renderqueue.filter(x => x[0] === 1)
             const m3s = renderqueue.filter(x => x[0] === 2)
             const lights = renderqueue.filter(x => x[0] === 3)
             const blurs = renderqueue.filter(x => x[0] === 4)
             
+            const hues = renderqueue.filter(x => x[0] === 5)
+            const sats = renderqueue.filter(x => x[0] === 6)
+            const brushes = renderqueue.filter(x => x[0] === 7)
+            
             const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length])
             for (i=0; i < elems; i++) {
-              ctx.fillStyle = `hls(170, 100%, ${(100 * lights[i]).toFixed(0)}%)`
+              ctx.fillStyle = `hls(${(360 * hues[i]).toFixed(0)}, ${(100 * sats[i]).toFixed(0)}%, ${(100 * lights[i]).toFixed(0)}%)`
               const coords = barycentric(m1s[i], m2s[i], m3s[i])
               ctx.beginPath();
-              ctx.arc(coords[0] * 1000, coords[1] * 1000, 3, 0, 2 * Math.PI);
+              ctx.arc(coords[0] * 1000, coords[1] * 1000, 50 * brushes[i], 0, 2 * Math.PI);
               ctx.stroke();
               const imageData = ctx.getImageData(0, 0, 1000, 1000)
               for (pass = 0; pass < blurs[i] * 10; pass++) {
