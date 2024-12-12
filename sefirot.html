@@ -151,6 +151,18 @@
       if (canvas.getContext) {
         const ctx = canvas.getContext("2d");
         
+        
+        var m1 = 1.0
+        var m2 = 1.0
+        var m3 = 1.0
+        var light = 1.0
+        var blurLevel = 1.0
+            
+        var hue = 1.0
+        var sat = 1.0
+        var brush = 1.0
+        var alpha = 1.0
+        
         const draw = () => {
         
           
@@ -160,41 +172,44 @@
           //ctx.strokeRect(50, 50, 50, 50);
           
           if (channels === renderChannels && gpu !== null && ctx !== null) {
-            const m1s = renderqueue.filter(x => x[0] === 0).map(x => x[1])
-            const m2s = renderqueue.filter(x => x[0] === 1).map(x => x[1])
-            const m3s = renderqueue.filter(x => x[0] === 2).map(x => x[1])
-            const lights = renderqueue.filter(x => x[0] === 3).map(x => x[1])
-            const blurs = renderqueue.filter(x => x[0] === 4).map(x => x[1])
             
-            const hues = renderqueue.filter(x => x[0] === 5).map(x => x[1])
-            const sats = renderqueue.filter(x => x[0] === 6).map(x => x[1])
-            const brushes = renderqueue.filter(x => x[0] === 7).map(x => x[1])
-            const alphas = renderqueue.filter(x => x[0] === 8).map(x => x[1])
             
-            const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length, hues.length, sats.length, brushes.length])
-            if (elems >= 1) {
-              renderqueue = []
-            }
             
-            for (i=0; i < elems; i++) {
-              let fillStyle = `hsl(${(360 * hues[i]).toFixed(0)} ${(100 * sats[i]).toFixed(0) * 0 + 100}% ${(10 * lights[i] + 40).toFixed(0)}% / ${(5 * alphas[i]).toFixed(0)}%)`
+            let toRender = [...renderqueue]
+            renderqueue = []
+            
+            
+            for (let el of toRender) {
+              switch (el[0]) {
+                case 0: m1 = el[1]; break;
+                case 1: m2 = el[1]; break;
+                case 2: m3 = el[1]; break;
+                case 3: light = el[1]; break;
+                case 4: blurLevel = el[1]; break;
+                case 5: hue = el[1]; break;
+                case 6: sat = el[1]; break;
+                case 7: brush = el[1]; break;
+                case 8: alpha = el[1]; break;
+                default: print("what" + el[0] + "type = " + typeof(el[1]))
+              }
+              let fillStyle = `hsl(${(360 * hue).toFixed(0)} ${(100 * sat).toFixed(0) * 0 + 100}% ${(10 * light + 40).toFixed(0)}% / ${(3 * alpha).toFixed(0)}%)`
               //console.log(fillStyle)
               ctx.fillStyle = fillStyle
               
-              const coords = barycentric(m1s[i], m2s[i], m3s[i])
+              const coords = barycentric(m1, m2, m3)
               ctx.beginPath();
-              ctx.arc(coords[0] * 1000, coords[1] * 1000, 1000 * brushes[i], 0, 2 * Math.PI);
+              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 1000 * brush, 0, 2 * Math.PI);
               ctx.fill()
               
               
               //doBlur(ctx, 3)
-              if (blurs[i] > 0.1) {
-                //doBlur(ctx, blurs[i] * 3)
-              }
+              
               
             }
-            //doBlur(ctx, 5)
             
+            if (blurLevel > 0.5) {
+              doBlur(ctx, 10)
+            }
             
             
             
@@ -464,13 +479,13 @@
         
         const maxfreq = 120
         const basefreq = 60
-        window.discretisation = 1.0
+        window.discretisation = 10.0
         
-        window.speed = 5.0
+        window.speed = 1.0
         window.gravity = 0.6
         const posscale = 1.00
         
-        const precision = 1000
+        const precision = 10
         const lim = 1.0
         
         var pos = 0.0
