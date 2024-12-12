@@ -27,8 +27,10 @@
       //cd /home
       //python3 -m http.server
       //cat /dev/location > /dev/null &
+
+      // https://www.w3schools.com/howto/howto_js_rangeslider.asp
       
-      const channels = 3
+      const channels = 3 // 8 for renderer
       
       const span = document.getElementById("out")
         
@@ -37,54 +39,45 @@
       }
       
       var gpu = null 
+      var blur = null
+      
+      const width = 1000
+      const height = 1000
       
       try {
         gpu = new GPU();
-      } catch (err) {
+        const n = width
+        const m = height
         
-      }
-      
-      
-      
-      const blurOnce = (n, m, a) => {
-        if (gpu != null) {
-          const blur = gpu.createKernel(function(a) {
-              const i = this.thread.x
-              const j = this.thread.y
-              
-              //let sum = 
-                //a[i-1][j-1] + a[i-1][j] + a[i-1][j+1]
-                //+ a[i][j-1] + a[i][j]   + a[1][j+1] 
-                //+ a[i+1][j-1] + a[i+1][j] + a[i+1][j+1]
-              
+        // https://github.com/gpujs/gpu.js/issues/285
+        
+        blur = gpu.createKernel(function(a, pass) {
+                  
               let sum = [0, 0, 0]
               
               
-              for (c = 0; c < 3; c++) {
-                
-                
-                sum[c] = a[c + (i-1) * 3 + 3 * n * (j-1)]
-                + a[c + (i-1) * 3 + 3 * n * (j)]
-                + a[c + (i-1) * 3 + 3 * n * (j+1)]
-                + a[c + (i) * 3 + 3 * n * (j-1)]
-                + a[c + (i) * 3 + 3 * n * (j)]
-                + a[c + (i) * 3 + 3 * n * (j+1)] 
-                + a[c + (i+1) * 3 + 3 * n * (j-1)]
-                + a[c + (i+1) * 3 + 3 * n * (j)]
-                + a[c + (i+1) * 3 + 3 * n * (j+1)]
-                
+              for (let c = 0; c < 3; c++) {
+                for (let i = -pass; i <= pass; i++) {
+                  for (let j = -pass; j <= pass; j++) {
+                    sum[c] += a[c + 4 * (this.thread.x + i) + 4 * 1000 * (1000 - this.thread.y + j)]
+                  }
+                }
               }
               
+              let box = (2 * pass + 1) * (2 * pass + 1)
               
-              return [sum[0] / 9, sum[1] / 9, sum[2] / 9]
-          }).setOutput([n, m]);
-          
-          let result2d = blur(a)
-          
-          return result2d.flat(Math.Infinity)
-        } else return null
+              this.color(sum[0] / (256 * box), sum[1] / (256 * box), sum[2] / (256 * box), 1)
+              
+          }).setOutput([n, m]).setGraphical(true)
         
+      } catch (err) {
+        console.log(err)
+        print(err)
       }
+      
+      
+      
+      
       
       const barycentric = (m1, m2, m3, ax = 0.5, ay = 0.0, bx = 0.0, by = 1.0, cx = 1.0, cy = 1.0) => {
         let norm = m1 + m2 + m3
@@ -108,34 +101,39 @@
       
       var visualizer = null
       
-      try {
-        visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
-          width: 1000,
-          height: 1000
-        });
-        
-        // get audioNode from audio source or microphone
-        
-        
-        const mediaSource = audioContext.createMediaStreamSource(streamNode.stream)
-        visualizer.connectAudio(mediaSource);
-        
-        // load a preset
-        
-        window.presets = butterchurnPresets.getPresets();
-        const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
-        
-        window.presetKeys = Array.from(Object.keys(presets))
-        
-        //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
-        
-        
-        
-        visualizer.render();
-        
-      } catch (error) {
-        print(error)
+      const renderChannels = 8
+      
+      if (channels != renderChannels) {
+        try {
+          visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
+            width: 1000,
+            height: 1000
+          });
+          
+          // get audioNode from audio source or microphone
+          
+          
+          const mediaSource = audioContext.createMediaStreamSource(streamNode.stream)
+          visualizer.connectAudio(mediaSource);
+          
+          // load a preset
+          
+          window.presets = butterchurnPresets.getPresets();
+          const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
+          
+          window.presetKeys = Array.from(Object.keys(presets))
+          
+          //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+          
+          
+          
+          visualizer.render();
+          
+        } catch (error) {
+          print(error)
+        }
       }
+      
       
       var renderqueue = []
       
@@ -150,36 +148,54 @@
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
           
-          if (channels == 8 && gpu != 0) {
-            const m1s = renderqueue.filter(x => x[0] === 0)
-            const m2s = renderqueue.filter(x => x[0] === 1)
-            const m3s = renderqueue.filter(x => x[0] === 2)
-            const lights = renderqueue.filter(x => x[0] === 3)
-            const blurs = renderqueue.filter(x => x[0] === 4)
+          if (channels === renderChannels && gpu !== null && ctx !== null) {
+            const m1s = renderqueue.filter(x => x[0] === 0).map(x => x[1])
+            const m2s = renderqueue.filter(x => x[0] === 1).map(x => x[1])
+            const m3s = renderqueue.filter(x => x[0] === 2).map(x => x[1])
+            const lights = renderqueue.filter(x => x[0] === 3).map(x => x[1])
+            const blurs = renderqueue.filter(x => x[0] === 4).map(x => x[1])
             
-            const hues = renderqueue.filter(x => x[0] === 5)
-            const sats = renderqueue.filter(x => x[0] === 6)
-            const brushes = renderqueue.filter(x => x[0] === 7)
+            const hues = renderqueue.filter(x => x[0] === 5).map(x => x[1])
+            const sats = renderqueue.filter(x => x[0] === 6).map(x => x[1])
+            const brushes = renderqueue.filter(x => x[0] === 7).map(x => x[1])
             
-            const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length])
+            const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length, hues.length, sats.length, brushes.length])
+            
+            
             for (i=0; i < elems; i++) {
-              ctx.fillStyle = `hls(${(360 * hues[i]).toFixed(0)}, ${(100 * sats[i]).toFixed(0)}%, ${(100 * lights[i]).toFixed(0)}%)`
+              let fillStyle = `hsl(${(360 * hues[i]).toFixed(0)} ${(100 * sats[i]).toFixed(0)}% ${(100 * lights[i]).toFixed(0)}%)`
+              //console.log(fillStyle)
+              ctx.fillStyle = fillStyle
+              
               const coords = barycentric(m1s[i], m2s[i], m3s[i])
               ctx.beginPath();
               ctx.arc(coords[0] * 1000, coords[1] * 1000, 50 * brushes[i], 0, 2 * Math.PI);
-              ctx.stroke();
+              ctx.fill()
+              
               const imageData = ctx.getImageData(0, 0, 1000, 1000)
-              for (pass = 0; pass < blurs[i] * 10; pass++) {
-                let blurred = blurOnce(1000, 1000, imageData.data)
-                if (blurred != null && pass != 0){
-                  imageData.data = blurred
+              
+              try {
+                let extra = (2 * blurs[i]).toFixed(0)
+                console.log(extra)
+                if (extra === 2) {
+                  blur(imageData.data, 30)
+                } else {
+                  blur(imageData.data, 20)
                 }
+                
+                ctx.drawImage(blur.canvas, 0, 0)
+              } catch (err){
+                print(err)
+                console.log("blurrerr=" + err)
               }
-              ctx.putImageData(imageData, 0, 0);
+              
+              
             }
             
+            if (elems >= 1) {
+              renderqueue = []
+            }
             
-            renderqueue = []
           } else {
             if (visualizer != null) {
               visualizer.render();
