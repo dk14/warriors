@@ -30,7 +30,7 @@
 
       // https://www.w3schools.com/howto/howto_js_rangeslider.asp
       
-      const channels = 3 // 8 for renderer
+      const channels = 9 // 9 for renderer
       
       const span = document.getElementById("out")
         
@@ -101,7 +101,7 @@
       
       var visualizer = null
       
-      const renderChannels = 8
+      const renderChannels = 9 //OD NOT CHANGE
       
       if (channels != renderChannels) {
         try {
@@ -137,6 +137,17 @@
       
       var renderqueue = []
       
+      let doBlur = (ctx, k) => {
+        try {
+              const imageData = ctx.getImageData(0, 0, 1000, 1000)
+              blur(imageData.data, k)
+              ctx.drawImage(blur.canvas, 0, 0)
+        } catch (err){
+              print(err)
+              console.log("blurrerr=" + err)
+        }
+      }
+      
       if (canvas.getContext) {
         const ctx = canvas.getContext("2d");
         
@@ -158,43 +169,34 @@
             const hues = renderqueue.filter(x => x[0] === 5).map(x => x[1])
             const sats = renderqueue.filter(x => x[0] === 6).map(x => x[1])
             const brushes = renderqueue.filter(x => x[0] === 7).map(x => x[1])
+            const alphas = renderqueue.filter(x => x[0] === 8).map(x => x[1])
             
             const elems = Math.min(...[m1s.length, m2s.length, m3s.length, lights.length, blurs.length, hues.length, sats.length, brushes.length])
-            
+            if (elems >= 1) {
+              renderqueue = []
+            }
             
             for (i=0; i < elems; i++) {
-              let fillStyle = `hsl(${(360 * hues[i]).toFixed(0)} ${(100 * sats[i]).toFixed(0)}% ${(100 * lights[i]).toFixed(0)}%)`
+              let fillStyle = `hsl(${(360 * hues[i]).toFixed(0)} ${(100 * sats[i]).toFixed(0) * 0 + 100}% ${(10 * lights[i] + 40).toFixed(0)}% / ${(5 * alphas[i]).toFixed(0)}%)`
               //console.log(fillStyle)
               ctx.fillStyle = fillStyle
               
               const coords = barycentric(m1s[i], m2s[i], m3s[i])
               ctx.beginPath();
-              ctx.arc(coords[0] * 1000, coords[1] * 1000, 50 * brushes[i], 0, 2 * Math.PI);
+              ctx.arc(coords[0] * 1000, coords[1] * 1000, 1000 * brushes[i], 0, 2 * Math.PI);
               ctx.fill()
               
-              const imageData = ctx.getImageData(0, 0, 1000, 1000)
               
-              try {
-                let extra = (2 * blurs[i]).toFixed(0)
-                console.log(extra)
-                if (extra === 2) {
-                  blur(imageData.data, 30)
-                } else {
-                  blur(imageData.data, 20)
-                }
-                
-                ctx.drawImage(blur.canvas, 0, 0)
-              } catch (err){
-                print(err)
-                console.log("blurrerr=" + err)
+              //doBlur(ctx, 3)
+              if (blurs[i] > 0.1) {
+                //doBlur(ctx, blurs[i] * 3)
               }
               
-              
             }
+            //doBlur(ctx, 5)
             
-            if (elems >= 1) {
-              renderqueue = []
-            }
+            
+            
             
           } else {
             if (visualizer != null) {
@@ -462,13 +464,13 @@
         
         const maxfreq = 120
         const basefreq = 60
-        window.discretisation = 20.0
+        window.discretisation = 1.0
         
-        window.speed = 6.0
-        window.gravity = 0.4
+        window.speed = 5.0
+        window.gravity = 0.6
         const posscale = 1.00
         
-        const precision = 10
+        const precision = 1000
         const lim = 1.0
         
         var pos = 0.0
@@ -477,13 +479,10 @@
         var i = 0
         
         const inferOutput = (pos, output) => {
-          if (Math.abs(pos) < 0.2) {
-            pos = 0
-          }
           if (output < 2) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
-            if (pos == 0) {
+            if (Math.abs(pos) < 0.2) {
               return output
             } else {
               return (1.0 - Math.abs(pos)) * precision
@@ -525,7 +524,7 @@
           const freq = (basefreq + 
               output * (maxfreq - basefreq) / precision)
               
-          if (freq >= maxfreq - 1) {
+          if (freq >= maxfreq - 3) {
             beep(0, i)
           } else {
             history[i].push(output.toFixed(0))
