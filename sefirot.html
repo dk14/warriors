@@ -30,7 +30,7 @@
 
       // https://www.w3schools.com/howto/howto_js_rangeslider.asp
       
-      const channels = 9 // 9 for renderer
+      const channels = 3 
       
       const span = document.getElementById("out")
         
@@ -101,9 +101,9 @@
       
       var visualizer = null
       
-      const renderChannels = 9 //OD NOT CHANGE
+      const customRenderer = true
       
-      if (channels != renderChannels) {
+      if (!customRenderer) {
         try {
           visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
             width: 1000,
@@ -151,17 +151,25 @@
       if (canvas.getContext) {
         const ctx = canvas.getContext("2d");
         
+        let initRenderState = () => {
+          return {
+            m1: 1.0,
+            m2: 1.0,
+            m3: 1.0,
+            light: 1.0,
+            blurLevel: 1.0,
+            hue: 1.0,
+            sat: 1.0,
+            brush: 1.0,
+            alpha: 1.0
+          }
+        }
         
-        var m1 = 1.0
-        var m2 = 1.0
-        var m3 = 1.0
-        var light = 1.0
-        var blurLevel = 1.0
-            
-        var hue = 1.0
-        var sat = 1.0
-        var brush = 1.0
-        var alpha = 1.0
+        states = []
+        
+        for (i = 0; i < channels; i++) {
+          states.push(initRenderState())
+        }
         
         const draw = () => {
         
@@ -171,7 +179,7 @@
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
           
-          if (channels === renderChannels && gpu !== null && ctx !== null) {
+          if (customRenderer && gpu !== null && ctx !== null) {
             
             
             
@@ -180,38 +188,42 @@
             
             
             for (let el of toRender) {
-              switch (el[0]) {
-                case 0: m1 = el[1]; break;
-                case 1: m2 = el[1]; break;
-                case 2: m3 = el[1]; break;
-                case 3: light = el[1]; break;
-                case 4: blurLevel = el[1]; break;
-                case 5: hue = el[1]; break;
-                case 6: sat = el[1]; break;
-                case 7: brush = el[1]; break;
-                case 8: alpha = el[1]; break;
-                default: print("what" + el[0] + "type = " + typeof(el[1]))
+              const ch = el[0]
+              const value = el[1]
+              const valueInt = (el[1] * 100).toFixed(0)
+              
+              const command = valueInt % 10
+              const st = states[ch]
+              
+              switch (command) {
+                case 0: st.m1 = value; break;
+                case 1: st.m2 = value; break;
+                case 2: st.m3 = value; break;
+                case 3: st.light = value; break;
+                case 4: st.blurLevel = value; break;
+                case 5: st.hue = value; break;
+                case 6: st.sat = value; break;
+                case 7: st.brush = value; break;
+                case 8: st.alpha = value; break;
+                case 9: break;
+                default: print("what" + command + "type = " + typeof(el[1]))
               }
-              let fillStyle = `hsl(${(360 * hue).toFixed(0)} ${(100 * sat).toFixed(0) * 0 + 100}% ${(10 * light + 40).toFixed(0)}% / ${(3 * alpha).toFixed(0)}%)`
+              let fillStyle = `hsl(${(360 * st.hue).toFixed(0)} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(3 * st.alpha).toFixed(0)}%)`
               //console.log(fillStyle)
               ctx.fillStyle = fillStyle
               
-              const coords = barycentric(m1, m2, m3)
+              const coords = barycentric(st.m1, st.m2, st.m3)
               ctx.beginPath();
-              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 1000 * brush, 0, 2 * Math.PI);
+              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 1000 * st.brush, 0, 2 * Math.PI);
               ctx.fill()
               
               
-              //doBlur(ctx, 3)
+              if (st.blurLevel > 0.9) {
+                doBlur(ctx, 10)
+              }
               
               
             }
-            
-            if (blurLevel > 0.5) {
-              doBlur(ctx, 10)
-            }
-            
-            
             
           } else {
             if (visualizer != null) {
@@ -479,13 +491,13 @@
         
         const maxfreq = 120
         const basefreq = 60
-        window.discretisation = 10.0
+        window.discretisation = 40.0
         
-        window.speed = 1.0
+        window.speed = 6.0
         window.gravity = 0.6
         const posscale = 1.00
         
-        const precision = 10
+        const precision = 100
         const lim = 1.0
         
         var pos = 0.0
