@@ -589,7 +589,9 @@ button, label {
         
         const samplingSlider = document.getElementById("paddleSampling")
         samplingSlider.oninput = () => {
+          clearInterval(window.transitionScheduler)
           window.discretisation = samplingSlider.value / 1.0
+          setInterval(window.transition, window.discretisation)
         }
         
         const posSlider = document.getElementById("paddlePos")
@@ -701,7 +703,7 @@ button, label {
         }
         
         
-        const transition = () => {
+        window.transition = () => {
           
           pos = pos + orient * speed * energy - gravity * pos
           tick += 1
@@ -745,7 +747,7 @@ button, label {
           
         }
         
-        setInterval(transition, discretisation)
+        window.transitionScheduler = setInterval(transition, discretisation)
       }, 100)
       
 
