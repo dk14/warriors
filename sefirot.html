@@ -484,7 +484,7 @@ button, label {
           
           DeviceMotionEvent.requestPermission()
           print('OK')
-          beep(45)
+          
         }
         
         const btn = document.getElementById( "request" );
@@ -538,7 +538,15 @@ button, label {
         const btn4 = document.getElementById("resetmem");
         btn4.addEventListener( "click", resetmem );
         
-         
+        const speedSlider = document.getElementById("paddleSpeed")
+        speedSlider.oninput = (e) => {
+           window.speed = speedSlider.value / 10
+        }
+        
+        const gravitySlider = document.getElementById("paddleGravity")
+        gravitySlider.oninput = () => {
+          window.gravity = gravitySlider.value / 100
+        }
         
         
         var prev = [0,0,0]
