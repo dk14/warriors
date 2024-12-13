@@ -61,8 +61,8 @@ button, label {
   <body>
     
     <div style="display:block;">
-      <button id="request">Start</button>
-      <font color = "pink"><span id="out"> READY </span></font>
+      <button id="request">ACTIVATE</button>
+      <font color = "pink"><span id="out"> OBSERVING </span></font>
       <br>
       <br>
         
@@ -73,6 +73,9 @@ button, label {
       <font color="green">
       Paddle Speed: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSpeed">
       Paddle Gravity: <input type="range" min="1" max="100" value="50" class="slider" id="paddleGravity">
+      Paddle Sampling Period: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSampling">
+      Paddle Position: <input type="range" min="1" max="100" value="0" class="slider" id="paddlePos">
+      Sefirot Output: <input type="range" min="1" max="100" value="0" class="slider" id="sfrOutput">
       </font>
     </div>
     
@@ -153,7 +156,7 @@ button, label {
       
       const audioElem = new Audio()
       
-      var canvas = document.createElement("canvas");
+      window.canvas = document.createElement("canvas");
       canvas.width = 1000
       canvas.height = 1000
       
@@ -166,10 +169,10 @@ button, label {
       
       var visualizer = null
       
-      const customRenderer = true
+      window.customRenderer = true
       
-      if (!customRenderer) {
-        try {
+      const initWinampViz = () => {
+         try {
           visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
             width: 1000,
             height: 1000
@@ -197,6 +200,10 @@ button, label {
         } catch (error) {
           print(error)
         }
+      }
+      
+      if (!customRenderer) {
+        initWinampViz()
       }
       
       
@@ -290,11 +297,12 @@ button, label {
               
             }
             
-          } else {
-            if (visualizer != null) {
-              visualizer.render();
-            }
+          } 
+            
+          if (visualizer != null) {
+            visualizer.render();
           }
+          
           
           window.requestAnimationFrame(draw)
         
@@ -329,21 +337,52 @@ button, label {
       videoElem.onplay = () => {
         audioElem.play()
       }
+      window.overrideCanvas = false
       
       videoElem.onvolumechange = () => {
         
-        if (visualizer != null && videoElem.muted) {
+        if (visualizer != null && videoElem.muted && !customRenderer) {
+          
+          
           
           function getRandomInt(max) {
             return Math.floor(Math.random() * max);
           }
           
-          const npresets = window.presetKeys.length
-          const randomPresetName = window.presetKeys[getRandomInt(npresets)]
-          const preset = presets[randomPresetName];
-          print(randomPresetName)
-          visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+          if (window.overrideCanvas && getRandomInt(7) == 2) {
+            customRenderer = true
+            window.winampCanvasStream = videoElem.srcObject
+            videoElem.srcObject = canvasStream
+            
+            print('RUNNING')
+          } else {
+            const npresets = window.presetKeys.length
+            const randomPresetName = window.presetKeys[getRandomInt(npresets)]
+            const preset = presets[randomPresetName];
+            print(randomPresetName)
+            visualizer.loadPreset(preset, 0.0); 
+          }
+          
+         
         
+        } else if (videoElem.muted) {
+          customRenderer = false
+          
+          if (window.overrideCanvas == false) {
+            window.overrideCanvas = true
+          
+            window.overridenCanvas = window.canvas
+            window.canvas = document.createElement("canvas");
+            canvas.width = 1000
+            canvas.height = 1000
+          
+            videoElem.srcObject = canvas.captureStream()
+          
+            initWinampViz()
+          } else {
+            videoElem.srcObject = window.winampCanvasStream
+          }
+          
         }
       }
       
@@ -483,7 +522,7 @@ button, label {
           audioElem.play()
           
           DeviceMotionEvent.requestPermission()
-          print('OK')
+          print('RUNNING')
           
         }
         
@@ -547,6 +586,19 @@ button, label {
         gravitySlider.oninput = () => {
           window.gravity = gravitySlider.value / 100
         }
+        
+        const samplingSlider = document.getElementById("paddleSampling")
+        samplingSlider.oninput = () => {
+          window.discretisation = samplingSlider.value / 1.0
+        }
+        
+        const posSlider = document.getElementById("paddlePos")
+        posSlider.oninput = () => {
+          window.pos = posSlider.value / 100
+        }
+        
+        const outSlider = document.getElementById("sfrOutput")
+        
         
         
         var prev = [0,0,0]
@@ -631,7 +683,7 @@ button, label {
         const precision = 100
         const lim = 1.0
         
-        var pos = 0.0
+        window.pos = 0.0
         var orient = 1.0
         var tick = 0
         var i = 0
@@ -671,7 +723,7 @@ button, label {
           i += 1
           i %= channels
           
-          
+          posSlider.value = Math.abs(pos) * 100
             
           history[i].splice(0, history[i].length - m)
           const pattern = history[i].slice(1).slice(-n)
@@ -687,7 +739,7 @@ button, label {
           } else {
             history[i].push(output.toFixed(0))
             renderqueue.push([i, output * 1.0 / precision])
-            
+            outSlider.value = output * 100.0 / precision
             beep(freq, i)
           }
           
