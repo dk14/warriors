@@ -1,10 +1,59 @@
 <html>
   
   <head>
+    <link href='https://fonts.googleapis.com/css?family=Courier Prime' rel='stylesheet'>
     <style>
-      body {background-color: powderblue;}
+      body {
+        background-color: black;
+        font-family: 'Courier Prime';
+        
+      }
       h1   {color: blue;}
       p    {color: red;}
+      
+      .slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+button, label {
+  font-family: 'Courier Prime';
+  background: black; margin:auto;font-size:35px; border: 1px solid green; display: inline-block;padding: 6px 12px;color:green;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
       
     </style>
   </head>
@@ -12,9 +61,27 @@
   <body>
     
     <div style="display:block;">
-      <button id="request" style="margin:auto;font-size:25px">Start</button>
-      <span id="out"> 9 </span>
+      <button id="request">Start</button>
+      <font color = "pink"><span id="out"> READY </span></font>
+      <br>
+      <br>
+        
+      
     </div>
+    
+    <div class="slidecontainer">
+      <font color="green">
+      Paddle Speed: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSpeed">
+      Paddle Gravity: <input type="range" min="1" max="100" value="50" class="slider" id="paddleGravity">
+      </font>
+    </div>
+    
+    <br>
+    <button id="save" >Save Memory</button>
+    
+    <label for="file-upload">Load Memory</label>
+    <input type="file" id="file-upload" style="display:none" onchange="loadmem()" ></input>
+    <button id="reset" >Reset Memory</button>
     
     <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
@@ -408,12 +475,21 @@
           videoElem.play()
           
           DeviceMotionEvent.requestPermission()
-          // print('666999')
+          print('OK')
           beep(45)
         }
         
         const btn = document.getElementById( "request" );
         btn.addEventListener( "click", permission );
+        
+        const savemem = () => {
+          const link = JSON.stringify(history).toDataUrl()
+          window.location.href = link
+        }
+        
+        const btn2 = document.getElementById( "save" );
+        btn.addEventListener( "save", savemem );
+        
         
        // print("6666")
         
