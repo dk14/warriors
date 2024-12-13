@@ -77,11 +77,9 @@ button, label {
     </div>
     
     <br>
-    <button id="save" >Save Memory</button>
-    
-    <label for="file-upload">Load Memory</label>
-    <input type="file" id="file-upload" style="display:none" onchange="loadmem()" ></input>
-    <button id="reset" >Reset Memory</button>
+    <button id="savemem" >Save Memory</button>
+    <button id="loadmem" >Load Memory</button>
+    <button id="resetmem" >Reset Memory</button>
     
     <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
@@ -318,7 +316,7 @@ button, label {
       videoElem.srcObject = canvasStream
       
       audioElem.controls = true;
-      audioElem.autoplay = true;
+      audioElem.autoplay = false;
       
       videoElem.autoplay = true
       videoElem.controls = true
@@ -349,8 +347,18 @@ button, label {
         }
       }
       
+      document.body.appendChild(document.createElement("br"))
+      document.body.appendChild(document.createElement("br"))
       document.body.appendChild(canvas)
+      document.body.appendChild(document.createElement("br"))
+      
+      document.body.appendChild(document.createElement("br"))
       document.body.appendChild(audioElem);
+      
+      document.body.appendChild(document.createElement("br"))
+      document.body.appendChild(document.createElement("br"))
+      document.body.appendChild(document.createElement("br"))
+      document.body.appendChild(document.createElement("br"))
       document.body.appendChild(videoElem);
       
       
@@ -472,7 +480,7 @@ button, label {
             oscillatorNode[i].start();
           }
           
-          videoElem.play()
+          audioElem.play()
           
           DeviceMotionEvent.requestPermission()
           print('OK')
@@ -482,16 +490,55 @@ button, label {
         const btn = document.getElementById( "request" );
         btn.addEventListener( "click", permission );
         
-        const savemem = () => {
-          const link = JSON.stringify(history).toDataUrl()
-          window.location.href = link
+        
+        
+        
+        const loadmem = (event) => {
+          navigator.clipboard.readText().then((stateTxt) => {
+            try {
+               let memory = JSON.parse(atob(stateTxt))
+            
+              if (channels === memory.length) {
+                history = memory
+                alert("loaded from clipboard")
+              } else {
+                alert('LOAD STATE ERROR: WRONG AMOUNT OF CH: ' + memory.length)
+              }
+              
+            } catch (err) {
+              alert(err)
+              
+            }
+           
+            
+          })
+          
+          
         }
         
-        const btn2 = document.getElementById( "save" );
-        btn.addEventListener( "save", savemem );
+        const savemem = () => {
+          
+          navigator.clipboard.writeText(btoa(JSON.stringify(history)))
+          
+          alert("saved to clipboard!")
+        }
+        
+        const resetmem = () => {
+          history = history.map(x => [])
+          alert('reset')
+        }
+        
+        const btn2 = document.getElementById("savemem");
+        btn2.addEventListener( "click", savemem );
+        
+        const btn3 = document.getElementById("loadmem");
+        btn3.addEventListener( "click", loadmem);
         
         
-       // print("6666")
+        const btn4 = document.getElementById("resetmem");
+        btn4.addEventListener( "click", resetmem );
+        
+         
         
         
         var prev = [0,0,0]
