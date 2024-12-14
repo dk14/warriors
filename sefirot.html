@@ -262,7 +262,7 @@ button, label {
             for (let el of toRender) {
               const ch = el[0]
               const value = el[1]
-              const valueInt = (el[1] * 100).toFixed(0)
+              const valueInt = (el[1] * 1000).toFixed(0)
               
               const command = valueInt % 10
               const st = states[ch]
@@ -417,7 +417,7 @@ button, label {
         
         var history = []
         var n = 1000
-        var m = 1000000
+        var m = 100000000
         
         const saveState = () => {
           localStorage.setItem('memory', JSON.stringify(history))
@@ -682,7 +682,7 @@ button, label {
         window.gravity = 0.6
         const posscale = 1.00
         
-        const precision = 100
+        const precision = 1000
         const lim = 1.0
         
         window.pos = 0.0
