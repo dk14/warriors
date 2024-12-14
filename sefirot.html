@@ -119,7 +119,7 @@ button, label {
         
         // https://github.com/gpujs/gpu.js/issues/285
         
-        blur = gpu.createKernel(function(a, pass) {
+        blur = gpu.createKernel(function(a, pass, filter) {
                   
               let sum = [0, 0, 0]
               
@@ -127,7 +127,10 @@ button, label {
               for (let c = 0; c < 3; c++) {
                 for (let i = -pass; i <= pass; i++) {
                   for (let j = -pass; j <= pass; j++) {
-                    sum[c] += a[c + 4 * (this.thread.x + i) + 4 * 1000 * (1000 - this.thread.y + j)]
+                    const value = a[c + 4 * (this.thread.x *1.01 + i) + 4 * 1000 * (1000 - this.thread.y * 1.1 + j)]
+                    if (value / 256 > filter) {
+                      sum[c] += value
+                    }
                   }
                 }
               }
@@ -147,7 +150,7 @@ button, label {
       
       
       
-      const barycentric = (m1, m2, m3, ax = 0.5, ay = 0.0, bx = 0.0, by = 1.0, cx = 1.0, cy = 1.0) => {
+      const barycentric = (m1, m2, m3, ax = 0.5, ay = 0.15, bx = 0.0, by = 1.0, cx = 1.0, cy = 1.0) => {
         let norm = m1 + m2 + m3
         return [(m1 * ax + m2 * bx + m3 * cx) / norm, (m1 * ay + m2 * by + m3 * cy) / norm]
       }
@@ -209,10 +212,10 @@ button, label {
       
       var renderqueue = []
       
-      let doBlur = (ctx, k) => {
+      let doBlur = (ctx, k, threshold) => {
         try {
               const imageData = ctx.getImageData(0, 0, 1000, 1000)
-              blur(imageData.data, k)
+              blur(imageData.data, k, threshold)
               ctx.drawImage(blur.canvas, 0, 0)
         } catch (err){
               print(err)
@@ -238,13 +241,14 @@ button, label {
         }
         
         states = []
+        var waited = 0
         
         for (i = 0; i < channels; i++) {
           states.push(initRenderState())
         }
         
         const draw = () => {
-        
+          
           
           //ctx.fillStyle = "rgb(0 0 0)";
           //ctx.fillRect(25, 25, 100, 100);
@@ -268,31 +272,49 @@ button, label {
               const st = states[ch]
               
               switch (command) {
-                case 0: st.m1 = value; break;
-                case 1: st.m2 = value; break;
-                case 2: st.m3 = value; break;
-                case 3: st.light = value; break;
-                case 4: st.blurLevel = value; break;
-                case 5: st.hue = value; break;
-                case 6: st.sat = value; break;
-                case 7: st.brush = value; break;
-                case 8: st.alpha = value; break;
-                case 9: break;
+                case 1: st.m1 = value; break;
+                case 2: st.m2 = value; break;
+                case 3: st.m3 = value; break;
+                case 4: st.light = value; break;
+                case 5: st.blurLevel = value; break;
+                case 6: st.hue = value; break;
+                case 7: st.sat = value; break;
+                case 8: st.brush = value; break;
+                case 9: st.alpha = value; break;
+                case 0: break;
                 default: print("what" + command + "type = " + typeof(el[1]))
               }
-              let fillStyle = `hsl(${(360 * st.hue).toFixed(0)} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(3 * st.alpha).toFixed(0)}%)`
+              let fillStyle = `hsl(${((360 * st.hue).toFixed(0) / 10) * 10} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(2 * st.alpha).toFixed(0)}%)`
               //console.log(fillStyle)
               ctx.fillStyle = fillStyle
               
               const coords = barycentric(st.m1, st.m2, st.m3)
               ctx.beginPath();
-              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 1000 * st.brush, 0, 2 * Math.PI);
+              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 2000 * st.brush, 0, 2 * Math.PI);
+              //ctx.arc(coords[0] * 1000, coords[1] * 1000, 1000 * st.brush, 0, 2 * Math.PI);
+              
               ctx.fill()
+              //print(waited)
               
               
-              if (st.blurLevel > 0.9) {
-                doBlur(ctx, 10)
+              if (waited < 5) {
+                const t0 = performance.now()
+                const level = (st.blurLevel * 100)
+                if (level > 50) {
+                  doBlur(ctx, 6, 0.1 + 0.2 * st.sat)
+                }
+                
+                const t1 = performance.now()
+                waited = (t1 - t0)
+              } else {
+                waited -= 0.1
+                if (waited < 0) {
+                  waited = 0
+                }
               }
+              
+              
+              
               
               
             }
@@ -417,7 +439,7 @@ button, label {
         
         var history = []
         var n = 1000
-        var m = 100000000
+        var m = 1000000
         
         const saveState = () => {
           localStorage.setItem('memory', JSON.stringify(history))
