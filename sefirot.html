@@ -284,7 +284,7 @@ button, label {
                 case 0: break;
                 default: print("what" + command + "type = " + typeof(el[1]))
               }
-              let fillStyle = `hsl(${((360 * st.hue).toFixed(0) / 10) * 10} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(2 * st.alpha).toFixed(0)}%)`
+              let fillStyle = `hsl(${((360 * st.hue).toFixed(0) / 10) * 10} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(5 * st.alpha).toFixed(0)}%)`
               //console.log(fillStyle)
               ctx.fillStyle = fillStyle
               
@@ -648,19 +648,26 @@ button, label {
         
         const lag = 5 //5
         const minprefixboundary = 5
-        const longlag = 9
+        const indiscriminateChoicefullnessBound = 9
+        const discriminateChoicefullnessBound = 1000
         
-        function mode(arr){
-          return arr.sort((a,b) =>
-            arr.filter(v => v===a).length - arr.filter(v => v===b).length
-          ).pop();
-          //return arr[Math.min(longlag, arr.length - 1)]
-        }
         
-        function amode(arr){
-          return arr.sort((a,b) =>
-            arr.filter(v => v===b).length - arr.filter(v => v===a).length
-          ).pop();
+        
+        function choice(arr){
+          
+          let unique = new Set(arr)
+          let counts = Array.from(unique).map(x => {
+            return [x, arr.filter(v => v===x).length]
+          }).sort((a, b) => b[1] - a[1])
+        
+          return counts
+            .slice(0, discriminateChoicefullnessBound)
+            .pop()[0]
+          
+          
+          //return arr.sort((a,b) =>
+            //arr.filter(v => v===b).length - arr.filter(v => v===a).length
+          //).pop();
           //return arr[Math.min(longlag, arr.length - 1)]
         }
         
@@ -688,11 +695,12 @@ button, label {
               return 0
             }
           }).filter(x => x !== 0)
+          
           if (candidates.length == 0){
             return predict(pattern.slice(2), history) 
           }
           candidates.reverse()
-          return amode(candidates.slice(0, longlag))
+          return choice(candidates.slice(0, indiscriminateChoicefullnessBound))
           
         }
         
