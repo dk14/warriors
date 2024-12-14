@@ -689,19 +689,22 @@ button, label {
           if (pattern.length <= minprefixboundary) return 0
           if (history.length < pattern.length + lag) return 0
           const N = history.length - pattern.length - lag
-          let candidates = [...Array(N)].map((_, i) => {
+          
+          let candidates = []
+          for (let i = N-1; i >= 0; i--) {
             let chunk = history.slice(i, i + pattern.length)
             if (compare(chunk, pattern)) {
-              return history[i + pattern.length]
-            } else {
-              return 0
+              candidates.push(history[i + pattern.length])
+              if (candidates.length >= indiscriminateChoicefullnessBound) {
+                break;
+              }
             }
-          }).filter(x => x !== 0)
+          }
           
           if (candidates.length == 0){
             return predict(pattern.slice(2), history) 
           }
-          candidates.reverse()
+          
           return choice(candidates.slice(0, indiscriminateChoicefullnessBound))
           
         }
