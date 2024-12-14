@@ -290,7 +290,9 @@ button, label {
               
               const coords = barycentric(st.m1, st.m2, st.m3)
               ctx.beginPath();
-              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, 2000 * st.brush, 0, 2 * Math.PI);
+              const base = 10 + st.light * 2
+              const radius = Math.pow(2, st.brush * base)
+              ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, 0, 2 * Math.PI);
               //ctx.arc(coords[0] * 1000, coords[1] * 1000, 1000 * st.brush, 0, 2 * Math.PI);
               
               ctx.fill()
