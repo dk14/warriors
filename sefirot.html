@@ -28,7 +28,7 @@
   transition: opacity .2s;
 }
 
-button, label {
+button, label, input, textarea {
   font-family: 'Courier Prime';
   background: black; margin:auto;font-size:35px; border: 1px solid green; display: inline-block;padding: 6px 12px;color:green;
 }
@@ -79,10 +79,17 @@ button, label {
       </font>
     </div>
     
+    <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
+m=1000; 
+minprefixboundary = 5; 
+indiscriminateChoicefullnessBound = 9; 
+discriminateChoicefullnessBound = 1000;
+    </textarea>
     <br>
     <button id="savemem" >Save Memory</button>
     <button id="loadmem" >Load Memory</button>
     <button id="resetmem" >Reset Memory</button>
+    <button id="toggle" onclick="txt=document.getElementById('config');if(txt.style.display=='none')txt.style.display='block'; else txt.style.display='none'">Cfg</button>
     
     <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
@@ -435,12 +442,15 @@ button, label {
         
         window.oscillatorNode = []
         
+        window.reconfigure = ""
         
-        
+        setInterval(() => {
+          eval(window.reconfigure)
+        }, 1000)
         
         
         var history = []
-        var n = 1000
+        window.n = 1000
         var m = 100000
         
         const saveState = () => {
@@ -648,10 +658,10 @@ button, label {
         
         //print("999")
         
-        const lag = 5 //5
-        const minprefixboundary = 5
-        const indiscriminateChoicefullnessBound = 9
-        const discriminateChoicefullnessBound = 1000
+        window.lag = 5 //5
+        window.minprefixboundary = 5
+        window.indiscriminateChoicefullnessBound = 9
+        window.discriminateChoicefullnessBound = 1000
         
         
         
@@ -709,8 +719,8 @@ button, label {
           
         }
         
-        const maxfreq = 120
-        const basefreq = 60
+        window.maxfreq = 120
+        window.basefreq = 60
         window.discretisation = 40.0
         
         window.speed = 6.0
