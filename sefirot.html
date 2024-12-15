@@ -80,7 +80,7 @@ button, label, input, textarea {
     </div>
     
     <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
-m=1000; 
+n=1000; 
 minprefixboundary = 5; 
 indiscriminateChoicefullnessBound = 9; 
 discriminateChoicefullnessBound = 1000;
@@ -506,13 +506,13 @@ discriminateChoicefullnessBound = 1000;
         window.reconfigure = ""
         
         setInterval(() => {
-          eval(window.reconfigure)
+          (1,eval)(window.reconfigure)
         }, 1000)
         
         
         var history = []
         window.n = 1000
-        var m = 100000
+        var m = 10000000
         
         const saveState = () => {
           localStorage.setItem('memory', JSON.stringify(history))
