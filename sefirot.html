@@ -80,13 +80,16 @@ button, label, input, textarea {
     </div>
     
     <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
-n=1000; 
+n=1000; //prefixlengthstart
 minprefixboundary = 5; 
 indiscriminateChoicefullnessBound = 9; 
 discriminateChoicefullnessBound = 1000;
+sfrAudioChBound = 3
+sfrGraphicsChBound = 9
 //renderTimeout=5;
-//remder=false
-//showCommandLine=false
+//remder=false;
+//showCommandLine=false;
+
     </textarea>
     <br>
     <button id="savemem" >Save Memory</button>
@@ -108,7 +111,7 @@ discriminateChoicefullnessBound = 1000;
 
       // https://www.w3schools.com/howto/howto_js_rangeslider.asp
       
-      const channels = 3 
+      const channels = 10
       
       const span = document.getElementById("out")
         
@@ -228,7 +231,7 @@ discriminateChoicefullnessBound = 1000;
       
       window.customRenderer = true
       
-      window.renderTimeout = 1000
+      window.renderTimeout = 100
       
       const initWinampViz = () => {
          try {
@@ -512,6 +515,13 @@ discriminateChoicefullnessBound = 1000;
         
         window.reconfigure = ""
         
+        window.sfrAudioChBound = 3
+        window.sfrGraphicsChBound = 9
+        
+        window.maxfreq = 120
+        window.basefreq = 60
+        window.discretisation = 40.0
+        
         setInterval(() => {
           (1,eval)(window.reconfigure)
         }, 1000)
@@ -594,35 +604,18 @@ discriminateChoicefullnessBound = 1000;
         gainNode.connect(streamNode)
         
         
-        const activeChannells = []
-        
-        
-        const initChannells = () => {
-          for (i = 0; i < channels; i ++) {
-            window.oscillatorNode.push(audioContext.createOscillator())
-            window.oscillatorNode[i].type = "sine"
-            window.oscillatorNode[i].connect(gainNode);
-            history.push([])
-            activeChannells.push(0)
-          }
-        }
-        
-        initChannells()
-        
-        tryload()
-        
-        
-        
-        console.log("6669")
-        
-              
         const beep = (frequency, i = 0) => {
+          //console.log("" + i + "   " + frequency + "  " + gainNode.gain.value)
+          
           if (window.oscillatorNode[i]) {
             let delay = 0.05
             
             if (frequency == 0) {
               activeChannells[i] = 0
             } else {
+              if (window.oscillatorNode[i].frequency === 0) {
+                delay += 0.1
+              }
               activeChannells[i] = 1
             }
             
@@ -641,6 +634,33 @@ discriminateChoicefullnessBound = 1000;
             //console.log("f" + Math.ceil(frequency, 0))
           }
         }
+        
+        
+        
+        const activeChannells = []
+        
+        
+        const initChannells = () => {
+          for (i = 0; i < channels; i ++) {
+            window.oscillatorNode.push(audioContext.createOscillator())
+            window.oscillatorNode[i].type = "sine"
+            window.oscillatorNode[i].connect(gainNode);
+            history.push([])
+            activeChannells.push(0)
+            window.oscillatorNode[i].frequency.value = 0
+          }
+        }
+        
+        initChannells()
+        
+        tryload()
+        
+        
+        
+        console.log("6669")
+        
+              
+        
         
         
         
@@ -822,9 +842,7 @@ discriminateChoicefullnessBound = 1000;
           
         }
         
-        window.maxfreq = 120
-        window.basefreq = 60
-        window.discretisation = 40.0
+        
         
         window.speed = 6.0
         window.gravity = 0.6
@@ -891,9 +909,15 @@ discriminateChoicefullnessBound = 1000;
             beep(0, i)
           } else {
             history[i].push(output.toFixed(0))
-            renderqueue.push([i, output * 1.0 / precision])
+            if (i < sfrGraphicsChBound) {
+              renderqueue.push([i, output * 1.0 / precision])
+            }
+              
             outSlider.value = output * 100.0 / precision
-            beep(freq, i)
+              
+            if (i < sfrAudioChBound) {
+              beep(freq, i)
+            }
           }
           
         }
