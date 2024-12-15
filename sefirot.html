@@ -84,6 +84,9 @@ n=1000;
 minprefixboundary = 5; 
 indiscriminateChoicefullnessBound = 9; 
 discriminateChoicefullnessBound = 1000;
+//renderTimeout=5;
+//remder=false
+//showCommandLine=false
     </textarea>
     <br>
     <button id="savemem" >Save Memory</button>
@@ -120,6 +123,8 @@ discriminateChoicefullnessBound = 1000;
       
       const width = 1000
       const height = 1000
+      
+      window.render = true
       
       try {
         
@@ -223,6 +228,8 @@ discriminateChoicefullnessBound = 1000;
       
       window.customRenderer = true
       
+      window.renderTimeout = 1000
+      
       const initWinampViz = () => {
          try {
           visualizer = butterchurn.default.createVisualizer(audioContext, canvas, {
@@ -322,7 +329,7 @@ discriminateChoicefullnessBound = 1000;
           //ctx.clearRect(45, 45, 60, 60);
           //ctx.strokeRect(50, 50, 50, 50);
           
-          if (customRenderer && gpu !== null) {
+          if (render && customRenderer && gpu !== null) {
             
             
             
@@ -367,7 +374,7 @@ discriminateChoicefullnessBound = 1000;
               doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light* 0.1 + 0.4, 0.01 + 0.05 * st.alpha)
               
               //print(waited)
-              if (waited < 1000) {
+              if (waited < renderTimeout) {
                 const t0 = performance.now()
                 const level = (st.blurLevel * 100)
                 if (level > 70) {
@@ -514,6 +521,40 @@ discriminateChoicefullnessBound = 1000;
         window.n = 1000
         var m = 10000000
         
+        window.showCommandLine=true
+        window.commandLine = ""
+        const characterSet = "@ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()/\*+=[]{}#%_~<>!?,.0123456789"
+        
+        setInterval(() => {
+          //let i = ((pos)*100).toFixed(0)
+          let i = document.getElementById("sfrOutput").value
+          if (i < characterSet.length) {
+            const candidate = characterSet[i]
+            //print("" + i + " " + candidate)
+            if (candidate !== commandLine[commandLine.length-1]) {
+              commandLine = commandLine + candidate
+            }
+            
+          } else {
+            commandLine = commandLine.slice(0, -1)
+            if (commandLine.length == 1) {
+              commandLine = ""
+            }
+          }
+          
+          if (commandLine.length > 30) {
+            commandLine = ""
+          }
+          const toPrint = commandLine.replace('@', '')
+          if (toPrint.length === 0) {
+            //print('OBSERVING')
+          } else {
+            if (showCommandLine) {
+              print('>' + toPrint)
+            }
+          }
+        }, 10)
+        
         const saveState = () => {
           localStorage.setItem('memory', JSON.stringify(history))
         }
@@ -615,6 +656,7 @@ discriminateChoicefullnessBound = 1000;
           }
           
           audioElem.play()
+          window.started = true
           
           DeviceMotionEvent.requestPermission()
           print('RUNNING')
@@ -796,11 +838,14 @@ discriminateChoicefullnessBound = 1000;
         var tick = 0
         var i = 0
         
+        window.posThreshold = 0.2
+        window.outputThreshold = 2
+        
         const inferOutput = (pos, output) => {
-          if (output < 2) {
+          if (output < outputThreshold) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
-            if (Math.abs(pos) < 0.2) {
+            if (Math.abs(pos) < posThreshold) {
               return output
             } else {
               return (1.0 - Math.abs(pos)) * precision
