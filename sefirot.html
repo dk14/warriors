@@ -178,31 +178,39 @@ sfrGraphicsChBound = 9
         
         addcircles = gpu.createKernel(function(n, a, transform, factor) {
           
-          const scalex = 1.0
-          const addy = 0.0
-          const shiftx = 0.0
           
-          const scaley = 1.0
-          const addx = 0.0
-          const shifty = 0.0
+          let x = this.thread.x
+          let y = this.thread.y
           
-          
-          if (transform == 1.0) {
-            scalex += 0.01 * factor;
-          } else if (transform == 2.0) {
-            addy += 0.01 * factor;
-          } else if (transform == 3.0) {
-            shiftx += 0.01 * factor;
-          } else if (transform == 4.0) {
-            scaley += 0.01 * factor;
-          } else if (transform == 5.0) {
-            addx += 0.01 * factor;
-          } else if (transform == 6.0) {
-            shifty += 0.01 * factor; 
+          if (transform !== 0.0) {
+            let scalex = 1.0
+            let addy = 0.0
+            let shiftx = 0.0
+            
+            let scaley = 1.0
+            let addx = 0.0
+            let shifty = 0.0
+            
+  
+            if (transform == 1.0) {
+              scalex += 0.01 * factor;
+            } else if (transform == 2.0) {
+              addy += 0.01 * factor;
+            } else if (transform == 3.0) {
+              shiftx += 0.01 * factor;
+            } else if (transform == 4.0) {
+              scaley += 0.01 * factor;
+            } else if (transform == 5.0) {
+              addx += 0.01 * factor;
+            } else if (transform == 6.0) {
+              shifty += 0.01 * factor; 
+            }
+            
+            x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
+            y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
+            
           }
           
-          const x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
-          const y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
           
           
           for (let i = 0; i < n; i++) {
