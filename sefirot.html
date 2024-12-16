@@ -429,7 +429,12 @@ sfrGraphicsChBound = 9
                 const t0 = performance.now()
                 const level = (st.blurLevel * 100)
                 if (level > 70) {
-                  doBlur(6, 0.1 + 0.2 * st.sat)
+                  let filterFactor = 0.1
+                  if (level > 80) {
+                      filterFactor = 0.4
+                  }
+                  
+                  doBlur(1 + ((6 * (st.blurLevel)).toFixed(0) / 3) * 3, filterFactor * st.sat)
                 }
                 
                 const t1 = performance.now()
@@ -442,10 +447,9 @@ sfrGraphicsChBound = 9
               }
               
               
-              
-              
-              
             }
+            
+            doBlur(3, 0.01)
             
           } 
             
