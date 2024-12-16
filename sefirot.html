@@ -129,6 +129,19 @@ sfrGraphicsChBound = 9
       
       window.render = true
       
+      window.modelExtractionQueue = []
+      window.modelExtractionQueueBound = 1000
+      
+      setInterval(() => {
+        modelExtractionQueue.splice(0, -modelExtractionQueueBound)
+      }, 10000)
+      
+      window.modelInjectMemory = (ch, introject) => {
+        history[ch].push(...introject)
+      }
+      
+      
+      
       try {
         
         window.gpucanvas = document.createElement("canvas");
@@ -964,6 +977,8 @@ sfrGraphicsChBound = 9
             if (i < sfrGraphicsChBound) {
               renderqueue.push([i, output * 1.0 / precision])
             }
+              
+            modelExtractionQueue.push([i, output * 1.0 / precision])
               
             outSlider.value = output * 100.0 / precision
               
