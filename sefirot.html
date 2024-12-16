@@ -176,10 +176,35 @@ sfrGraphicsChBound = 9
           }).setOutput([n, m]).setGraphical(true)
         
         
-        addcircles = gpu.createKernel(function(n, a) {
+        addcircles = gpu.createKernel(function(n, a, transform, factor) {
           
-          const x = this.thread.x
-          const y = this.thread.y
+          const scalex = 1.0
+          const addy = 0.0
+          const shiftx = 0.0
+          
+          const scaley = 1.0
+          const addx = 0.0
+          const shifty = 0.0
+          
+          
+          if (transform == 1.0) {
+            scalex += 0.01 * factor;
+          } else if (transform == 2.0) {
+            addy += 0.01 * factor;
+          } else if (transform == 3.0) {
+            shiftx += 0.01 * factor;
+          } else if (transform == 4.0) {
+            scaley += 0.01 * factor;
+          } else if (transform == 5.0) {
+            addx += 0.01 * factor;
+          } else if (transform == 6.0) {
+            shifty += 0.01 * factor; 
+          }
+          
+          const x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
+          const y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
+          
+          
           for (let i = 0; i < n; i++) {
             const radius = a[i][0]
             const centerx = a[i][1]
@@ -282,7 +307,7 @@ sfrGraphicsChBound = 9
         }
       }
       
-      let doCircle = (cx, cy, r, h, s, l, a) => {
+      let doCircle = (cx, cy, r, h, s, l, a, transform, factor) => {
         try {
           
           function hsl2rgb(h,s,l) {
@@ -292,7 +317,7 @@ sfrGraphicsChBound = 9
           }   
           const rgb = hsl2rgb(h, s, l)
           //print(cx)
-          addcircles(1, [r, cx, cy, rgb[0], rgb[1], rgb[2], a])
+          addcircles(1, [r, cx, cy, rgb[0], rgb[1], rgb[2], a], transform, factor)
           //ctx.drawImage(window.gpucanvas, 0, 0)
         } catch (err){
           print(err)
@@ -374,7 +399,10 @@ sfrGraphicsChBound = 9
               
               //ctx.fill()
               
-              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light* 0.1 + 0.4, 0.01 + 0.05 * st.alpha)
+              const transform = 0
+              const factor = 1
+              
+              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light* 0.1 + 0.4, 0.01 + 0.05 * st.alpha, transform, factor)
               
               //print(waited)
               if (waited < renderTimeout) {
