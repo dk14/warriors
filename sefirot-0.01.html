@@ -653,11 +653,11 @@ sfrGraphicsChBound = 9
               history = memory
               console.log(history)
             } else {
-              console.log("ignoring history")
+              alert("ignoring history " + memory.length)
             }
             
           } else {
-            console.log("mo history found!")
+            console.log("no history found!")
           }
           
         }
@@ -713,12 +713,16 @@ sfrGraphicsChBound = 9
         
         
         const initChannells = () => {
+          const rehistory = history.length != 0
           for (i = 0; i < channels; i ++) {
             window.oscillatorNode.push(audioContext.createOscillator())
             window.oscillatorNode[i].type = "sine"
             window.oscillatorNode[i].connect(gainNode);
-            history.push([])
-            activeChannells.push(0)
+            if (!rehistory) {
+              history.push([])
+              activeChannells.push(0)
+            }
+            
             window.oscillatorNode[i].frequency.value = 0
           }
         }
@@ -735,7 +739,7 @@ sfrGraphicsChBound = 9
         
         
         
-        
+        window.started = false
         const permission = () => {
           
           //const source = audioContext.createMediaStreamSource(combinedStream);
@@ -743,10 +747,20 @@ sfrGraphicsChBound = 9
           
           //oscillatorNode.connect(audioContext.destination);
           
+          if (window.started) {
+            for (i = 0; i < channels; i ++) {
+              oscillatorNode[i].stop();
+            }
+            oscillatorNode = []
+            initChannells()
+            alert("awake!")
+          }
+          
           for (i = 0; i < channels; i ++) {
             oscillatorNode[i].start();
           }
           
+          audioElem.volume =1.0
           audioElem.play()
           window.started = true
           
@@ -765,16 +779,18 @@ sfrGraphicsChBound = 9
           navigator.clipboard.readText().then((stateTxt) => {
             try {
                let memory = JSON.parse(atob(stateTxt))
-            
+              audioElem.pause()
               if (channels === memory.length) {
                 history = memory
                 alert("loaded from clipboard")
               } else {
                 alert('LOAD STATE ERROR: WRONG AMOUNT OF CH: ' + memory.length)
               }
+              audioElem.play()
               
             } catch (err) {
               alert(err)
+              audioElem.play()
               
             }
            
@@ -785,14 +801,19 @@ sfrGraphicsChBound = 9
         }
         
         const savemem = () => {
+          audioElem.pause()
           
           navigator.clipboard.writeText(btoa(JSON.stringify(history)))
+          audioElem.play()
           
           alert("saved to clipboard!")
+          audioElem.play()
         }
         
         const resetmem = () => {
+          audioElem.pause()
           history = history.map(x => [])
+          audioElem.play()
           alert('reset')
         }
         
