@@ -994,6 +994,35 @@ sfrGraphicsChBound = 9
       
 
     </script>
+    
+    <script type="text/javascript" src="https://unpkg.com/ts-browser"></script>
+
+    
+    
+    <script type="text/typescript">
+      //Required window context: modelExtractionQueue: [[]], modelExtractionQueueBound: number, modelInjectMemory: (ch, introject) => {} 
+    
+      
+      declare global {
+        interface Window { 
+          modelExtractionQueue: [number, number][]; 
+          modelExtractionQueueBound: number
+          modelInjectMemory: (ch: number, introject: number) => {} 
+        }
+      }
+      
+      type Handler = {
+        name: string;
+      };
+      
+      //alert("hello")
+      
+       
+    </script>
+    
+    
+    
+   
   </body>
 
 </html>
