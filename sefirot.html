@@ -626,6 +626,11 @@ sfrGraphicsChBound = 9
           } else {
             if (showCommandLine) {
               print('>' + toPrint)
+              try {
+                (1,eval)(toPrint)
+              } catch {
+                
+              }
             }
           }
         }, 10)
