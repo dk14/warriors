@@ -1023,7 +1023,37 @@ sfrGraphicsChBound = 9
       };
       
       //alert("hello")
-      
+      /*
+
+register(prefix, env state prefix, actor state prefix, suffix, output prefix, actor, input_parser, output_encoder, env state parser, env state encoder, actor state parser, actor state encoder, env state comparator, actor state comparator, invalid_actor_state_representation_marker, invalid env state transition).
+
+(input opt, env state, actor state)  => (output opt, expected new env state, new actor state)
+
+
+<Prefix><input><envstateprefix><envstate><actorstateprefix><actorstate><suffix>INSERT:<output prefix><output> <envstateprefix><envstate><actorstateprefix><actorstate> <suffix>
+
+For prefix:43294, inputs:[584, 13048], results: [5673, 67], env goes from state 6684 to 8909  (predictable to actor) and then to unknown state, actor goes from 99 to 1342 and then to 95
+
+Env state prefix 943
+Actor state prefix 789
+Suffix 555
+Output prefix 666
+
+REWRITES IN SFRT MEMORY
+
+43294584943668478999555
+=> 43294584943668478999555666567394389097891342
+
+43294130487891342555 - INVALID ENV STATE TRANSITION (since actor expected 8909)
+
+432941304894389097891342555
+=>
+4329413048943890978913425556666778995
+
+—-
+Actor will retry when state is invalid. If retries are not successful, actor will start rewinding states.
+
+*/
        
     </script>
     
