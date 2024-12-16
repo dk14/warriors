@@ -346,7 +346,9 @@ sfrGraphicsChBound = 9
             hue: 1.0,
             sat: 1.0,
             brush: 1.0,
-            alpha: 1.0
+            alpha: 1.0,
+            transform: 0.0,
+            transformFactor: 0.0
           }
         }
         
@@ -391,7 +393,17 @@ sfrGraphicsChBound = 9
                 case 7: st.sat = value; break;
                 case 8: st.brush = value; break;
                 case 9: st.alpha = value; break;
-                case 0: break;
+                case 0: 
+                    st.transform = (valueInt / 20) % 6; break
+                    if (valueInt / 6 != 0 ) {
+                      if ((valueInt / 6) % 2 == 0 && st.transformFactor < 50.0){
+                        st.transformFactor += 1.0
+                      } else if (st.transformFactor > -50.0) {
+                        st.transformFactor -= 1.0
+                      }
+                    }
+                  
+                    break;
                 default: print("what" + command + "type = " + typeof(el[1]))
               }
               //let fillStyle = `hsl(${((360 * st.hue).toFixed(0) / 10) * 10} ${(100 * st.sat).toFixed(0) * 0 + 100}% ${(10 * st.light + 40).toFixed(0)}% / ${(5 * st.alpha).toFixed(0)}%)`
@@ -407,8 +419,8 @@ sfrGraphicsChBound = 9
               
               //ctx.fill()
               
-              const transform = 0
-              const factor = 1
+              const transform = st.transform 
+              const factor = st.transformFactor
               
               doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light* 0.1 + 0.4, 0.01 + 0.05 * st.alpha, transform, factor)
               
