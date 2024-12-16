@@ -140,7 +140,8 @@ sfrGraphicsChBound = 9
         history[ch].push(...introject)
       }
       
-      
+      window.transformBound = 50.0
+      window.transformStep = 0.1
       
       try {
         
@@ -191,43 +192,43 @@ sfrGraphicsChBound = 9
         
         addcircles = gpu.createKernel(function(n, a, transform, factor) {
           
-          
-          let x = this.thread.x
-          let y = this.thread.y
-          
-          if (transform !== 0.0) {
-            let scalex = 1.0
-            let addy = 0.0
-            let shiftx = 0.0
-            
-            let scaley = 1.0
-            let addx = 0.0
-            let shifty = 0.0
-            
-  
-            if (transform == 1.0) {
-              scalex += 0.01 * factor;
-            } else if (transform == 2.0) {
-              addy += 0.01 * factor;
-            } else if (transform == 3.0) {
-              shiftx += 0.01 * factor;
-            } else if (transform == 4.0) {
-              scaley += 0.01 * factor;
-            } else if (transform == 5.0) {
-              addx += 0.01 * factor;
-            } else if (transform == 6.0) {
-              shifty += 0.01 * factor; 
-            }
-            
-            x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
-            y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
-            
-          }
-          
-          
-          
           for (let i = 0; i < n; i++) {
+          
+            let x = this.thread.x
+            let y = this.thread.y
+            
             const radius = a[i][0]
+            
+            if (transform !== 0.0) {
+              let scalex = 1.0
+              let addy = 0.0
+              let shiftx = 0.0
+              
+              let scaley = 1.0
+              let addx = 0.0
+              let shifty = 0.0
+              
+    
+              if (transform == 1.0) {
+                scalex += 0.001 * factor;
+              } else if (transform == 2.0) {
+                addy += (0.001 + 0.001 * x / 1000) * factor * 1000 / radius
+              } else if (transform == 3.0) {
+                shiftx += 0.01 * factor * 1000 / radius;
+              } else if (transform == 4.0) {
+                scaley += 0.001 * factor
+              } else if (transform == 5.0) {
+                addx += (0.001 + 0.001 * y / 1000) * factor * 1000 / radius
+              } else if (transform == 6.0) {
+                shifty += 0.01 * factor * 1000 / radius
+              }
+              
+              x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
+              y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
+              
+            }
+          
+            
             const centerx = a[i][1]
             const centery = a[i][2]
             const r = a[i][3]
@@ -235,7 +236,14 @@ sfrGraphicsChBound = 9
             const b = a[i][5]
             const alpha = a[i][6]
             
-            if ((x - centerx)**2 + (y - centery)**2 < radius**2) {
+            let dx = x - centerx
+            const dy = y - centery
+            
+            if (transform == 7.0) {
+              dx = dx * (1.0 + factor * 0.01 / radius)
+            }
+            
+            if ((dx)**2 + (dy)**2 < radius**2) {
               this.color(r, g, b, alpha)
             } else {
               //this.color(1.0, 1.0, 1.0, 1.0)
@@ -361,7 +369,8 @@ sfrGraphicsChBound = 9
             brush: 1.0,
             alpha: 1.0,
             transform: 0.0,
-            transformFactor: 0.0
+            transformFactor: 0.0,
+            direction: 1.0
           }
         }
         
@@ -395,7 +404,7 @@ sfrGraphicsChBound = 9
               
               const command = valueInt % 10
               const st = states[ch]
-              
+              //console.log(command)
               switch (command) {
                 case 1: st.m1 = value; break;
                 case 2: st.m2 = value; break;
@@ -407,12 +416,17 @@ sfrGraphicsChBound = 9
                 case 8: st.brush = value; break;
                 case 9: st.alpha = value; break;
                 case 0: 
-                    st.transform = (valueInt / 20) % 6; break
-                    if (valueInt / 6 != 0 ) {
-                      if ((valueInt / 6) % 2 == 0 && st.transformFactor < 50.0){
-                        st.transformFactor += 1.0
-                      } else if (st.transformFactor > -50.0) {
-                        st.transformFactor -= 1.0
+                  
+                    st.transform = (valueInt / 20) % 8
+                    //console.log("aaa")
+                    
+                    if (valueInt / 160 != 0 ) {
+                      if ((valueInt / 160) % 2 == 0 && st.transformFactor <= transformBound){
+                        st.transformFactor += st.direction * transformStep
+                      } else if ((valueInt / 160) % 2 == 1 && st.transformFactor >= -transformBound) {
+                        st.transformFactor -= st.direction * transformStep
+                      } else {
+                        st.direction = -st.direction
                       }
                     }
                   
