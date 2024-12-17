@@ -167,15 +167,50 @@ sfrGraphicsChBound = 9
         
         // https://github.com/gpujs/gpu.js/issues/285
         
-        blur = gpu.createKernel(function(a, pass, filter) {
-                  
+        blur = gpu.createKernel(function(a, pass, filter, transform, factor) {
+              
+            let x = this.thread.x
+            let y = this.thread.y
+            
+            
+            
+            if (transform !== 0.0) {
+              let scalex = 1.0
+              let addy = 0.0
+              let shiftx = 0.0
+              
+              let scaley = 1.0
+              let addx = 0.0
+              let shifty = 0.0
+              
+    
+              if (transform == 1.0) {
+                scalex += 0.001 * factor;
+              } else if (transform == 2.0) {
+                addy += (0.001 + 0.001 * x / 1000) * factor 
+              } else if (transform == 3.0) {
+                shiftx += 0.01 * factor
+              } else if (transform == 4.0) {
+                scaley += 0.001 * factor
+              } else if (transform == 5.0) {
+                addx += (0.001 + 0.001 * y / 1000) * factor
+              } else if (transform == 6.0) {
+                shifty += 0.01 * factor 
+              }
+              
+              x = scalex * this.thread.x + addy * this.thread.y + 1000 * shiftx
+              y = scaley * this.thread.y + addx * this.thread.x + 1000 * shifty
+              
+            }
+              
+              
               let sum = [0, 0, 0, 0]
               
               
               for (let c = 0; c < 3; c++) {
                 for (let i = -pass; i <= pass; i++) {
                   for (let j = -pass; j <= pass; j++) {
-                    const value = a[c + 4 * (this.thread.x + i) + 4 * 1000 * (1000 - this.thread.y + j)]
+                    const value = a[c + 4 * (x + i) + 4 * 1000 * (1000 - y + j)]
                     if (value / 256 > filter) {
                       sum[c] += value
                     }
@@ -325,10 +360,10 @@ sfrGraphicsChBound = 9
       
       var renderqueue = []
       
-      let doBlur = (k, threshold) => {
+      let doBlur = (k, threshold, transform = 0.0, transformFactor = 0.0) => {
         try {
           //const imageData = ctx.getImageData(0, 0, 1000, 1000)
-          blur(addcircles.getPixels(), k, threshold)
+          blur(addcircles.getPixels(), k, threshold, transform, transformFactor)
           //ctx.drawImage(blur.canvas, 0, 0)
         } catch (err){
           print(err)
@@ -476,7 +511,12 @@ sfrGraphicsChBound = 9
               
             }
             if (states[0].blurLevel > 0.01) {
-              doBlur(3, 0.01)
+              
+              let viewportTransform = 0
+              if (states[1].blurLevel < 0.05) {
+                viewportTransform = states[2].transform
+              }
+              doBlur(3, 0.01, viewportTransform, states[3].transformFactor)
             }
             
           } 
