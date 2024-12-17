@@ -745,8 +745,27 @@ sfrGraphicsChBound = 9
               
         
         const gainNode = audioContext.createGain()
-        gainNode.connect(streamNode)
         
+        
+        
+        let filter = audioContext.createBiquadFilter();
+        
+        filter.type = "lowpass"
+        filter.frequency.setTargetAtTime(2000, audioContext.currentTime, 0);
+        
+        
+        
+        let compressor = audioContext.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-24, audioContext.currentTime);
+        compressor.knee.setValueAtTime(40, audioContext.currentTime);
+        compressor.ratio.setValueAtTime(12, audioContext.currentTime);
+        compressor.attack.setValueAtTime(0, audioContext.currentTime);
+        compressor.release.setValueAtTime(0.25, audioContext.currentTime);
+        
+        
+        gainNode.connect(filter)
+        filter.connect(compressor)
+        compressor.connect(streamNode)
         
         const beep = (frequency, i = 0) => {
           //console.log("" + i + "   " + frequency + "  " + gainNode.gain.value)
