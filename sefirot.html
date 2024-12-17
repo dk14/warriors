@@ -373,6 +373,46 @@ sfrGraphicsChBound = 9
       
       var renderqueue = []
       
+  
+      
+      let hitTransformFactorBound = (ch, value) => {
+        
+        if (samplingSlider.value < 10) {
+          transformBound *= 1.3
+          transformStep *= 1.1 + 0.1 * (100 - samplingSlider.value) / 100
+        }
+        
+        let basedelta = 0
+        let maxdelta = 0
+        
+        if ((transformBound * 10).toFixed(0) % 19 == 3) {
+          //transformBound = transformBound.toFixed(0) % 60
+          transformStep = 0.105
+          
+          if (chbasefreq[ch] == 0) {
+            chbasefreq[ch] = basefreq
+          }
+          if (chmaxfreq[ch] == 0) {
+            chmaxfreq[ch] = maxfreq
+          }
+          
+          if (value % 20 == 0) {
+            basedelta = 0.01 * (value / 1000)
+          } else {
+            maxdelta = 0.03 * (value / 1000)
+          }
+          
+          if ((value / 73) % 2 == 0) {
+            basedelta = -basedelta
+            maxdelta = -maxdelta
+          }
+          chbasefreq[ch % sfrAudioChBound] = Math.max(40, Math.min(90, chbasefreq[ch] + 1000 * basedelta))
+          chmaxfreq[ch % sfrAudioChBound] = Math.max(120, Math.min(1500, chmaxfreq[ch] + 1000 * maxdelta))
+        }
+        
+        //console.log("expand transform " + transformBound + " " + transformStep + " " + basedelta + " " + maxdelta)
+      }
+      
       let doBlur = (k, threshold, transform = 0.0, transformFactor = 0.0) => {
         try {
           //const imageData = ctx.getImageData(0, 0, 1000, 1000)
@@ -475,6 +515,7 @@ sfrGraphicsChBound = 9
                         st.transformFactor -= st.direction * transformStep
                       } else {
                         st.direction = -st.direction
+                        hitTransformFactorBound(ch, valueInt)
                       }
                     }
                   
@@ -653,6 +694,12 @@ sfrGraphicsChBound = 9
         
         window.maxfreq = 120
         window.basefreq = 60
+        
+        window.chbasefreq = Array.from({length: channels}, () => 0)
+        window.chmaxfreq = Array.from({length: channels}, () => 0)
+      
+        
+        //40 350
         window.discretisation = 40.0
         
         setInterval(() => {
@@ -928,7 +975,7 @@ sfrGraphicsChBound = 9
           window.gravity = gravitySlider.value / 100
         }
         
-        const samplingSlider = document.getElementById("paddleSampling")
+        window.samplingSlider = document.getElementById("paddleSampling")
         samplingSlider.oninput = () => {
           clearInterval(window.transitionScheduler)
           window.discretisation = samplingSlider.value / 1.0
@@ -1086,10 +1133,13 @@ sfrGraphicsChBound = 9
     
           const output = inferOutput(posscale * pos, prediction) / posscale 
             
-          const freq = (basefreq + 
-              output * (maxfreq - basefreq) / precision)
+          const basefreqi = chbasefreq[i] == 0 ? basefreq : chbasefreq[i]
+          const maxfreqi = chmaxfreq[i] == 0 ? maxfreq : chmaxfreq[i]
+          //console.log("" + basefreqi + " " + maxfreqi + " " + chbasefreq)
+          const freq = (basefreqi + 
+              output * (maxfreqi - basefreqi) / precision)
               
-          if (freq >= maxfreq - 3) {
+          if (freq >= maxfreqi - 3) {
             beep(0, i)
           } else {
             history[i].push(output.toFixed(0))
