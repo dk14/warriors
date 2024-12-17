@@ -102,6 +102,7 @@ sfrGraphicsChBound = 9
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets/lib/butterchurnPresetsExtra.min.js"></script>
   
     <script src="https://unpkg.com/gpu.js@latest/dist/gpu-browser.min.js"></script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     
     <script>
       
@@ -111,6 +112,10 @@ sfrGraphicsChBound = 9
 
       // https://www.w3schools.com/howto/howto_js_rangeslider.asp
       
+      
+      alert("hello")
+      
+      
       const channels = 10
       
       const span = document.getElementById("out")
@@ -118,6 +123,19 @@ sfrGraphicsChBound = 9
       const print = (msg) => {
         span.textContent = msg
       }
+      
+      
+      try {
+        window.db = new Dexie("SfrMemDatabase");
+      
+        db.version(1).stores({
+          saves: "++id, data",
+        });
+      } catch (err) {
+        print(err)
+      }
+      
+      
       
       var gpu = null 
       var blur = null
@@ -691,31 +709,41 @@ sfrGraphicsChBound = 9
         }, 10)
         
         const saveState = () => {
-          localStorage.setItem('memory', JSON.stringify(history))
+          const encoded = JSON.stringify(history)
+          //localStorage.setItem('memory', encoded)
+          db.saves.delete().then(() => {
+            db.saves.add({data: encoded})
+          })
+          
         }
         
           
         
         const tryload = () => {
-          const stored = localStorage.getItem('memory')
+          //const stored = localStorage.getItem('memory')
           
           
-          if (stored !== null && stored !== "null") {
-            //alert(storedCells)
-            
-            const memory = JSON.parse(stored)
-            if (channels === memory.length) {
-              history = memory
-              console.log(history)
+          db.saves.toArray().then((sv) => {
+            const stored = sv.map(x => x.data)[0] ?? null
+          
+            if (stored !== null && stored !== "null") {
+              //alert(storedCells)
+              
+              const memory = JSON.parse(stored)
+              if (channels === memory.length) {
+                history = memory
+                console.log(history)
+              } else {
+                alert("ignoring history " + memory.length)
+              }
+              
             } else {
-              alert("ignoring history " + memory.length)
+              console.log("no history found!")
             }
             
-          } else {
-            console.log("no history found!")
           }
-          
         }
+          
         
         
         
