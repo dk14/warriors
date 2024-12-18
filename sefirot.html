@@ -567,7 +567,13 @@ sfrGraphicsChBound = 9
             if (states[0].blurLevel > 0.01) {
               
               let viewportTransform = 0
+              let blurWindow = 3
+              let filter = 0.01
               if (states[1].blurLevel < 0.05) {
+                if (states[2].blurLevel < 0.04) {
+                  blurWindow = 0
+                  filter = 0.0
+                }
                 viewportTransform = states[2].transform
               }
               doBlur(3, 0.01, viewportTransform, states[3].transformFactor)
