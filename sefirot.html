@@ -708,6 +708,14 @@ sfrGraphicsChBound = 9
         //40 350
         window.discretisation = 40.0
         
+        window.auto = (param, step, segment = 1, line = 0, structdeepness = 1) => {
+          if ((window.out / structdeepness) % segment === line) {
+            return param + step
+          } else {
+            return param - step
+          }
+        }
+        
         setInterval(() => {
           (1,eval)(window.reconfigure)
         }, 1000)
@@ -1139,6 +1147,7 @@ sfrGraphicsChBound = 9
     
           const output = inferOutput(posscale * pos, prediction) / posscale 
             
+          window.out = output
           const basefreqi = chbasefreq[i] == 0 ? basefreq : chbasefreq[i]
           const maxfreqi = chmaxfreq[i] == 0 ? maxfreq : chmaxfreq[i]
           //console.log("" + basefreqi + " " + maxfreqi + " " + chbasefreq)
