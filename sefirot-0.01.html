@@ -658,6 +658,8 @@ sfrGraphicsChBound = 9
         } else if (videoElem.muted) {
           customRenderer = false
           
+          renderqueue.slice(0, 10000)
+          
           if (window.overrideCanvas == false) {
             window.overrideCanvas = true
           
@@ -1168,6 +1170,10 @@ sfrGraphicsChBound = 9
             history[i].push(output.toFixed(0))
             if (i < sfrGraphicsChBound) {
               renderqueue.push([i, output * 1.0 / precision])
+            }
+            
+            if (!customRenderer) {
+              renderqueue.slice(0, 10000)
             }
               
             modelExtractionQueue.push([i, output * 1.0 / precision])
