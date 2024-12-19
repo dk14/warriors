@@ -1277,30 +1277,204 @@ sfrGraphicsChBound = 9
     
     
     <script type="text/typescript">
-      //Required window context: modelExtractionQueue: [[]], modelExtractionQueueBound: number, modelInjectMemory: (ch, introject) => {} 
+    
     
       
       declare global {
         interface Window { 
-          modelExtractionQueue: [number, number][]; 
-          modelExtractionQueueBound: number
-          modelInjectMemory: (ch: number, introject: number) => {} 
+          //modelExtractionQueue: [number, number][]; 
+          //modelExtractionQueueBound: number;
+          
+          Nrecent: number;
+          modelReadRecentMemory: (ch: number) => number[]
+          modelInjectMemory: (ch: number, introject: number[]) => {};
+          captureSfrCanvasAndAudio: MediaSource //TODO
         }
       }
       
-      type Handler = {
+      type SfrString = number[]
+      
+      type ActorOutput<T> = {
+        output: SfrString;
+        newActorState: SfrString;
+        newActorHiddenState: SfrString;
+        expectedNewSfrState: SfrString;
+      }
+      
+      type Command = {
+        input: SfrString,
+        sfrState: SfrString,
+        actorState: SfrString
+      }
+      
+      type StateTransition<T> = {
+        command: Command;
+        actorHiddenState: T;
+        out: ActorOutput;
+        introject: SfrString;
+      }
+      
+      type Format = {
+        prefix: SfrString;
+        sfrStatePrefix: SfrString;
+        actorStatePrefix: SfrString;
+        suffix: SfrString;
+        outputPrefix: SfrString;
+      }
+      
+      type Handler<T> = {
         name: string;
+        format: Format
+        actor: (command: Command, actorHiddenState: T) => ActorOutput<T>
+        rewind: (transition: StateTransition<T>) => {}
       };
+      
+      type Maybe<T> = T | undefined
+      
+      type CommandParserResult = {
+        res: Command,
+        tail: SfrString
+      }
+      
+      type ActorHistory<T> = {
+        name: string;
+        data: StateTransition<T>[]
+      }
+      
+      type Cancellable = number
+      
+      type ActorCfg = {
+        period: number;
+        NRetryInvalid: number;
+        NRetryNoResponse: number;
+      }
+      
+      type IntrojectionApi = {
+        subscribe<T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable
+      }
+      
+      const eq = (a: SfrString, b: SfrString): boolean => {
+        return false
+      }
+      
+      const findSubStringIndex = (a: SfrString, sub: SfrString): number => {
+        return -1
+      }
+      
+        
+      //TODO ootimize by removing slices in favor of indicies
+        
+      parse: (candidate: SfrString, format: Format): Maybe<Command> {
+          type Tail = SfrString
+          type Result = SfrString
+          
+          const parseBetween: (str: SfrString, curPrefix: SfrString, nextPrefix: SfrString): [Result, Tail] | undefined => {
+            const j = findSubStringIndex(str, nextPrefix)
+            if (j == -1) 
+              return undefined
+            else 
+              return [str.slice(curPrefix.length, j), str.slice(j)]
+         
+          }
+          
+          const i = findSubStringIndex(candidate, format.prefix)
+          if (i != 0) {
+            const command = str.slice(i)
+            const [input, tail1] = parseBetween(command, format.prefix, format.sfrStatePrefix) ?? return undefined
+            const [sfrState, tail2] = parseBetween(tail1, format.sfrStatePrefix, format.actorStatePrefix) ?? return undefined
+            const [actorState, tail3] = parseBetween(tail2, format.actorStatePrefix, format.suffix) ?? return undefined
+            return [
+              {
+                input,
+                sfrState,
+                actorState
+              },
+              tail3
+            ]
+            
+          } else return undefined
+        }
+      
+      }
+      
+      const api: IntrojectionApi = {
+        subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => {
+          const hist: ActorHistory<T> = []
+          let invRetryCount = 0;
+          let noRespRetryCount = 0;
+          
+          return setInterval({
+            const memory = window.modelReadRecentMemory(0)
+            const minCommandLength = 
+              handler.format.prefix.length 
+              + handler.format.sfrStatePrefix.length 
+              + handler.format.actorStatePrefix.length
+            
+            var cmd: Maybe<Command> = undefined
+            var found = parser.parse(memory, handler.format)
+            
+            while (found != undefined){
+              cmd = found
+              found = parser.parse(found.tail, handler.format)
+            }
+            
+            const prev = hist[-1] //todo what empty?
+            if (cmd != undefined) {
+              const isValid = eq(cmd.sfrState, prev.out.expectedNewSfrState) && eq(cmd.actorState, prev.out.newActorState)
+              if (isValid) {
+                const out = handler.actor(
+                  command, prev.out.newActorHiddenState
+                )
+                
+                const introject = [
+                  format.outputPrefix,
+                  out.output,
+                  format.actorStatePrefix,
+                  out.newActorState,
+                  format.suffix
+                ].flat()
+                
+                hist.push({
+                  command: cmd,
+                  prev.out.newActorHiddenState,
+                  out,
+                  introject
+                })
+                window.modelInjectMemory(0, introject)
+              } else {
+                if (invRetryCount > NretryInvalid) {
+                  invRetryCount = 0
+                  handler.rewind(hist.pop())
+                  
+                } else {
+                  window.modelInjectMemory(0, prev.introject)
+                }
+              }
+              
+            } else {
+              if (noRespRetryCount > NRetryNoResponse) {
+                noRespRetryCount = 0;
+                handler.rewind(hist.pop())
+              } else {
+                window.modelInjectMemory(0, prev.introject)
+              }
+            }
+            
+          }, cfg.period)
+        }
+      }
       
       //alert("hello")
       /*
 
-register(prefix, env state prefix, actor state prefix, suffix, output prefix, actor, input_parser, output_encoder, env state parser, env state encoder, actor state parser, actor state encoder, env state comparator, actor state comparator, invalid_actor_state_representation_marker, invalid env state transition).
+protocol
 
-(input opt, env state, actor state)  => (output opt, expected new env state, new actor state)
+Command(input) from sefirot
+<Prefix><input><envstateprefix><envstate><actorstateprefix><actorstate><suffix>
 
 
-<Prefix><input><envstateprefix><envstate><actorstateprefix><actorstate><suffix>INSERT:<output prefix><output> <envstateprefix><envstate><actorstateprefix><actorstate> <suffix>
+Output from actor (Inserted into Sfr memory):
+<RepeatSefirotInput><OutputPrefix><Output><actorstateprefix><actornewstate><suffix>
 
 For prefix:43294, inputs:[584, 13048], results: [5673, 67], env goes from state 6684 to 8909  (predictable to actor) and then to unknown state, actor goes from 99 to 1342 and then to 95
 
@@ -1321,8 +1495,25 @@ REWRITES IN SFRT MEMORY
 4329413048943890978913425556666778995
 
 —-
-Actor will retry when state is invalid. If retries are not successful, actor will start rewinding states.
+Strings will be catched from recent Sfr memory;
+only last match in recent memory will be reported to actor.
+valid old state transitions from Sfr memory would be ignored
 
+
+states are invalid when:
+- Sfr does not output proper current state of actor (as known to sfr)
+- expected sfr state (not known to sfr)
+
+Actor will retry when state is invalid. 
+Actor will retry when no knew command has been received.
+(It will keep actor response recent too)
+
+If retries are not successful, actor will start rewinding states.
+NRetryInvalid
+NRetryNoResponse
+
+After retries actor will rewind it's state.
+Note: for side-effectful actors best effort rewind function should be provided
 */
        
     </script>
