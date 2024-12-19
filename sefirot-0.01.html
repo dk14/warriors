@@ -1276,307 +1276,317 @@ sfrGraphicsChBound = 9
     
     <script type="text/typescript">
     
-    
-      
-      declare global {
-        interface Window { 
-          //modelExtractionQueue: [number, number][]; 
-          
-          Nrecent: number;
-          introspectRecentMemory: (ch: number) => number[]
-          injectMemory: (ch: number, introject: number[]) => {};
-          captureSfrCanvasAndAudio: MediaSource //TODO
-       
-          introjectionApi: IntrojectionApi
-       }
-      }
-      
-      type SfrString = number[]
-      
-      type ActorOutput<T> = {
-        output: SfrString;
-        newActorState: SfrString;
-        newActorHiddenState: SfrString;
-        expectedNewSfrState: SfrString;
-      }
-      
-      type Command = {
-        input: SfrString,
-        sfrState: SfrString,
-        actorState: SfrString
-      }
-      
-      type StateTransition<T> = {
-        command: Command;
-        actorHiddenState: T;
-        out: ActorOutput;
-        introject: SfrString;
-      }
-      
-      type Format = {
-        prefix: SfrString;
-        sfrStatePrefix: SfrString;
-        actorStatePrefix: SfrString;
-        suffix: SfrString;
-        outputPrefix: SfrString;
-      }
-      
-      type Handler<T> = {
-        name: string;
-        format: Format
-        actor: (command: Command, actorHiddenState: T) => ActorOutput<T>
-        rewind: (transition: StateTransition<T>) => {}
-      };
-      
-      type Maybe<T> = T | undefined
-      
-      type CommandParserResult = {
-        res: Command,
-        tail: SfrString
-      }
-      
-      type ActorHistory<T> = {
-        name: string;
-        data: StateTransition<T>[]
-      }
-      
-      type Cancellable = number
-      
-      type ActorCfg = {
-        period: number;
-        NRetryInvalid: number;
-        NRetryNoResponse: number;
-      }
-      
-      type IntrojectionApi = {
-        subscribe<T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable
-      }
-      
-      const eq = (a: SfrString, b: SfrString): boolean => {
-        if (a.length != b.length) {
-          return false
-        }
-        for (i=0; i < a.length; i++) {
-          if (a[i] !== b[i]) {
+	    export {};
+
+declare global {
+    interface Window {
+        //modelExtractionQueue: [number, number][]; 
+
+        Nrecent: number;
+        introspectRecentMemory: (ch: number) => number[]
+        injectMemory: (ch: number, introject: number[]) => {};
+        captureSfrCanvasAndAudio: MediaSource //TODO
+
+        introjectionApi: IntrojectionApi
+    }
+}
+
+type SfrString = number[]
+
+type ActorOutput<T> = {
+    output: SfrString;
+    newActorState: SfrString;
+    newActorHiddenState: T;
+    expectedNewSfrState: SfrString;
+}
+
+type Command = {
+    input: SfrString,
+    sfrState: SfrString,
+    actorState: SfrString
+}
+
+type StateTransition<T> = {
+    command: Command;
+    actorHiddenState: T;
+    out: ActorOutput<T>
+    introject: SfrString;
+}
+
+type Format = {
+    prefix: SfrString;
+    sfrStatePrefix: SfrString;
+    actorStatePrefix: SfrString;
+    suffix: SfrString;
+    outputPrefix: SfrString;
+}
+
+type Handler<T> = {
+    name: string;
+    format: Format
+    actor: (command: Command, actorHiddenState: T) => ActorOutput<T>
+    rewind: (transition: StateTransition<T> | undefined) => void
+};
+
+type Maybe<T> = T | undefined
+
+type CommandParserResult = {
+    res: Command,
+    tail: SfrString
+}
+
+type ActorHistory<T> = {
+    data: StateTransition<T>[]
+}
+
+type Cancellable = number
+
+type ActorCfg = {
+    period: number;
+    NRetryInvalid: number;
+    NRetryNoResponse: number;
+}
+
+type IntrojectionApi = {
+    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable
+}
+
+const eq = (a: SfrString, b: SfrString): boolean => {
+    if (a.length != b.length) {
+        return false
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
             return false
-          }
         }
-        return true
-      }
-      
-      const findSubStringIndex = (a: SfrString, sub: SfrString): number => {
-        for (i=0; i < a.length - sub.length; i++) {
-          if (eq(sub, a.slice(i, i+sub.length))) {
+    }
+    return true
+}
+
+const findSubStringIndex = (a: SfrString, sub: SfrString): Maybe<number> => {
+    for (let i = 0; i < a.length - sub.length; i++) {
+        if (eq(sub, a.slice(i, i + sub.length))) {
             return i
-          }
         }
-        return undefined
-      }
-      
-        
-        
-      const parse = (candidate: SfrString, format: Format): Maybe<Command> => {
-          type Tail = SfrString
-          type Result = SfrString
-          
-          const parseBetween: (str: SfrString, curPrefix: SfrString, nextPrefix: SfrString): [Result, Tail] | undefined => {
-            const j = findSubStringIndex(str, nextPrefix)
-            return j ? [str.slice(curPrefix.length, j), str.slice(j)] | undefined
-          }
-          
-          const i = findSubStringIndex(candidate, format.prefix)
-          return i ? () => {
-            const command = str.slice(i)
-            const [input, tail1] = parseBetween(command, format.prefix, format.sfrStatePrefix) ?? return undefined
-            const [sfrState, tail2] = parseBetween(tail1, format.sfrStatePrefix, format.actorStatePrefix) ?? return undefined
-            const [actorState, tail3] = parseBetween(tail2, format.actorStatePrefix, format.suffix) ?? return undefined
-            return [
-              {
-                input,
-                sfrState,
-                actorState
-              },
-              tail3
-            ]
-            
-          }() : undefined
+    }
+    return undefined
+}
+
+
+
+const parse = (candidate: SfrString, format: Format): Maybe<CommandParserResult> => {
+    type Tail = SfrString
+    type Result = SfrString
+
+    const parseBetween = (str: SfrString, curPrefix: SfrString, nextPrefix: SfrString): [Result, Tail] | undefined => {
+        const j = findSubStringIndex(str, nextPrefix)
+        return j ? [str.slice(curPrefix.length, j), str.slice(j)] : undefined
+    }
+
+    const i = findSubStringIndex(candidate, format.prefix)
+    if (!i) return undefined
+    
+    const command = candidate.slice(i)
+    
+    const parsedInput = parseBetween(command, format.prefix, format.sfrStatePrefix)
+    if (!parsedInput) return undefined;
+    const [input, tail1] = parsedInput
+    
+    const parsedSfrState = parseBetween(tail1, format.sfrStatePrefix, format.actorStatePrefix)
+    if (!parsedSfrState) return undefined
+    const [sfrState, tail2] = parsedSfrState
+
+    const parsedActorState = parseBetween(tail2, format.actorStatePrefix, format.suffix)
+    if (!parsedActorState) return undefined
+    const [actorState, tail3] = parsedActorState
+
+    return {
+        res: {
+            input,
+            sfrState,
+            actorState
+        },
+        tail: tail3
+    }
+}
+
+
+
+class Subscription<T> {
+    public handler: Handler<T>
+    public cfg: ActorCfg
+
+
+    private hist: ActorHistory<T> = { data: [] }
+    private invRetryCount = 0;
+    private noRespRetryCount = 0;
+
+    public constructor(handler: Handler<T>, cfg: ActorCfg) {
+        this.handler = handler;
+        this.cfg = cfg
+    }
+
+    public inspectHistory(): StateTransition<T>[] {
+        return this.hist.data
+    }
+
+    public progress(introspect: (ch: number) => number[], inject: (ch: number, introject: number[]) => void): void {
+        const memory = introspect(0)
+
+        var cmd: Maybe<Command> = undefined
+        var found = parse(memory, this.handler.format)
+
+        while (found != undefined) {
+            cmd = found!.res
+            found = parse(found!.tail, this.handler.format)
         }
-      
-      }
-      
-      
-      
-      class Subscription {
-          public handler: Handler<T>
-          public cfg: ActorCfg
-      
-      
-          private hist: ActorHistory<T> = {data: []}
-          private invRetryCount = 0;
-          private noRespRetryCount = 0;
-          
-          public constructor(handler: Handler<T>, cfg: ActorCfg) {
-              this.handler = handler;
-              this.cfg = cfg
-          }
-          
-          public function inspectHistory(): number[] {
-            return hist.data
-          }
-          
-          public function progress(introspect: (ch: number) => number[], inject: (ch: number, introject: number[]) => {}): void {
-            const memory = introspect(0)
-                
-            var cmd: Maybe<Command> = undefined
-            var found = parse(memory, handler.format)
-            
-            while (found != undefined){
-              cmd = found
-              found = parse(found.tail, handler.format)
-            }
-            
-            const prev = hist.data[-1] //todo what empty?
-            if (cmd != undefined) {
-              const isValid = !prev || eq(cmd.sfrState, prev.out.expectedNewSfrState) && eq(cmd.actorState, prev.out.newActorState)
-              if (isValid) {
+
+        const prev = this.hist.data[-1] //todo what empty?
+        if (cmd != undefined) {
+            const isValid = !prev || eq(cmd.sfrState, prev.out.expectedNewSfrState) && eq(cmd.actorState, prev.out.newActorState)
+            if (isValid) {
                 const out = this.handler.actor(
-                  command, prev?.out.newActorHiddenState
+                    cmd, prev?.out.newActorHiddenState
                 )
-                
+
                 const introject = [
-                  this.handler.format.outputPrefix,
-                  out.output,
-                  this.handler.format.actorStatePrefix,
-                  out.newActorState,
-                  this.handler.format.suffix
+                    this.handler.format.outputPrefix,
+                    out.output,
+                    this.handler.format.actorStatePrefix,
+                    out.newActorState,
+                    this.handler.format.suffix
                 ].flat()
-                
+
                 this.hist.data.push({
-                  command: cmd,
-                  prev?.out.newActorHiddenState,
-                  out,
-                  introject
+                    command: cmd,
+                    actorHiddenState: prev?.out.newActorHiddenState,
+                    out,
+                    introject
                 })
                 window.injectMemory(0, introject)
-              } else {
-                if (invRetryCount >= NretryInvalid) {
-                  invRetryCount = 0
-                  this.handler.rewind(this.hist.data.pop())
-                  
-                } else {
-                  inject(0, prev?.introject ?? [])
-                }
-              }
-              
             } else {
-              if (noRespRetryCount >= NRetryNoResponse) {
-                noRespRetryCount = 0;
+                if (this.invRetryCount >= this.cfg.NRetryInvalid) {
+                    this.invRetryCount = 0
+                    this.handler.rewind(this.hist.data.pop())
+
+                } else {
+                    inject(0, prev?.introject ?? [])
+                }
+            }
+
+        } else {
+            if (this.noRespRetryCount >= this.cfg.NRetryNoResponse) {
+                this.noRespRetryCount = 0;
                 this.handler.rewind(this.hist.data.pop())
-              } else {
+            } else {
                 inject(0, prev?.introject ?? [])
-              }
             }
-            
-          }
-      
-      }
-      
-      const formatFixture = {
-          prefix: [1,2];
-          sfrStatePrefix: [5,6];
-          actorStatePrefix: [9,10];
-          suffix: [13, 14];
-          outputPrefix: [];
-      }
-        
-      const cfgFixture = {
-        period: 2;
-        NRetryInvalid: 0
-        NRetryNoResponse: 0
-      }
-      
-      const memFixture1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-      const memFixture2Succ = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-      const memFixture2SuccRes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-      const memFixture2Fail1 = [1,2,3,4,5,6,8,8,9,10,11,12,13,14,15,16]
-      const memFixture2Fail2 = [1,2,3,4,5,6,7,8,9,10,11,15,13,14,15,16]
-      
-      
-      const parserTest = () => {
-        const candidate = memFixture1
-        
-        
-        const out = [{
-          input: [3, 4],
-          sfrState: [7,8],
-          actorState: [10,11]
-        }, [15,16]]
-        
-        console.assert(parse(candidate, formatFixture) === out)
-      }
-      
-      const subscriptionTest = () => {
-        var rewinded = false
-        const handler = {
-          name: "test";
-          format: formatFixture
-          actor: (command: Command, actorHiddenState: any): ActorOutput<any> => {
+        }
+
+    }
+
+}
+
+const formatFixture = {
+    prefix: [1, 2],
+    sfrStatePrefix: [5, 6],
+    actorStatePrefix: [9, 10],
+    suffix: [13, 14],
+    outputPrefix: [],
+}
+
+const cfgFixture = {
+    period: 2,
+    NRetryInvalid: 0,
+    NRetryNoResponse: 0
+}
+
+const memFixture1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+const memFixture2Succ = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+const memFixture2SuccRes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+const memFixture2Fail1 = [1, 2, 3, 4, 5, 6, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+const memFixture2Fail2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 13, 14, 15, 16]
+
+
+const parserTest = () => {
+    const candidate = memFixture1
+
+
+    const out = {
+        res: {
+            input: [3, 4],
+            sfrState: [7, 8],
+            actorState: [10, 11]
+        },
+        tail: [15, 16]
+    }
+
+    console.assert(parse(candidate, formatFixture) === out)
+}
+
+const subscriptionTest = () => {
+    var rewinded = false
+    const handler: Handler<any> = {
+        name: "test",
+        format: formatFixture,
+        actor: (command: Command, actorHiddenState: any): ActorOutput<any> => {
             return {
-              // repeating same; should not donthat in real
-              output: command.input
-              newActorState: command.actorState
-              expectedNewSfrState: command.sfrState
-              newActorHiddenState: actorHiddenState
+                // repeating same; should not donthat in real
+                output: command.input,
+                newActorState: command.actorState,
+                expectedNewSfrState: command.sfrState,
+                newActorHiddenState: actorHiddenState
             }
-          }
-          rewind: (transition: StateTransition<T>) => {
+        },
+        rewind: (transition: StateTransition<any> | undefined): void => {
             rewinded = true
-          }
         }
-        const subscr = new Subscriotion(handler, cfgFixture)
-        var reply1 = null
-        subscr.progress(() => memFixture1, (ch, introject) => {
-          reply1 = introject
-        })
-        console.assert(reply1)
-        console.assert(eq(reply1, memFixture1))
-        console.assert(subscr.inspectHistory().length == 1)
-        
-        var reply2 = null
-        subscr.progress(() => memFixture2Succ, (ch, introject) => {
-          reply2 = introject
-        })
-        console.assert(reply2)
-        console.assert(eq(reply2, memFixture2SuccRes))
-        console.assert(subscr.inspectHistory().length == 2)
-        
-        var reply3 = null
-        subscr.progress(() => memFixture2Fail1, (ch, introject) => {
-          reply3 = introject
-        })
-        console.assert(!reply3)
-        console.assert(subscr.inspectHistory().length == 1)
-        
-        var reply4 = null
-        subscr.progress(() => memFixture2Fail1, (ch, introject) => {
-          reply4 = introject
-        })
-        console.assert(!reply4)
-        console.assert(subscr.inspectHistory().length == 0)
-        
-        
-      }
-      
-      parserTest()
-      subscriptionTest()
-      
-      
-      window.introjectionApi = {
-        subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => {
-          const subscr = new Subscription<T>(handler, cfg)
-          return setInterval(subscr.progress, cfg.period)
-        }
-      }
+    }
+    const subscr = new Subscription(handler, cfgFixture)
+    var reply1: Maybe<SfrString> = undefined
+    subscr.progress(() => memFixture1, (ch, introject) => {
+        reply1 = introject
+    })
+    console.assert(reply1)
+    console.assert(eq(reply1!, memFixture1))
+    console.assert(subscr.inspectHistory().length == 1)
+
+    var reply2: Maybe<SfrString> = undefined
+    subscr.progress(() => memFixture2Succ, (ch, introject) => {
+        reply2 = introject
+    })
+    console.assert(reply2)
+    console.assert(eq(reply2!, memFixture2SuccRes))
+    console.assert(subscr.inspectHistory().length == 2)
+
+    var reply3: Maybe<SfrString> = undefined
+    subscr.progress(() => memFixture2Fail1, (ch, introject) => {
+        reply3 = introject
+    })
+    console.assert(!reply3)
+    console.assert(subscr.inspectHistory().length == 1)
+
+    var reply4: Maybe<SfrString>
+    subscr.progress(() => memFixture2Fail2, (ch, introject) => {
+        reply4 = introject
+    })
+    console.assert(!reply4)
+    console.assert(subscr.inspectHistory().length == 0)
+
+
+}
+
+parserTest()
+subscriptionTest()
+
+
+window.introjectionApi = {
+    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => {
+        const subscr = new Subscription<T>(handler, cfg)
+        return setInterval(subscr.progress, cfg.period)
+    }
+}
+
       
       //alert("hello")
       /*
