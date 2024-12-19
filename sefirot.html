@@ -164,11 +164,11 @@ sfrGraphicsChBound = 9
       window.Nrecent = 1000
       
       window.introspectRecentMemory = (ch) => {
-        return history[ch].slice(-Nrecent)
+        return memory[ch].slice(-Nrecent)
       }
       
       window.injectMemory = (ch, introject) => {
-        history[ch].push(...introject)
+        memory[ch].push(...introject)
       }
       
       window.transformBound = 50.0
@@ -1276,7 +1276,7 @@ sfrGraphicsChBound = 9
     
     <script type="text/typescript">
     
-	    export {};
+	    // export {};
 
 declare global {
     interface Window {
@@ -1352,7 +1352,9 @@ type IntrojectionApi = {
 }
 
 const eq = (a: SfrString, b: SfrString): boolean => {
-    if (a.length != b.length) {
+    if (!a || !b) return false
+	
+	if (a.length != b.length) {
         return false
     }
     for (let i = 0; i < a.length; i++) {
@@ -1380,16 +1382,18 @@ const parse = (candidate: SfrString, format: Format): Maybe<CommandParserResult>
 
     const parseBetween = (str: SfrString, curPrefix: SfrString, nextPrefix: SfrString): [Result, Tail] | undefined => {
         const j = findSubStringIndex(str, nextPrefix)
+		//console.log("str=" + str + " j=" + j)
         return j ? [str.slice(curPrefix.length, j), str.slice(j)] : undefined
     }
 
     const i = findSubStringIndex(candidate, format.prefix)
-    if (!i) return undefined
+	
+	if (i === undefined) return undefined
     
     const command = candidate.slice(i)
     
     const parsedInput = parseBetween(command, format.prefix, format.sfrStatePrefix)
-    if (!parsedInput) return undefined;
+	if (!parsedInput) return undefined;
     const [input, tail1] = parsedInput
     
     const parsedSfrState = parseBetween(tail1, format.sfrStatePrefix, format.actorStatePrefix)
@@ -1406,7 +1410,7 @@ const parse = (candidate: SfrString, format: Format): Maybe<CommandParserResult>
             sfrState,
             actorState
         },
-        tail: tail3
+        tail: tail3.slice(format.suffix.length)
     }
 }
 
@@ -1441,7 +1445,7 @@ class Subscription<T> {
             found = parse(found!.tail, this.handler.format)
         }
 
-        const prev = this.hist.data[-1] //todo what empty?
+        const prev = this.hist.data[this.hist.data.length - 1]
         if (cmd != undefined) {
             const isValid = !prev || eq(cmd.sfrState, prev.out.expectedNewSfrState) && eq(cmd.actorState, prev.out.newActorState)
             if (isValid) {
@@ -1463,22 +1467,28 @@ class Subscription<T> {
                     out,
                     introject
                 })
-                window.injectMemory(0, introject)
+                inject(0, introject)
             } else {
                 if (this.invRetryCount >= this.cfg.NRetryInvalid) {
-                    this.invRetryCount = 0
+                    //console.log("rewind invalid state")
+					this.invRetryCount = 0
                     this.handler.rewind(this.hist.data.pop())
 
                 } else {
+					//console.log("retry invalid state transition")
+					this.invRetryCount ++
                     inject(0, prev?.introject ?? [])
                 }
             }
 
         } else {
             if (this.noRespRetryCount >= this.cfg.NRetryNoResponse) {
-                this.noRespRetryCount = 0;
+                //console.log("rewind ignored state")
+				this.noRespRetryCount = 0;
                 this.handler.rewind(this.hist.data.pop())
             } else {
+				//console.log("repeat last state transition")
+				this.noRespRetryCount ++
                 inject(0, prev?.introject ?? [])
             }
         }
@@ -1492,7 +1502,7 @@ const formatFixture = {
     sfrStatePrefix: [5, 6],
     actorStatePrefix: [9, 10],
     suffix: [13, 14],
-    outputPrefix: [],
+    outputPrefix: [1, 2],
 }
 
 const cfgFixture = {
@@ -1501,27 +1511,43 @@ const cfgFixture = {
     NRetryNoResponse: 0
 }
 
-const memFixture1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-const memFixture2Succ = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-const memFixture2SuccRes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-const memFixture2Fail1 = [1, 2, 3, 4, 5, 6, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-const memFixture2Fail2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 13, 14, 15, 16]
+const memFixture1 = [1, 2,   3, 4,   5, 6,   7, 8,    9, 10,    11, 12,    13, 14,   15, 16]
+const memFixture1Res = [1, 2,   3, 4,  9, 10,    11, 12,    13, 14]
+
+const memFixture2Succ = [1, 2,   3, 4,   5, 6,   7, 8,   9, 10,   11, 12,   13, 14,   15, 16]
+const memFixture2SuccRes = [1, 2,   3, 4,   9, 10,   11, 12,   13, 14]
+
+
+const memFixture2Fail1 = [1, 2,    3, 4,    5, 7,    7, 8,    9, 10,    11, 12,    13, 14,     15, 16]
+const memFixture2Fail2 = [1, 2,    3, 4,    5, 6,    7, 8,    9, 10,    11, 15,    13, 14,     15, 16]
 
 
 const parserTest = () => {
     const candidate = memFixture1
 
 
-    const out = {
+    const expected = {
         res: {
             input: [3, 4],
             sfrState: [7, 8],
-            actorState: [10, 11]
+            actorState: [11, 12]
         },
         tail: [15, 16]
     }
-
-    console.assert(parse(candidate, formatFixture) === out)
+	const parsed = parse(candidate, formatFixture)
+    
+	console.assert(eq([1,2,3],[1,2,3]), "eq does not work!")
+	console.assert(!eq([1,2,3],[1,2,4]), "homotopies!")
+	const ii = findSubStringIndex([1,2,3,4,5,6], [3, 4, 5])
+	console.assert(ii, "search does not work: " + ii)
+	console.assert(!findSubStringIndex([1,2,3,4,5,6], [6, 6, 6]), "paranoia!")
+	
+	console.assert(parsed, "parsing failed")
+	console.assert(eq(expected.res.input, parsed?.res.input), "input parser failed! " + parsed?.res.input)
+	console.assert(eq(expected.res.sfrState, parsed?.res.sfrState), "sfrstate parser failed! " + parsed?.res.sfrState)
+	console.assert(eq(expected.res.actorState, parsed?.res.actorState), "actorstate parser failed! " + parsed?.res.actorState)
+	console.assert(eq(expected.tail, parsed?.tail), "unexpected tail! " + parsed?.res.tail)
+	
 }
 
 const subscriptionTest = () => {
@@ -1547,43 +1573,45 @@ const subscriptionTest = () => {
     subscr.progress(() => memFixture1, (ch, introject) => {
         reply1 = introject
     })
-    console.assert(reply1)
-    console.assert(eq(reply1!, memFixture1))
-    console.assert(subscr.inspectHistory().length == 1)
+    console.assert(reply1, "reply1 is undefined")
+    console.assert(eq(reply1!, memFixture1Res), "wrong reply1: " + reply1)
+    console.assert(subscr.inspectHistory().length == 1, "history length! expected 2 got " + subscr.inspectHistory().length)
 
     var reply2: Maybe<SfrString> = undefined
     subscr.progress(() => memFixture2Succ, (ch, introject) => {
         reply2 = introject
     })
-    console.assert(reply2)
-    console.assert(eq(reply2!, memFixture2SuccRes))
-    console.assert(subscr.inspectHistory().length == 2)
+    console.assert(reply2, "reply2 is undefined")
+    console.assert(eq(reply2!, memFixture2SuccRes), "wrong reply2: " + reply2)
+    console.assert(subscr.inspectHistory().length == 2, "history length! expected 2 got " + subscr.inspectHistory().length)
 
     var reply3: Maybe<SfrString> = undefined
     subscr.progress(() => memFixture2Fail1, (ch, introject) => {
         reply3 = introject
     })
-    console.assert(!reply3)
-    console.assert(subscr.inspectHistory().length == 1)
+    console.assert(!reply3, "reply3 is present " + reply3)
+    console.assert(subscr.inspectHistory().length == 1, "history length! expected 1 got " + subscr.inspectHistory().length)
 
     var reply4: Maybe<SfrString>
     subscr.progress(() => memFixture2Fail2, (ch, introject) => {
         reply4 = introject
     })
-    console.assert(!reply4)
-    console.assert(subscr.inspectHistory().length == 0)
+    console.assert(!reply4, "reply4 is present " + reply4)
+    console.assert(subscr.inspectHistory().length == 0, "history is not empty: " + subscr.inspectHistory())
 
 
 }
 
+//alert('Testing!')
 parserTest()
 subscriptionTest()
+
 
 
 window.introjectionApi = {
     subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => {
         const subscr = new Subscription<T>(handler, cfg)
-        return setInterval(subscr.progress, cfg.period)
+        return setInterval(() => subscr.progress(window.introspectRecentMemory, window.injectMemory), cfg.period)
     }
 }
 
