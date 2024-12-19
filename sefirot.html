@@ -2,10 +2,13 @@
   
   <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    
+    <meta name="mobile-web-app-capable" content="yes">
      <meta name="viewport" content="user-scalable=no, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="touch-icon" href="https://github.com/user-attachments/assets/c3543d29-0559-434a-ad20-433cb0b2a015">
     <link rel="apple-touch-icon" href="https://github.com/user-attachments/assets/c3543d29-0559-434a-ad20-433cb0b2a015">
     <link href='https://fonts.googleapis.com/css?family=Courier Prime' rel='stylesheet'>
     <meta name="apple-mobile-web-app-title" content="Sfr">
@@ -613,11 +616,13 @@ sfrGraphicsChBound = 9
       const videoElem = document.createElement("video");
       videoElem.srcObject = canvasStream
       
-      audioElem.controls = true;
+      audioElem.controls = false;
       audioElem.autoplay = false;
+      audioElem.style = "position:relative;"
       
-      videoElem.autoplay = true
+      videoElem.autoplay = false
       videoElem.controls = true
+      videoElem.style.display = "none"
       
       videoElem.onpause = () => {
         audioElem.pause()
@@ -628,6 +633,8 @@ sfrGraphicsChBound = 9
         audioElem.play()
       }
       window.overrideCanvas = false
+      
+      
       
       videoElem.onvolumechange = () => {
         
@@ -678,21 +685,84 @@ sfrGraphicsChBound = 9
         }
       }
       
+      
+      
+      const fullscreen = document.createElement("button");
+      
+      fullscreen.style = "font-size:40px;position:relative;left:0%;"
+      
+      fullscreen.innerText = "EXPAND"
+      fullscreen.onclick = () => {
+        videoElem.style.display = "block"
+        videoElem.play()
+        if (videoElem.requestFullscreen) 
+          videoElem.requestFullscreen();
+        else if (videoElem.webkitRequestFullscreen) 
+          div.webkitRequestFullscreen();
+        else if (videoElem.msRequestFullScreen) 
+          videoElem.msRequestFullScreen();
+      }
+      
+      const pause = document.createElement("button");
+      pause.innerText="||"
+      pause.style = "font-size:40px;position:relative;left:0%;"
+      
+      pause.onclick = () => {
+        if (audioElem.paused) {
+          audioElem.play()
+          pause.innerText="||"
+        } else {
+          audioElem.pause()
+          pause.innerText="|>"
+        }
+          
+      }
+      
+      
+      document.addEventListener("fullscreenchange", function() {
+        console.log("aaa")
+        if (!document.fullscreen) {
+          videoElem.pause()
+          videoElem.style.display="none"
+        }
+      });
+      
+      if (document.webkitCurrentFullScreenElement && document.webkitCurrentFullScreenElement.onwebkitfullscreenchange) {
+        document.webkitCurrentFullScreenElement.onwebkitfullscreenchange = () => {
+          if (!document.webkitIsFullScreen) {
+            videoElem.pause()
+            videoElem.style.display="none"
+          }
+        }
+      }
+      
+      videoElem.addEventListener("webkitendfullscreen", function(){
+        videoElem.pause()
+        videoElem.style.display="none"
+      }, false);
+
+      
+      
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(canvas)
       document.body.appendChild(document.createElement("br"))
       
       document.body.appendChild(document.createElement("br"))
+      
+      document.body.appendChild(fullscreen);
       document.body.appendChild(audioElem);
+      document.body.appendChild(pause);
       
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(document.createElement("br"))
+      
+      
       document.body.appendChild(videoElem);
       
-      
+      document.body.appendChild(document.createElement("br"))
       console.log("666")
       
       
@@ -700,6 +770,8 @@ sfrGraphicsChBound = 9
       
       
       setTimeout(() => {  
+        
+        window.scrollTo(0, 1);
         
         window.oscillatorNode = []
         
