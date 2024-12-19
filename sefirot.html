@@ -17,7 +17,9 @@
       body {
         background-color: black;
         font-family: 'Courier Prime';
-        
+        overflow: hidden;
+        max-width: 100%;
+        overflow-x: hidden;
       }
       h1   {color: blue;}
       p    {color: red;}
@@ -38,6 +40,11 @@
   -webkit-transition: .2s; /* 0.2 seconds transition on hover */
   transition: opacity .2s;
 }
+
+canvas {
+  max-width: 99%;
+}
+
 
 button, label, input, textarea {
   font-family: 'Courier Prime';
@@ -771,7 +778,7 @@ sfrGraphicsChBound = 9
       
       setTimeout(() => {  
         
-        window.scrollTo(0, 1);
+        
         
         window.oscillatorNode = []
         
