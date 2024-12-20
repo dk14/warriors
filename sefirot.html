@@ -46,7 +46,7 @@ canvas {
 }
 
 
-button, label, input, textarea {
+button, label, input, textarea, .log {
   font-family: 'Courier Prime';
   background: black; margin:auto;font-size:35px; border: 1px solid green; display: inline-block;padding: 6px 12px;color:green;
 }
@@ -96,8 +96,14 @@ button, label, input, textarea {
       Sefirot Output: <input type="range" min="1" max="100" value="0" class="slider" id="sfrOutput">
       </font>
     </div>
-    
-    <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
+    <div id="configcontainer" style="width:100%;display:none">
+    <br >
+    <span id="outlog" class="log" style="position:relative; font-color: yellow; white-space: nowrap; width: 70%; left: 0%;">config.js </span>
+    <button id="copy" style="position:relative; top:0%; right: 0%;" onclick="copyConf()" >Copy</button>
+    <button id="paste" style="position:relative; right: 0%;" onclick="pasteConf()">Paste</button>
+    <br>
+    <br>
+    <textarea columns="120" rows="7" id="config" style="width:100%" onchange="window.reconfigure=this.value">
 n=1000; //prefixlengthstart
 minprefixboundary = 5; //prefixlengthmin 
 lag = 5; //exclude last 5 observations from search
@@ -153,11 +159,12 @@ renderHueRotate = 0 //int
         
         
     </textarea>
+    </div>
     <br>
     <button id="savemem" >Save Memory</button>
     <button id="loadmem" >Load Memory</button>
     <button id="resetmem" >Reset Memory</button>
-    <button id="toggle" onclick="txt=document.getElementById('config');if(txt.style.display=='none')txt.style.display='block'; else txt.style.display='none'">Cfg</button>
+    <button id="toggle" onclick="txt=document.getElementById('configcontainer');if(txt.style.display=='none')txt.style.display='block'; else txt.style.display='none'">Cfg</button>
     
     <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
   <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
@@ -877,7 +884,21 @@ renderHueRotate = 0 //int
         window.chbasefreq = Array.from({length: channels}, () => 0)
         window.chmaxfreq = Array.from({length: channels}, () => 0)
       
+        window.pasteConf = () => {
+          navigator.clipboard.readText().then((cfgtxt) => {
+            try {
+              (1,eval)(cfgtxt)
+              document.getElementById("config").value=cfgtxt
+              reconfigure = cfgtxt
+            } catch (err) {
+              alert(err)
+            }
+          }
+        }
         
+        window.copyConf = () => {
+          navigator.clipboard.writeText(document.getElementById("config").value)
+        }
         //40 350
         window.discretisation = 40.0
         
@@ -889,8 +910,28 @@ renderHueRotate = 0 //int
           }
         }
         
+        window.printcfgmsg = (msg) => {
+          document.getElementById("outlog").value = msg
+        }
+        
+        
+        window.cfgmsgappend = ""
+        
+        window.cfgnotify = (msg) => {
+          cfgmsgappend = ">" + msg
+        }
+        
+        window.resetcfgmsg = () => {
+          printcfgmsg("config.js" + cfgmsgappend)
+        }
+        
         setInterval(() => {
-          (1,eval)(window.reconfigure)
+          try {
+            (1,eval)(window.reconfigure)
+            resetcfgmsg()
+          } catch (err) {
+            printcfgmsg(err)
+          }
         }, 1000)
         
         
