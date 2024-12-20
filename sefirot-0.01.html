@@ -99,13 +99,17 @@ button, label, input, textarea {
     
     <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
 n=1000; //prefixlengthstart
-minprefixboundary = 5; 
-indiscriminateChoicefullnessBound = 9; 
-discriminateChoicefullnessBound = 1000;
+minprefixboundary = 5; //prefixlengthmin 
+//nondetermenism resolution (minimax):
+indiscriminateChoicefullnessBound = 9; // max surprisal out of last 9 matching choices in memory
+discriminateChoicefullnessBound = 1000; // pick 1000 most common unique choices out of last 9 and choose one with min occurence
+//autodrift: param = auto(param, step, howoftenplus)
+//decorrelated autodrift: param = auto(param, step, howoften, line, group); ((x / group) % howoften === line) ? + vs - every second
+
 sfrAudioChBound = 3
 sfrGraphicsChBound = 9
 //renderTimeout=5;
-//remder=false;
+//render=false;
 //showCommandLine=false;
 
     </textarea>
