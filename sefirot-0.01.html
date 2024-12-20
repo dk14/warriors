@@ -138,6 +138,15 @@ renderCircleExpBase = 2
 renderCircleExpExpFactor = 1.0
 renderAmplifyAlphaVariance = 1.0
 renderAdjustMinAlpha = 0.0
+renderBrightnessBase = 0.0
+renderBrightnessMultiplier = 1.0
+renderAdjustBrightnessBase = 0.0
+renderBrightnessMultiplier = 1.0
+renderSaturation = 1.0
+renderHueRounding = 10 // int: hue * 10 / 10
+renderAdjustHueSensitivity = 1.0
+renderHueRotate = 0 //int
+        
 
 //list of paddle sliders:
 //speed, gravity, discretisation (paddle sampling period), pos
@@ -535,7 +544,12 @@ renderAdjustMinAlpha = 0.0
         window.renderCircleExpExpFactor = 1.0
         window.renderAmplifyAlphaVariance = 1.0
         window.renderAdjustMinAlpha = 0.0
-        
+        window.renderAdjustBrightnessBase = 0.0
+        window.renderBrightnessMultiplier = 1.0
+        window.renderSaturation = 1.0
+        window.renderHueRounding = 10 // int: hue * 10 / 10
+        window.renderAdjustHueSensitivity = 1.0
+        window.renderHueRotate = 0 //int
         
         const draw = () => {
           
@@ -608,7 +622,7 @@ renderAdjustMinAlpha = 0.0
               const transform = st.transform 
               const factor = st.transformFactor * window.shaderAmplifyCoordTransform
               
-              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius,  ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light * 0.1 + 0.4, window.renderAdjustMinAlpha + 0.01 + 0.05 * window.renderAmplifyAlphaVariance * st.alpha, transform, factor)
+              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius,  (((360 * st.hue * window.renderAdjustHueSensitivity + window.renderHueRotate)%361).toFixed(0) / window.renderHueRounding) * window.renderHueRounding, window.renderSaturation, st.light * 0.1 * window.renderBrightnessMultiplier + window.renderAdjustBrightnessBase + 0.4, window.renderAdjustMinAlpha + 0.01 + 0.05 * window.renderAmplifyAlphaVariance * st.alpha, transform, factor)
               
               //print(waited)
               if (waited < renderTimeout) {
