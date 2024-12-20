@@ -88,10 +88,10 @@ button, label, input, textarea {
     </div>
     
     <div class="slidecontainer">
-      <font color="green">
+      <font color="grey">
       Paddle Speed: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSpeed">
       Paddle Gravity: <input type="range" min="1" max="100" value="50" class="slider" id="paddleGravity">
-      Paddle Sampling Period: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSampling">
+      Sampling Period: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSampling">
       Paddle Position: <input type="range" min="1" max="100" value="0" class="slider" id="paddlePos">
       Sefirot Output: <input type="range" min="1" max="100" value="0" class="slider" id="sfrOutput">
       </font>
@@ -100,7 +100,7 @@ button, label, input, textarea {
     <textarea columns="120" rows="7" id="config" style="width:100%;display:none" onchange="window.reconfigure=this.value">
 n=1000; //prefixlengthstart
 minprefixboundary = 5; //prefixlengthmin 
-//nondetermenism resolution (minimax):
+//nondeterminism resolution (minimax):
 indiscriminateChoicefullnessBound = 9; // max surprisal out of last 9 matching choices in memory
 discriminateChoicefullnessBound = 1000; // pick 1000 most common unique choices out of last 9 and choose one with min occurence
 //autodrift: param = auto(param, step, howoftenplus)
