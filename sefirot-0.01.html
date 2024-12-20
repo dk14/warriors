@@ -107,13 +107,42 @@ discriminateChoicefullnessBound = 1000; // pick 1000 most common unique choices 
 //autodrift: param = auto(param, step, howoftenplus)
 //decorrelated autodrift: param = auto(param, step, howoften, line, group); ((x / group) % howoften === line) ? + vs - every second
 
+//---AV params---
 sfrAudioChBound = 3 //max 10
 sfrGraphicsChBound = 9 //max 10
-//renderTimeout=5;
-//render=false;
-//showCommandLine=false;
-//m = 10000000; //memory eviction bound
+//renderTimeout=5
+render=true
 
+//---UI---
+showCommandLine=false
+
+//---Memory---
+m = 10000000 //memory eviction bound
+
+//---Paddle---
+centerPaddle = false
+modulateOutput = false
+restrictOutput = false
+paddleCycleTicks = 120 // normalize: discretisation * 120 / 40
+
+//--Renderer---
+shaderInvokeThreshold1 = 70
+shaderInvokeThreshold2 = 80
+shaderInvokeThreshold3 = 0.01
+shaderInvokeThreshold4 = 0.05
+shaderInvokeThreshold5 = 0.04
+shaderAmplifyCoordTransform = 1.0
+shaderAmplifyBackgroundCoordTransform = 1.0
+        
+renderCircleExpBase = 2
+renderCircleExpExpFactor = 1.0
+renderAmplifyAlphaVariance = 1.0
+renderAdjustMinAlpha = 0.0
+
+//list of paddle sliders:
+//speed, gravity, discretisation (paddle sampling period), pos
+        
+        
     </textarea>
     <br>
     <button id="savemem" >Save Memory</button>
@@ -493,6 +522,21 @@ sfrGraphicsChBound = 9 //max 10
           states.push(initRenderState())
         }
         
+        window.shaderInvokeThreshold1 = 70
+        window.shaderInvokeThreshold2 = 80
+        window.shaderInvokeThreshold3 = 0.01
+        window.shaderInvokeThreshold4 = 0.05
+        window.shaderInvokeThreshold5 = 0.04
+        window.shaderAmplifyCoordTransform = 1.0
+        window.shaderAmplifyBackgroundCoordTransform = 1.0
+        
+        
+        window.renderCircleExpBase = 2
+        window.renderCircleExpExpFactor = 1.0
+        window.renderAmplifyAlphaVariance = 1.0
+        window.renderAdjustMinAlpha = 0.0
+        
+        
         const draw = () => {
           
           
@@ -552,25 +596,27 @@ sfrGraphicsChBound = 9 //max 10
               
               const coords = barycentric(st.m1, st.m2, st.m3)
               //ctx.beginPath();
-              const base = 10 + st.light * 2
-              const radius = Math.pow(2, st.brush * base)
+              const exp = (10 + st.light * 2) * window.renderCircleExpExpFactor
+              const base = window.renderCircleExpBase
+              
+              const radius = Math.pow(base, st.brush * exp)
               //ctx.arc(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, 0, 2 * Math.PI);
               //ctx.arc(coords[0] * 1000, coords[1] * 1000, 1000 * st.brush, 0, 2 * Math.PI);
               
               //ctx.fill()
               
               const transform = st.transform 
-              const factor = st.transformFactor
+              const factor = st.transformFactor * window.shaderAmplifyCoordTransform
               
-              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius, ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light* 0.1 + 0.4, 0.01 + 0.05 * st.alpha, transform, factor)
+              doCircle(-350 + coords[0] * 1700, -500 + coords[1] * 1500, radius,  ((360 * st.hue).toFixed(0) / 10) * 10, 1.0, st.light * 0.1 + 0.4, window.renderAdjustMinAlpha + 0.01 + 0.05 * window.renderAmplifyAlphaVariance * st.alpha, transform, factor)
               
               //print(waited)
               if (waited < renderTimeout) {
                 const t0 = performance.now()
                 const level = (st.blurLevel * 100)
-                if (level > 70) {
+                if (level > window.shaderInvokeThreshold1) {
                   let filterFactor = 0.1
-                  if (level > 80) {
+                  if (level > window.shaderInvokeThreshold2) {
                       filterFactor = 0.4
                   }
                   
@@ -588,19 +634,19 @@ sfrGraphicsChBound = 9 //max 10
               
               
             }
-            if (states[0].blurLevel > 0.01) {
+            if (states[0].blurLevel > window.shaderInvokeThreshold3) {
               
               let viewportTransform = 0
               let blurWindow = 3
               let filter = 0.01
-              if (states[1].blurLevel < 0.05) {
-                if (states[2].blurLevel < 0.04) {
+              if (states[1].blurLevel < window.shaderInvokeThreshold4) {
+                if (states[2].blurLevel < window.shaderInvokeThreshold5) {
                   blurWindow = 0
                   filter = 0.0
                 }
                 viewportTransform = states[2].transform
               }
-              doBlur(3, 0.01, viewportTransform, states[3].transformFactor)
+              doBlur(3, 0.01, viewportTransform, states[3].transformFactor * window.shaderAmplifyBackgroundCoordTransform)
             }
             
           } 
@@ -1216,23 +1262,56 @@ sfrGraphicsChBound = 9 //max 10
         
         window.posThreshold = 0.2
         window.outputThreshold = 2
+        window.centerPaddle = false
+        window.modulateOutput = false
+        window.restrictOutput = false
         
         const inferOutput = (pos, output) => {
           if (output < outputThreshold) {
             return (1.0 - Math.abs(pos)) * precision
           } else {
-            if (Math.abs(pos) < posThreshold) {
+            let predicate = Math.abs(pos) < posThreshold
+            if (centerPaddle) {
+              predicate = Math.abs(pos - 0.5) < posThreshold
+            }
+            if (predicate) {
               return output
             } else {
+              if (centerPaddle) {
+                const adjusted = pos < 0.5 ? pos + posThreshold : pos - posThreshold
+                if (!modulateOutput) {
+                  if (restrictOutput) {
+                    return Math.max(0, Math.min(precision, output + (adjusted - 0.5) * precision))
+                  }
+                  return (output + (adjusted - 0.5) * precision) % precision
+                } else { //modulate
+                  const expL1 = adjusted < 0.5 ? adjusted - 0.5 : 1.0 / (adjusted - 0.5)
+                  if (restrictOutput) {
+                    return Math.max(0, Math.min(precision, output * expL1))
+                  }
+                  return (output * expL1) % precision
+                }
+                  
+              }
+              if (modulateOutput) {
+                const adjusted = Math.abs(pos - posThreshold)
+                return output * adjusted
+              } 
               return (1.0 - Math.abs(pos)) * precision
             }
           }
         }
         
+        window.paddleCycleTicks = 120
+        
         
         window.transition = () => {
           
-          pos = pos + orient * speed * energy - gravity * pos
+          if (!window.centerPaddle){
+            pos = pos + orient * speed * energy - gravity * pos
+          } else {
+            pos = pos + orient * speed * energy - gravity * (pos - 0.5)
+          }
           tick += 1
           if (tick % 120 == 0) {
             orient = - orient
