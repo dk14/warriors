@@ -1779,10 +1779,10 @@ const parserTest = () => {
 	console.assert(eq([1,2,3],[1,2,3]), "eq does not work!")
 	console.assert(!eq([1,2,3],[1,2,4]), "homotopies!")
 	const ii = findSubStringIndex([1,2,3,4,5,6], [3, 4, 5])
-	console.assert(ii == undefined, "search does not work: " + ii)
+	console.assert(ii !== undefined, "search does not work: " + ii)
 	console.assert(!findSubStringIndex([1,2,3,4,5,6], [6, 6, 6]), "paranoia!")
 	
-	console.assert(parsed == undefined, "parsing failed")
+	console.assert(parsed !== undefined, "parsing failed")
 	console.assert(eq(expected.res.input, parsed?.res.input ?? []), "input parser failed! " + parsed?.res.input)
 	console.assert(eq(expected.res.sfrState, parsed?.res.sfrState ?? []), "sfrstate parser failed! " + parsed?.res.sfrState)
 	console.assert(eq(expected.res.actorState, parsed?.res.actorState ?? []), "actorstate parser failed! " + parsed?.res.actorState)
@@ -1896,8 +1896,6 @@ const reloadPlugins = () => {
   if (newplugins.length > 0)
     console.log("Loading plugins..." + newplugins)
   
-  const req = new Request(id)
-  
   newplugins.forEach(id => {
     if (id == "system" || id.startsWith("sys/")) {
       loadSystemPlugin(id);
@@ -1906,9 +1904,9 @@ const reloadPlugins = () => {
     const req = new Request(id)
     fetch(req).then(response => {
       response.text().then(txt => {
-        window.pluginId = id
-        (1, eval)(txt)
-        window.pluginId = "system"
+        window.pluginId = id;
+        (1, eval)(txt);
+        window.pluginId = "system";
       })
     })
   })
