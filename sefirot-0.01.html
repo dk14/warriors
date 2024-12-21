@@ -733,6 +733,16 @@ renderHueRotate = 0 //int
       }
       window.overrideCanvas = false
       
+      window.customTv = () => false
+      window.onTvChannelsSwitch = (videoElem) => {}
+      window.triggerChannelsSwitch = () => {
+        if(!videoElem.paused) {
+          videoElem.muted = true
+          videoElem.onvolumechange()
+          videoElem.muted = false
+        }
+      }
+      
       videoElem.onvolumechange = () => {
         
         if (visualizer != null && videoElem.muted && !customRenderer) {
@@ -754,11 +764,17 @@ renderHueRotate = 0 //int
             
             print('RUNNING')
           } else {
-            const npresets = window.presetKeys.length
-            const randomPresetName = window.presetKeys[getRandomInt(npresets)]
-            const preset = presets[randomPresetName];
-            print(randomPresetName)
-            visualizer.loadPreset(preset, 0.0); 
+            if (customTv()) {
+              window.onTvChannelsSwitch()
+            } else {
+              videoElem.srcObject = window.winampCanvasStream
+            
+              const npresets = window.presetKeys.length
+              const randomPresetName = window.presetKeys[getRandomInt(npresets)]
+              const preset = presets[randomPresetName];
+              print(randomPresetName)
+              visualizer.loadPreset(preset, 0.0); 
+            }
           }
           
          
@@ -1471,15 +1487,20 @@ renderHueRotate = 0 //int
 //-------START sefirot.d.ts-------
 declare global {
     interface Window {
-        //modelExtractionQueue: [number, number][]; 
+    
 
         sfrReady: undefined | (() => void)
         plugins: string[]
         
         Nrecent: number;
         introspectRecentMemory: (ch: number) => number[]
-        injectMemory: (ch: number, introject: number[]) => {};
+        injectMemory: (ch: number, introject: number[]) => void;
+        
         captureSfrCanvasAndAudio: MediaStream
+        
+        customTv: () => boolean
+        onTvChannelsSwitch: (videoElem: undefined | HTMLVideoElement) => void
+        triggerChannelsSwitch: () => void
 
         introjectionApi: IntrojectionApi
     }
@@ -1495,8 +1516,8 @@ type ActorOutput<T> = {
 }
 
 type Command = {
-    input: SfrString,
-    sfrState: SfrString,
+    input: SfrString
+    sfrState: SfrString
     actorState: SfrString
 }
 
@@ -1525,7 +1546,7 @@ type Handler<T> = {
 type Maybe<T> = T | undefined
 
 type CommandParserResult = {
-    res: Command,
+    res: Command
     tail: SfrString
 }
 
