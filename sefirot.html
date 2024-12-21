@@ -1891,8 +1891,8 @@ const reloadPlugins = () => {
   if (evictedplugins.length > 0)
     console.log("Evicting plugins..." + evictedplugins)
   
-  evictedplugins.forEach(toEvict = {
-    const subscriptions = registered.filter(x => x.pluginId == toEvict)
+  evictedplugins.forEach(toEvict => {
+    const subscriptions = window.registered.filter(x => x.pluginId == toEvict)
     subscriptions.map(sb => window.introjectionApi.unsubscribe(sb.name))
   })
   if (newplugins.length > 0)
@@ -1900,7 +1900,7 @@ const reloadPlugins = () => {
   
   const req = new Request(id)
   
-  newplugins.forEach(id = {
+  newplugins.forEach(id => {
     if (id == "system" || id.startsWith("sys/")) {
       loadSystemPlugin(id);
       return;
