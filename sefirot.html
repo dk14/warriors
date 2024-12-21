@@ -1486,15 +1486,18 @@ renderHueRotate = 0 //int
 
 //-------START sefirot.d.ts-------
 
+export {};
+//-------START sefirot.d.ts-------
+
 type SystemPlugin = {
   id: string;
-  loader: () => void
+  load: () => void
 }
 
-type RegisteredSubscription {
+type RegisteredSubscription = {
   name: string;
   pluginId: string;
-  schedulerId: string;
+  schedulerId: number;
   cleanup: () => void;
 }
 
@@ -1584,7 +1587,7 @@ type ActorCfg = {
 }
 
 type IntrojectionApi = {
-    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable;
+    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg, cleanup: () => void) => Cancellable;
     unsubscribe: (name: string) => void;
 }
 
@@ -1778,14 +1781,14 @@ const parserTest = () => {
 	console.assert(eq([1,2,3],[1,2,3]), "eq does not work!")
 	console.assert(!eq([1,2,3],[1,2,4]), "homotopies!")
 	const ii = findSubStringIndex([1,2,3,4,5,6], [3, 4, 5])
-	console.assert(ii, "search does not work: " + ii)
+	console.assert(ii == undefined, "search does not work: " + ii)
 	console.assert(!findSubStringIndex([1,2,3,4,5,6], [6, 6, 6]), "paranoia!")
 	
-	console.assert(parsed, "parsing failed")
-	console.assert(eq(expected.res.input, parsed?.res.input), "input parser failed! " + parsed?.res.input)
-	console.assert(eq(expected.res.sfrState, parsed?.res.sfrState), "sfrstate parser failed! " + parsed?.res.sfrState)
-	console.assert(eq(expected.res.actorState, parsed?.res.actorState), "actorstate parser failed! " + parsed?.res.actorState)
-	console.assert(eq(expected.tail, parsed?.tail), "unexpected tail! " + parsed?.res.tail)
+	console.assert(parsed == undefined, "parsing failed")
+	console.assert(eq(expected.res.input, parsed?.res.input ?? []), "input parser failed! " + parsed?.res.input)
+	console.assert(eq(expected.res.sfrState, parsed?.res.sfrState ?? []), "sfrstate parser failed! " + parsed?.res.sfrState)
+	console.assert(eq(expected.res.actorState, parsed?.res.actorState ?? []), "actorstate parser failed! " + parsed?.res.actorState)
+	console.assert(eq(expected.tail, parsed?.tail ?? []), "unexpected tail! " + parsed?.res.tail)
 	
 }
 
@@ -1849,16 +1852,16 @@ window.introjectionApi = {
     subscribe: <T>(handler: Handler<T>, cfg: ActorCfg, cleanup: () => void) => {
         const subscr = new Subscription<T>(handler, cfg)
         const id = setInterval(() => subscr.progress(window.introspectRecentMemory, window.injectMemory), cfg.period)
-        registered.push({
+        window.registered.push({
           name: handler.name,
-          pluginId: currentPluginId,
+          pluginId: window.pluginId,
           schedulerId: id,
           cleanup: cleanup
         })
     }
     unsubscribe: (name: string): void => {
       const toEvict = window.registered.filter(x => x.name == name)
-      registered = window.registered.filter(x => x.name != name)
+      window.registered = window.registered.filter(x => x.name != name)
       toEvict.forEach(eviction => {
         clearInterval(eviction.schedulerId)
         try {
@@ -1882,8 +1885,8 @@ const loadSystemPlugin = (id: string) => {
 const reloadPlugins = () => {
   console.log(window.activeplugins)
   const newplugins = window.plugins.filter(x => window.activeplugins.filter(y => x != y).length > 0)
-  const evictedplugins = window.activeplugins.filter(x => window.plugins.filter(y => x != y)).length > 0)
-  activeplugins = window.plugins
+  const evictedplugins = window.activeplugins.filter(x => window.plugins.filter(y => x != y).length > 0)
+  window.activeplugins = window.plugins
   
   if (evictedplugins.length > 0)
     console.log("Evicting plugins..." + evictedplugins)
@@ -1923,8 +1926,6 @@ window.sfrReady = () => {
   setInterval(reloadPlugins, 1000)
   if (chain) chain()
 }
-
-
 /*
 
 plugin notes
