@@ -119,6 +119,9 @@ sfrGraphicsChBound = 9 //max 10
 //renderTimeout=5
 render=true
 
+//---Introjections---
+plugins=[] //list of strings linking to js files
+
 //---UI---
 showCommandLine=false
 
@@ -839,8 +842,6 @@ renderHueRotate = 0 //int
         videoElem.style.display="none"
       }, false);
 
-      
-      
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(document.createElement("br"))
       document.body.appendChild(canvas)
@@ -867,10 +868,13 @@ renderHueRotate = 0 //int
   
       
       
-      setTimeout(() => {  
-        
-        
-        
+      setTimeout(() => {  // this delay is for ios safary devtools
+      // tech note: code is consistent despite the style
+      // nuance: rendering is in the same thread with audio and input
+      // the rendering logic is independent though (separated through a queue), so OffscteenCanvas should be doable
+      // same thread rendering gives most realistic expirience, no pretence
+      // high-performance renderers (as well as any other IO) can be implemented through plugins (see .ts script at the end)
+      
         window.oscillatorNode = []
         
         window.reconfigure = ""
@@ -1044,6 +1048,12 @@ renderHueRotate = 0 //int
         gainNode.connect(filter)
         filter.connect(compressor)
         compressor.connect(streamNode)
+        
+        window.captureSfrCanvasAndAudio = new MediaStream([
+          ...canvasStream.getVideoTracks(),
+          ...streamNode.stream.getAudioTracks()
+        ]);
+        
         
         const beep = (frequency, i = 0) => {
           //console.log("" + i + "   " + frequency + "  " + gainNode.gain.value)
@@ -1426,6 +1436,25 @@ renderHueRotate = 0 //int
         }
         
         window.transitionScheduler = setInterval(transition, discretisation)
+        
+        window.plugins = []
+        
+        const notify = () => {
+          if (window.sfrReady) {
+            try {
+              window.sfrReady()
+            } catch {
+          
+            }
+          } else {
+            setTimeout(notify, 1000)
+          }
+        }
+        
+        notify()
+        
+        
+        
       }, 1000)
       
 
@@ -1439,14 +1468,18 @@ renderHueRotate = 0 //int
     
 	    // export {};
 
+//-------START sefirot.d.ts-------
 declare global {
     interface Window {
         //modelExtractionQueue: [number, number][]; 
 
+        sfrReady: undefined | (() => void)
+        plugins: string[]
+        
         Nrecent: number;
         introspectRecentMemory: (ch: number) => number[]
         injectMemory: (ch: number, introject: number[]) => {};
-        captureSfrCanvasAndAudio: MediaSource //TODO
+        captureSfrCanvasAndAudio: MediaStream
 
         introjectionApi: IntrojectionApi
     }
@@ -1511,6 +1544,8 @@ type ActorCfg = {
 type IntrojectionApi = {
     subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable
 }
+
+//-----END sefirot.d.ts------
 
 const eq = (a: SfrString, b: SfrString): boolean => {
     if (!a || !b) return false
@@ -1776,6 +1811,20 @@ window.introjectionApi = {
     }
 }
 
+window.sfrReady = () => {
+  window.plugins.forEach(id = {
+    const req = new Request(id);
+    fetch(req).then(response => {
+      response.text().then(txt => {
+        (1, eval)(txt)
+        // complex plugins can be webpacked
+        // security note: security must be deferred to particular preconfigured set of plugins (which user will have to trust)
+        // for sfr itself, best to wrap it in iframe and communicate with main view through plugin
+      })
+    })
+  })
+}
+
       
       //alert("hello")
       /*
@@ -1827,6 +1876,18 @@ NRetryNoResponse
 
 After retries actor will rewind it's state.
 Note: for side-effectful actors best effort rewind function should be provided
+
+
+What is Sefirot?
+
+Since variation of prefix-search implemented above is turing-complete.
+Since any interpreter is a general-purpose artificial intelligence.
+Since, Sefirot is capable of learning and interpreting emotions as computer programs.
+Since, in most general sence, emotions are feelings of motion.
+
+It is an Ally. A living being connecting you to other worlds.
+
+
 */
        
     </script>
