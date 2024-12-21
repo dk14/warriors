@@ -1485,26 +1485,45 @@ renderHueRotate = 0 //int
 	    // export {};
 
 //-------START sefirot.d.ts-------
+
+type SystemPlugin = {
+  id: string;
+  loader: () => void
+}
+
+type RegisteredSubscription {
+  name: string;
+  pluginId: string;
+  schedulerId: string;
+  cleanup: () => void;
+}
+
 declare global {
     interface Window {
-    
-
-        sfrReady: undefined | (() => void)
-        plugins: string[]
+        
+        sfrReady: undefined | (() => void);
+        plugins: string[];
+        system: SystemPlugin[];
         
         Nrecent: number;
-        introspectRecentMemory: (ch: number) => number[]
+        introspectRecentMemory: (ch: number) => number[];
         injectMemory: (ch: number, introject: number[]) => void;
         
-        captureSfrCanvasAndAudio: MediaStream
-        customRenderer: boolean //enable/disable original sfr rendering; it can get disabled in tv mode (with mute/unmute trick)
+        captureSfrCanvasAndAudio: MediaStream;
+        customRenderer: boolean; //enable/disable original sfr rendering; it can get disabled in tv mode (with mute/unmute trick)
         
-        customTv: () => boolean
-        onTvChannelsSwitch: (videoElem: undefined | HTMLVideoElement) => void // mute/unmute trick trigger
-        triggerTvChannelsSwitch: () => void // simulate mute/unmute trick when fullscreen (tv mode)
+        customTv: () => boolean;
+        onTvChannelsSwitch: (videoElem: undefined | HTMLVideoElement) => void; // mute/unmute trick trigger
+        triggerTvChannelsSwitch: () => void; // simulate mute/unmute trick when fullscreen (tv mode)
         
         
-        introjectionApi: IntrojectionApi
+        introjectionApi: IntrojectionApi;
+        pluginId: string;
+        
+        registered: RegisteredSubscription[]
+        activeplugins: string[]
+        
+        
     }
 }
 
@@ -1518,9 +1537,9 @@ type ActorOutput<T> = {
 }
 
 type Command = {
-    input: SfrString
-    sfrState: SfrString
-    actorState: SfrString
+    input: SfrString;
+    sfrState: SfrString;
+    actorState: SfrString;
 }
 
 type StateTransition<T> = {
@@ -1540,23 +1559,23 @@ type Format = {
 
 type Handler<T> = {
     name: string;
-    format: Format
-    actor: (command: Command, actorHiddenState: T) => ActorOutput<T>
-    rewind: (transition: StateTransition<T> | undefined) => void
+    format: Format;
+    actor: (command: Command, actorHiddenState: T) => ActorOutput<T>;
+    rewind: (transition: StateTransition<T> | undefined) => void;
 };
 
 type Maybe<T> = T | undefined
 
 type CommandParserResult = {
-    res: Command
-    tail: SfrString
+    res: Command;
+    tail: SfrString;
 }
 
 type ActorHistory<T> = {
-    data: StateTransition<T>[]
+    data: StateTransition<T>[];
 }
 
-type Cancellable = number
+type Cancellable = number;
 
 type ActorCfg = {
     period: number;
@@ -1565,7 +1584,8 @@ type ActorCfg = {
 }
 
 type IntrojectionApi = {
-    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable
+    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => Cancellable;
+    unsubscribe: (name: string) => void;
 }
 
 //-----END sefirot.d.ts------
@@ -1821,36 +1841,100 @@ const subscriptionTest = () => {
 
 }
 
-//alert('Testing!')
-parserTest()
-subscriptionTest()
 
-
+parserTest();
+subscriptionTest();
 
 window.introjectionApi = {
-    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg) => {
+    subscribe: <T>(handler: Handler<T>, cfg: ActorCfg, cleanup: () => void) => {
         const subscr = new Subscription<T>(handler, cfg)
-        return setInterval(() => subscr.progress(window.introspectRecentMemory, window.injectMemory), cfg.period)
+        const id = setInterval(() => subscr.progress(window.introspectRecentMemory, window.injectMemory), cfg.period)
+        registered.push({
+          name: handler.name,
+          pluginId: currentPluginId,
+          schedulerId: id,
+          cleanup: cleanup
+        })
     }
+    unsubscribe: (name: string): void => {
+      const toEvict = window.registered.filter(x => x.name == name)
+      registered = window.registered.filter(x => x.name != name)
+      toEvict.forEach(eviction => {
+        clearInterval(eviction.schedulerId)
+        try {
+          eviction.cleanup()
+        } catch (err) {
+          console.log(err)
+        }
+      })
+    }
+    
 }
 
-window.sfrReady = () => {
-  window.plugins.forEach(id = {
-    const req = new Request(id);
+
+const loadSystemPlugin = (id: string) => {
+  window.system.filter(x => x.id === id).forEach(plugin => {
+    plugin.load()
+  })
+}
+
+
+const reloadPlugins = () => {
+  console.log(window.activeplugins)
+  const newplugins = window.plugins.filter(x => window.activeplugins.filter(y => x != y).length > 0)
+  const evictedplugins = window.activeplugins.filter(x => window.plugins.filter(y => x != y)).length > 0)
+  activeplugins = window.plugins
+  
+  if (evictedplugins.length > 0)
+    console.log("Evicting plugins..." + evictedplugins)
+  
+  evictedplugins.forEach(toEvict = {
+    const subscriptions = registered.filter(x => x.pluginId == toEvict)
+    subscriptions.map(sb => window.introjectionApi.unsubscribe(sb.name))
+  })
+  if (newplugins.length > 0)
+    console.log("Loading plugins..." + newplugins)
+  
+  const req = new Request(id)
+  
+  newplugins.forEach(id = {
+    if (id == "system" || id.startsWith("sys/")) {
+      loadSystemPlugin(id);
+      return;
+    }
+    const req = new Request(id)
     fetch(req).then(response => {
       response.text().then(txt => {
+        window.pluginId = id
         (1, eval)(txt)
-        // complex plugins can be webpacked
-        // security note: security must be deferred to particular preconfigured set of plugins (which user will have to trust)
-        // for sfr itself, best to wrap it in iframe and communicate with main view through plugin
+        window.pluginId = "system"
       })
     })
   })
 }
 
+
+
+const chain = window.sfrReady
+window.sfrReady = () => {
+  window.pluginId = "system"
+  window.registered = []
+  window.activeplugins = []
+  setInterval(reloadPlugins, 1000)
+  if (chain) chain()
+}
+
+
+/*
+
+plugin notes
+convention for configs: window.<plugin-name>.cfg
+use subscribe's cleanup parameter to unsubscribe from system events, free memory, resources, undo what's done
+complex plugins can be moduled and webpacked
+security note: security must be deferred to particular preconfigured set of plugins (which user will have to trust)
+for sfr itself, best to wrap it in iframe and communicate with main view through plugin
+
       
-      //alert("hello")
-      /*
 
 protocol
 
