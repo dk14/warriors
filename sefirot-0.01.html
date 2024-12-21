@@ -1497,11 +1497,13 @@ declare global {
         injectMemory: (ch: number, introject: number[]) => void;
         
         captureSfrCanvasAndAudio: MediaStream
+        customRenderer: boolean //enable/disable original sfr rendering; it can get disabled in tv mode (with mute/unmute trick)
         
         customTv: () => boolean
-        onTvChannelsSwitch: (videoElem: undefined | HTMLVideoElement) => void
-        triggerChannelsSwitch: () => void
-
+        onTvChannelsSwitch: (videoElem: undefined | HTMLVideoElement) => void // mute/unmute trick trigger
+        triggerTvChannelsSwitch: () => void // simulate mute/unmute trick when fullscreen (tv mode)
+        
+        
         introjectionApi: IntrojectionApi
     }
 }
