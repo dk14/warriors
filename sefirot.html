@@ -123,7 +123,7 @@ render=true
 plugins=[] //list of strings linking to js files
 
 //---UI---
-showCommandLine=false
+showCommandLine=true
 
 //---Memory---
 m = 10000000 //memory eviction bound
@@ -1367,7 +1367,7 @@ renderHueRotate = 0 //int
                   if (restrictOutput) {
                     return Math.max(0, Math.min(precision, output + (adjusted - 0.5) * precision))
                   }
-                  return (output + (adjusted - 0.5) * precision) % precision
+                  return ((output + (adjusted - 0.5) * precision) % precision + precision) % precision
                 } else { //modulate
                   const expL1 = adjusted < 0.5 ? adjusted - 0.5 : 1.0 / (adjusted - 0.5)
                   if (restrictOutput) {
@@ -1468,8 +1468,6 @@ renderHueRotate = 0 //int
         }
         
         notify()
-        
-        
         
       }, 1000)
       
