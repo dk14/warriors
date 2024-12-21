@@ -1881,7 +1881,6 @@ const loadSystemPlugin = (id: string) => {
 
 
 const reloadPlugins = () => {
-  console.log(window.activeplugins)
   const newplugins = window.plugins.filter(x => window.activeplugins.filter(y => x != y).length > 0)
   const evictedplugins = window.activeplugins.filter(x => window.plugins.filter(y => x != y).length > 0)
   window.activeplugins = window.plugins
