@@ -744,7 +744,7 @@ renderHueRotate = 0 //int
       }
       
       videoElem.onvolumechange = () => {
-        
+        console.log('ch')
         if (visualizer != null && videoElem.muted && !customRenderer) {
           
           
@@ -757,29 +757,30 @@ renderHueRotate = 0 //int
             return Math.floor(Math.random() * max);
           }
           
+          
           if (window.overrideCanvas && getRandomInt(7) == 2) {
             customRenderer = true
             window.winampCanvasStream = videoElem.srcObject
             videoElem.srcObject = canvasStream
-            
-            print('RUNNING')
-          } else {
             if (customTv()) {
               window.onTvChannelsSwitch()
-            } else {
-              videoElem.srcObject = window.winampCanvasStream
-            
+            }
+            videoElem.play()
+            print('RUNNING')
+          } else {
+              
               const npresets = window.presetKeys.length
               const randomPresetName = window.presetKeys[getRandomInt(npresets)]
               const preset = presets[randomPresetName];
               print(randomPresetName)
               visualizer.loadPreset(preset, 0.0); 
-            }
+            
           }
           
          
         
         } else if (videoElem.muted) {
+          
           customRenderer = false
           
           renderqueue.slice(0, 10000)
@@ -789,14 +790,17 @@ renderHueRotate = 0 //int
           
             window.overridenCanvas = window.canvas
             window.canvas = document.createElement("canvas");
+            window.winampCanvasStream = window.canvas
             canvas.width = 1000
             canvas.height = 1000
           
             videoElem.srcObject = canvas.captureStream()
           
             initWinampViz()
+            videoElem.play()
           } else {
             videoElem.srcObject = window.winampCanvasStream
+            videoElem.play()
           }
           
         }
