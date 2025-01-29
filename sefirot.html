@@ -1373,7 +1373,7 @@ renderHueRotate = 0 //int
                   if (restrictOutput) {
                     return Math.max(0, Math.min(precision, output * expL1))
                   }
-                  return (output * expL1) % precision
+                  return ((output * expL1) % precision + precision) % precision
                 }
                   
               }
