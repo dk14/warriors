@@ -101,6 +101,8 @@
                 gravity = 0.02 * 2 * document.getElementById("paddleGravity").value
                 update = 10 * 2 * document.getElementById("paddleUpdate").value
             }
+
+            setInterval(updateParams, 200)
             const update = () => {
                 cursor = Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)) % N               
             }
