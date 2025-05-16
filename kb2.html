@@ -1,6 +1,14 @@
 <html>
     <body>
         <button onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <br>
+        Speed: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSpeed">
+        <br>
+        Gravity: <input type="range" min="1" max="100" value="50" class="slider" id="paddleGravity">
+
+        <br>
+        Update: <input type="range" min="1" max="100" value="50" class="slider" id="paddleUpdate">
+   
         <pre id="kb"></pre>
         <pre id="energy"></pre>
         <pre id="output"></pre>
@@ -84,14 +92,20 @@
         </script>
 
         <script>
-            const gravity = 0.02
-            const speed = 5
+            window.gravity = 0.02
+            window.speed = 5
+            window.update = 10
 
+            const updateParams = () => {
+                speed = 5 * 2 * document.getElementById("paddleSpeed").value
+                gravity = 0.02 * 2 * document.getElementById("paddleGravity").value
+                update = 10 * 2 * document.getElementById("paddleUpdate").value
+            }
             const update = () => {
                 cursor = Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)) % N               
             }
 
-            setInterval(update, 10)
+            setInterval(update, window.update)
         </script>
     </body>
 </html>
