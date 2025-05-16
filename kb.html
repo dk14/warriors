@@ -53,6 +53,12 @@
 
             const renderKb = () => {
                 document.getElementById("kb").innerText = alphabet.map((x, i) => {
+                    if (i < cursor1) {
+                        return "[" + x + " "
+                    }
+                    if (i > N - cursor2 - 1) {
+                        return " " + x + ")"
+                    }
                     if (i === cursor1) {
                         if (cursor1 === N - cursor2 - 1) {
                             return "{" + x + "}"
@@ -90,7 +96,7 @@
         <script>
             var i = 0
             const gravity = 0.01
-            const speed = 10
+            const speed = 5
 
             const update = () => {
                 
