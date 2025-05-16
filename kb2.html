@@ -17,6 +17,10 @@
             var prevX = 0
             var prevY = 0
 
+            setInterval(() => {
+                energy = 0
+            }, 100)
+
             onmousemove = (event) => {
                 ev = {}
                 ev.acceleration = {}
@@ -85,6 +89,7 @@
                 //document.getElementById("energy").innerText = energy
                 if (energy > 0.89) {
                     document.getElementById("output").innerText = document.getElementById("output").innerText.slice(0, -1)
+                    return
                 }
 
                 if (cursor < 1 && max > 0) {
