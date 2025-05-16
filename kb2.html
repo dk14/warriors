@@ -38,7 +38,7 @@
             
             var energyThreshold = 0.9
             var minEnergy = 0.0
-            var energyScale = 1.0
+            var energyScale = 0.2
             
             ondevicemotion = (event) => {
             
@@ -46,8 +46,8 @@
                 var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
                 prev = [x, y, z]
                 energy = energyScale * (dx * dx + dy * dy + dz * dz)
-                if (energy > energyThreshold || energy < minEnergy) {
-                    energy = energyThreshold * energyScale
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
                 }
             
             }
@@ -61,7 +61,11 @@
 
             const renderKb = () => {
                 document.getElementById("kb").innerText = alphabet.map((x, i) => {
-                    if (i < cursor) {
+                    if (i < cursor ) {
+                        return ` ${x} `
+                    }
+
+                    if (i > cursor) {
                         return "   "
                     }
                     
