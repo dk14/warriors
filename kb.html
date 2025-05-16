@@ -54,11 +54,17 @@
             const renderKb = () => {
                 document.getElementById("kb").innerText = alphabet.map((x, i) => {
                     if (i === cursor1) {
-                        if (cursor1 === cursor2) {
+                        if (cursor1 === N - cursor2 - 1) {
                             return "{" + x + "}"
-                         }
+                        }
+                        if (cursor1 > N - cursor2 - 1) {
+                            return "[ ]"
+                        }
                         return "[" + x + "]"  
                     } else if (i === N - cursor2 - 1) {
+                        if (cursor1 > N - cursor2 - 1) {
+                            return "( )"
+                        }
                         return "(" + x + ")"
                     } else {
                         return " " + x + " "
@@ -70,6 +76,9 @@
 
 
             const renderOut = () => {
+                if (cursor1 > N - cursor2 - 1) {
+                    document.getElementById("output").innerText = document.getElementById("output").innerText.slice(0, -1)
+                }
                 if (cursor1 === N - cursor2 - 1) {
                     document.getElementById("output").innerText += [cursor1]
                 }
@@ -80,7 +89,7 @@
 
         <script>
             var i = 0
-            const gravity = 0.001
+            const gravity = 0.01
             const speed = 10
 
             const update = () => {
