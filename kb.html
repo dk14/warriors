@@ -53,11 +53,11 @@
 
             const renderKb = () => {
                 document.getElementById("kb").innerText = alphabet.map((x, i) => {
-                    if (i < cursor1) {
-                        return "[" + x + " "
+                    if (i <= cursor1) {
+                        return "   "
                     }
-                    if (i > N - cursor2 - 1) {
-                        return " " + x + ")"
+                    if (i >= N - cursor2 - 1) {
+                        return "   "
                     }
                     if (i === cursor1) {
                         if (cursor1 === N - cursor2 - 1) {
