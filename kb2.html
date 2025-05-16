@@ -1,6 +1,6 @@
 <html>
     <body>
-        <button onclick="DeviceMotionEvent.requestPermission()">ACTIVATE</button>
+        <button onclick="DeviceMotionEvent.requestPermission()">gyro</button>
         <pre id="kb"></pre>
         <pre id="energy"></pre>
         <pre id="output"></pre>
@@ -15,8 +15,8 @@
             onmousemove = (event) => {
                 ev = {}
                 ev.acceleration = {}
-                const x = event.clientX / 200
-                const y = event.clientY / 200
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
                 ev.acceleration.x = event.clientX - prevX
                 ev.acceleration.y = event.clientY - prevY
                 ev.acceleration.z = 0
@@ -46,34 +46,37 @@
         </script>
         
         <script>
-            const alphabet = ['0','1','2','3','4','5','6','7','8','9']
+            const alphabet = ['∅','<','0','1','2','3','4','5','6','7','8','9']
             window.N = alphabet.length
-            window.cursor1 = 0
-            window.cursor2 = 0
+            window.cursor = 0
+            window.max = 0
 
             const renderKb = () => {
                 document.getElementById("kb").innerText = alphabet.map((x, i) => {
-                    if (i < cursor1) {
-                        return "   "
-                    }
-                    if (i > N - cursor2 - 1) {
+                    if (i < cursor) {
                         return "   "
                     }
                     
                     return " " + x + " "
                     
                 }).reduce((a, b) => a + b)
+                if (cursor > max) {
+                    max = cursor
+                }
             }
 
             setInterval(renderKb, 100)
 
 
             const renderOut = () => {
-                if (cursor1 - 2 > N - cursor2 - 1) {
+                //document.getElementById("energy").innerText = energy
+                if (energy > 0.89) {
                     document.getElementById("output").innerText = document.getElementById("output").innerText.slice(0, -1)
                 }
-                if (cursor1 === N - cursor2 - 1) {
-                    document.getElementById("output").innerText += [cursor1]
+
+                if (cursor < 1 && max > 0) {
+                    document.getElementById("output").innerText += [alphabet[max]]
+                    max = 0
                 }
             }
             setInterval(renderOut, 100)
@@ -81,19 +84,11 @@
         </script>
 
         <script>
-            var i = 0
             const gravity = 0.02
             const speed = 5
 
             const update = () => {
-                
-                i++
-                if (i % 2 === 0) {
-                    cursor1 = Math.floor(N * Math.abs(cursor1 / N + speed * energy - gravity * cursor1 / N)) % N
-                } else {
-                    cursor2 = Math.floor(N * Math.abs(cursor2 / N + speed * energy - gravity * cursor2 / N)) % N
-                }         
-                
+                cursor = Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)) % N               
             }
 
             setInterval(update, 10)
