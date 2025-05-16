@@ -1,0 +1,97 @@
+<html>
+    <body>
+        <button onclick="DeviceMotionEvent.requestPermission()">ACTIVATE</button>
+        <pre id="kb"></pre>
+        <pre id="energy"></pre>
+        <pre id="output"></pre>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            setInterval(() => {
+                energy = 0
+            }, 1000)
+            onmousemove = (event) => {
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 100
+                const y = event.clientY / 100
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.9
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event) => {
+            
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold || energy < minEnergy) {
+                    energy = energyThreshold * energyScale
+                }
+            
+            }
+        </script>
+        
+        <script>
+            const alphabet = ['0','1','2','3','4','5','6','7','8','9']
+            window.N = alphabet.length
+            window.cursor1 = 0
+            window.cursor2 = 0
+
+            const renderKb = () => {
+                document.getElementById("kb").innerText = alphabet.map((x, i) => {
+                    if (i === cursor1) {
+                        return "[" + x + "]"  
+                    } else if (i === N - cursor2 - 1) {
+                        return "(" + x + ")"
+                    } else {
+                        return " " + x + " "
+                    }
+                }).reduce((a, b) => a + b)
+            }
+
+            setInterval(renderKb, 100)
+
+
+            const renderOut = () => {
+                if (cursor1 === N - cursor2 - 1) {
+                    document.getElementById("output").innerText += [cursor1]
+                }
+            }
+            setInterval(renderOut, 100)
+
+        </script>
+
+        <script>
+            var i = 0
+            const gravity = 0.0001
+            const speed = 10
+
+            const update = () => {
+                
+                i++
+                if (i % 2 === 0) {
+                    cursor1 = Math.floor(N * Math.abs(cursor1 / N + speed * energy - gravity * cursor1 / N)) % N
+                } else {
+                    cursor2 = Math.floor(N * Math.abs(cursor2 / N + speed * energy - gravity * cursor2 / N)) % N
+                }         
+                
+            }
+
+            setInterval(update, 10)
+        </script>
+    </body>
+</html>
