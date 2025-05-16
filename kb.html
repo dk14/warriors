@@ -69,7 +69,7 @@
 
 
             const renderOut = () => {
-                if (cursor1 - 1 > N - cursor2 - 1) {
+                if (cursor1 - 2 > N - cursor2 - 1) {
                     document.getElementById("output").innerText = document.getElementById("output").innerText.slice(0, -1)
                 }
                 if (cursor1 === N - cursor2 - 1) {
@@ -82,8 +82,8 @@
 
         <script>
             var i = 0
-            const gravity = 0.01
-            const speed = 5
+            const gravity = 0.02
+            const speed = 3
 
             const update = () => {
                 
