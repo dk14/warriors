@@ -11,7 +11,7 @@
         Update: <input type="range" min="1" max="100" value="50" class="slider" id="paddleUpdate">
    
         <pre id="kb"></pre>
-        <pre id="energy"></pre>
+        <pre id="candidate"></pre>
         <pre id="output"></pre>
       
         <script>
@@ -39,85 +39,79 @@
             var prev = [0,0,0]
             var energy = 0.001
             
-            var energyThreshold = 0.9
+            var energyThreshold = 0.05
             var minEnergy = 0.0
-            var energyScale = 0.2
+            var energyScale = 1.0
             
             ondevicemotion = (event) => {
             
                 var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
                 var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
                 prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
                 energy = energyScale * (dx * dx + dy * dy + dz * dz)
                 if (energy > energyThreshold) {
                     energy = energyThreshold
                 }
+                
             
             }
         </script>
         
         <script>
-            const alphabet = ['∅','0','1','2','3','4','5','6','7','8','9']
+            const alphabet = ['_','0', '0','1','2','3','4','5','6','7','8','9', '<']
             window.N = alphabet.length
             window.cursor = 0
             window.max = 0
+            window.candidate = ""
+            window.out = ""
+            
 
             const renderKb = () => {
-                document.getElementById("kb").innerText = alphabet.map((x, i) => {
-                    if (i < cursor ) {
-                        return ` ${x} `
-                    }
-
-                    if (i === cursor ) {
-                        return `[${x}]`
-                    }
-
-                    if (i > cursor) {
-                        return "   "
-                    }
-                    
-                    return "" + x + ""
-                    
-                }).reduce((a, b) => a + b)
-                if (cursor > max) {
-                    max = cursor
-                }
+               
+               document.getElementById("kb").innerText = 
+                  alphabet[max]
+               
+               if (cursor > max) {
+                  max = cursor
+               }
+               
+               if (cursor < 1 && max > 0) {
+                  
+                     
+                  out += [alphabet[max]]
+                  out = out.slice(-25)
+                  
+                  if (alphabet[max] === '<') {
+                     out = out.slice(0, -2)
+                  }
+                     
+                  
+                  //document.getElementById("candidate").innerText = alphabet[max]
+                  max = 0
+               }
+               document.getElementById("output").innerText = out
             }
 
-            setInterval(renderKb, 100)
+            setInterval(renderKb, 1)
 
-            window.out = ""
-            window.candidate = ""
-
-            const renderOut = () => {
-                candidate = [alphabet[max]]
-                //document.getElementById("energy").innerText = energy
-                if (energy > 0.89) {
-                    out = out.slice(0, -1)
-                } else if (cursor < 1 && max > 0) {
-                    out += [alphabet[max]]
-                    max = 0
-                }
-                document.getElementById("output").innerText = out + candidate
-            }
-            setInterval(renderOut, 1)
 
         </script>
 
         <script>
             window.gravity = 0.02
-            window.speed = 5
-            window.update = 10
+            window.speed = 2
+            window.update = 1
 
             const updateParams = () => {
-                speed = 5 * 2 * document.getElementById("paddleSpeed").value / 100
-                gravity = 0.02 * 2 * document.getElementById("paddleGravity").value / 100
-                update = 10 * 2 * document.getElementById("paddleUpdate").value / 100
+                //speed = 5 * 2 * document.getElementById("paddleSpeed").value / 100
+                //gravity = 0.02 * 2 * document.getElementById("paddleGravity").value / 100
+                //update = 10 * 2 * document.getElementById("paddleUpdate").value / 100
             }
 
             setInterval(updateParams, 200)
             const update = () => {
-                cursor = Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)) % N               
+                cursor = Math.min(N - 1, Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)))          
             }
 
             setInterval(update, window.update)
