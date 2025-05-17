@@ -1,17 +1,6 @@
 <html>
     <body>
         <button onclick="DeviceMotionEvent.requestPermission()">gyro</button>
-        <button onclick="window.out = ''">clear</button>
-        <br>
-        Speed: <input type="range" min="1" max="100" value="50" class="slider" id="paddleSpeed">
-        <br>
-        Gravity: <input type="range" min="1" max="100" value="50" class="slider" id="paddleGravity">
-
-        <br>
-        Update: <input type="range" min="1" max="100" value="50" class="slider" id="paddleUpdate">
-   
-        <pre id="kb"></pre>
-        <pre id="candidate"></pre>
         <pre id="output"></pre>
       
         <script>
@@ -59,7 +48,7 @@
         </script>
         
         <script>
-            const alphabet = ['_','0', '0','1','2','3','4','5','6','7','8','9', '<']
+            const alphabet = '_   0123456789abcdefghijklmnopqrstuvwxyz<'
             window.N = alphabet.length
             window.cursor = 0
             window.max = 0
@@ -69,8 +58,8 @@
 
             const renderKb = () => {
                
-               document.getElementById("kb").innerText = 
-                  alphabet[max]
+               //document.getElementById("kb").innerText = 
+               const current = alphabet[max]
                
                if (cursor > max) {
                   max = cursor
@@ -90,7 +79,7 @@
                   //document.getElementById("candidate").innerText = alphabet[max]
                   max = 0
                }
-               document.getElementById("output").innerText = out
+               document.getElementById("output").innerText = out + current
             }
 
             setInterval(renderKb, 1)
@@ -111,7 +100,7 @@
 
             setInterval(updateParams, 200)
             const update = () => {
-                cursor = Math.min(N - 1, Math.floor(N * Math.abs(cursor / N + speed * energy - gravity * cursor / N)))          
+                cursor = Math.min(N - 1, Math.floor(N * Math.abs(cursor / N + speed * energy - gravity)))          
             }
 
             setInterval(update, window.update)
