@@ -86,8 +86,10 @@
             setInterval(renderKb, 100)
 
             window.out = ""
+            window.candidate = ""
 
             const renderOut = () => {
+                candidate = [alphabet[max]]
                 //document.getElementById("energy").innerText = energy
                 if (energy > 0.89) {
                     out = out.slice(0, -1)
@@ -95,7 +97,7 @@
                     out += [alphabet[max]]
                     max = 0
                 }
-                document.getElementById("output").innerText = out
+                document.getElementById("output").innerText = out + candidate
             }
             setInterval(renderOut, 1)
 
