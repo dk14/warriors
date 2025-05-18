@@ -48,7 +48,7 @@
         </script>
         
         <script>
-            const alphabet = '_<<<<~0123456789abcdefghijklmnopqrstuvwxyz'
+            const alphabet = '_<<<<~~~0123456789_abcdefg_hijklmnop_qrstuvwxyz'
             window.M = 32
             window.N = alphabet.length
             window.cursor = 0
@@ -77,7 +77,7 @@
                         out += [alphabet[chCursor]]
                     }
                     out = out.slice(-25)
-                    if (chCursor === 0) {
+                    if (alphabet[chCursor] === '_') {
                         out = out.slice(0, -1)
                     }
                     
