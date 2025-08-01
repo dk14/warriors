@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body bgcolor="black">
+        <button onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <svg id="cont" height="1000" width="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   
+        </svg>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            setInterval(() => {
+                //energy = 0
+            }, 100)
+
+            onmousemove = (event) => {
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.05
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event) => {
+            
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
+                }
+                
+            
+            }
+
+            setInterval(() => {
+                energy = 0
+            }, 300)
+        </script>
+        <script>
+            const svgns = "http://www.w3.org/2000/svg"
+            const container = document.getElementById( 'cont' );
+
+            const initx = 200
+            const inity = 300
+            var x = initx
+            var y = inity
+
+            const circle = document.createElementNS(svgns, 'circle');
+            circle.setAttributeNS(null, 'cx', x);
+            circle.setAttributeNS(null, 'cy', y);
+            circle.setAttributeNS(null, 'r', 30);
+            circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
+            container.appendChild(circle);
+
+            const rects = []
+
+            const createRect = (x, y) => {
+                const rect = document.createElementNS(svgns, 'rect');
+                const h =  100 * Math.random()
+                rect.setAttributeNS(null, 'x', x);
+                rect.setAttributeNS(null, 'y', h + y);
+                rect.setAttributeNS(null, 'width', 50);
+                rect.setAttributeNS(null, 'height', 200 - h);
+                rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
+                container.appendChild(rect);
+                rects.push(rect)
+
+            }
+
+            setInterval(() => {
+                createRect(400, 400 - 200 + 30)
+
+                createRect(400, 0)
+            }, 2000)
+
+            
+
+            setInterval(() => {
+                const speed = 10
+                rects.forEach(r => {
+                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x', x)) - speed);
+                })
+            }, 100)
+
+            setInterval(() => {
+                const gravity = 4
+                y = Math.max(0, Math.min(400, y - energy * 300 + gravity))
+                circle.setAttributeNS(null, 'cx', x);
+                circle.setAttributeNS(null, 'cy', y); 
+            }, 100)
+
+
+        </script>
+    </body>
+</html>
