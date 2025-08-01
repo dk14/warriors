@@ -74,7 +74,8 @@
 
             const createRect = (x, y) => {
                 const rect = document.createElementNS(svgns, 'rect');
-                const h =  100 * Math.random()
+                const h =  130 * Math.random()
+                const gate =  Math.max(60, 300 * Math.random())
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', h + y);
                 rect.setAttributeNS(null, 'width', 50);
@@ -82,12 +83,20 @@
                 rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
                 container.appendChild(rect);
                 rects.push(rect)
+
+                const rect2 = document.createElementNS(svgns, 'rect');
+                rect2.setAttributeNS(null, 'x', x);
+                rect2.setAttributeNS(null, 'y', 0);
+                rect2.setAttributeNS(null, 'width', 50);
+                rect2.setAttributeNS(null, 'height', 400 - (200 - h) - gate);
+                rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
+                container.appendChild(rect2);
+                rects.push(rect2)
             }
 
             setInterval(() => {
                 createRect(400, 400 - 200 + 30)
 
-                createRect(400, 0)
             }, 2000)
 
             
