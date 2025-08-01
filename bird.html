@@ -125,8 +125,9 @@
 
                 rects.forEach(r => {
                     const rect = container.createSVGRect();
-                    rect.x = parseInt(r.getAttributeNS(null, 'x'))
-                    rect.y = parseInt(r.getAttributeNS(null, 'y'))
+                    const bound = r.getBoundingClientRect();
+                    rect.x = bound.top
+                    rect.y = bound.bottom
                     rect.height = parseInt(r.getAttributeNS(null, 'height'))
                     rect.width = parseInt(r.getAttributeNS(null, 'width'))
                     const lost = container.checkIntersection(circle, rect)
