@@ -57,11 +57,27 @@
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
          var play = false
+         var highscore = 0
+         
+         const svgns = "http://www.w3.org/2000/svg"
+         const container = document.getElementById( 'cont' );
+         
+         const scoreElem = document.createElementNS(svgns, 'text');
+         scoreElem.setAttributeNS(null, 'x', 1000 - 300);
+         scoreElem.setAttributeNS(null, 'y', 20);
+         scoreElem.setAttributeNS(null, 'style', 'fill: green;')
+         container.appendChild(scoreElem);
+         setInterval(() => {
+            scoreElem.innerText = "" + score
+         }, 200)
+         
          const start = () => {
             play = true
-            const svgns = "http://www.w3.org/2000/svg"
-            const container = document.getElementById( 'cont' );
+            
             container.innerHTML = ""
+            
+            var score = 0
+            
             
             const initx = 200
             const inity = 300
@@ -129,11 +145,14 @@
                 rects.forEach(r => {
                     
                     
-                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
+                   const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
                     if (lost) {
                         clearInterval(cancel1)
                         clearInterval(cancel2)
                         play = false
+                        if (score > highscore) {
+                           highscore = score
+                        }
                     }
 
                 })
