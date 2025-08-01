@@ -75,7 +75,7 @@
             const createRect = (x, y) => {
                 const rect = document.createElementNS(svgns, 'rect');
                 const h =  130 * Math.random()
-                const gate =  Math.max(60, 300 * Math.random())
+                const gate =  Math.max(100, 300 * Math.random())
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', h + y);
                 rect.setAttributeNS(null, 'width', 50);
@@ -105,18 +105,6 @@
                 const speed = 10
                 rects.forEach(r => {
                     r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
-                    const rect = container.createSVGRect();
-                    rect.x = parseInt(r.getAttributeNS(null, 'x'))
-                    rect.y = parseInt(r.getAttributeNS(null, 'y'))
-                    rect.height = parseInt(r.getAttributeNS(null, 'height'))
-                    rect.width = parseInt(r.getAttributeNS(null, 'width'))
-                    const lost = container.checkIntersection(circle, rect)
-                    if (lost) {
-                        clearInterval(cancel1)
-                        clearInterval(cancel2)
-                        clearInterval(cancel3)
-                    }
-
                 })
             }, 100)
 
@@ -134,6 +122,21 @@
                 }
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
+
+                rects.forEach(r => {
+                    const rect = container.createSVGRect();
+                    rect.x = parseInt(r.getAttributeNS(null, 'x'))
+                    rect.y = parseInt(r.getAttributeNS(null, 'y'))
+                    rect.height = parseInt(r.getAttributeNS(null, 'height'))
+                    rect.width = parseInt(r.getAttributeNS(null, 'width'))
+                    const lost = container.checkIntersection(circle, rect)
+                    if (lost) {
+                        clearInterval(cancel1)
+                        clearInterval(cancel2)
+                        clearInterval(cancel3)
+                    }
+
+                })
             }, 100)
 
 
