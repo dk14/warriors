@@ -55,9 +55,11 @@
             }, 300)
         </script>
         <script>
+         const start = () => {
             const svgns = "http://www.w3.org/2000/svg"
             const container = document.getElementById( 'cont' );
-
+            container.innerHTML = ""
+            
             const initx = 200
             const inity = 300
             var x = initx
@@ -133,6 +135,8 @@
 
                 })
             }, 100)
+         }
+         start()
 
 
         </script>
