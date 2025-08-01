@@ -65,13 +65,15 @@
             
             const initx = 200
             const inity = 300
+            const r = 30
             var x = initx
             var y = inity
+            
 
             const circle = document.createElementNS(svgns, 'circle');
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
-            circle.setAttributeNS(null, 'r', 30);
+            circle.setAttributeNS(null, 'r', r);
             circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
             container.appendChild(circle);
 
@@ -127,7 +129,7 @@
                 rects.forEach(r => {
                     
                     
-                    const lost = Intersects.boxCircle(parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')), cx, cy, r)
+                    const lost = Intersects.boxCircle(parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')), x, y, r)
                     if (lost) {
                         clearInterval(cancel1)
                         clearInterval(cancel2)
