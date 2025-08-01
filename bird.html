@@ -99,16 +99,7 @@
 
             }, 2000)
 
-            
-
             const cancel2 = setInterval(() => {
-                const speed = 10
-                rects.forEach(r => {
-                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
-                })
-            }, 100)
-
-            const cancel3 = setInterval(() => {
                 const gravity = 4
                 const shift =  y - (energy * energy * 15000)
                 y1 = Math.max(0, Math.min(400, shift + gravity))
@@ -122,6 +113,11 @@
                 }
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
+               
+                const speed = 10
+                rects.forEach(r => {
+                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
+                })
 
                 rects.forEach(r => {
                     const rect = container.createSVGRect();
@@ -133,7 +129,6 @@
                     if (lost) {
                         clearInterval(cancel1)
                         clearInterval(cancel2)
-                        clearInterval(cancel3)
                     }
 
                 })
