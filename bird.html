@@ -82,7 +82,6 @@
                 rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
                 container.appendChild(rect);
                 rects.push(rect)
-
             }
 
             setInterval(() => {
@@ -102,7 +101,8 @@
 
             setInterval(() => {
                 const gravity = 4
-                y = Math.max(0, Math.min(400, y - energy * 300 + gravity))
+                const shift =  y - (energy * energy * 15000)
+                y = Math.max(0, Math.min(400, shift + gravity * (0.3 * 1000 / shift)))
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
             }, 100)
