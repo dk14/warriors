@@ -143,8 +143,13 @@
                 })
 
                 rects.forEach(r => {
-                    
-                    
+                   const rectEdge = parseInt(r.getAttributeNS(null, 'y'))
+                   
+                   if (y > rectEdge + 30 && r["counted"] !== true) {
+                     r["counted"] = true
+                     score += 10
+                   }
+                  
                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
                     if (lost) {
                         clearInterval(cancel1)
