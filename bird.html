@@ -66,8 +66,8 @@
          const scoreElem = document.createElementNS(svgns, 'text');
          scoreElem.setAttributeNS(null, 'x', 400);
          scoreElem.setAttributeNS(null, 'y', 20);
-         scoreElem.setAttributeNS(null, 'style', 'fill: green;')
-         container.appendChild(scoreElem);
+         scoreElem.setAttributeNS(null, 'style', 'fill: green; font-size: 20px;');
+         
          setInterval(() => {
             scoreElem.innerText = "" + score
          }, 200)
@@ -76,6 +76,7 @@
             play = true
             
             container.innerHTML = ""
+            container.appendChild(scoreElem);
             
             score = 0
             
