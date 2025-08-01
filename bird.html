@@ -64,10 +64,10 @@
          const container = document.getElementById( 'cont' );
          
          const scoreElem = document.createElementNS(svgns, 'text');
-         scoreElem.setAttributeNS(null, 'x', 400);
+         scoreElem.setAttributeNS(null, 'x', 40);
          scoreElem.setAttributeNS(null, 'y', 20);
          scoreElem.setAttributeNS(null, 'style', 'fill: green; font-size: 20px;');
-         
+         scoreElem.innerText = "00";
          setInterval(() => {
             scoreElem.innerText = "" + score
          }, 200)
