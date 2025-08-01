@@ -57,13 +57,14 @@
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
          var play = false
+         var score = 0
          var highscore = 0
          
          const svgns = "http://www.w3.org/2000/svg"
          const container = document.getElementById( 'cont' );
          
          const scoreElem = document.createElementNS(svgns, 'text');
-         scoreElem.setAttributeNS(null, 'x', 1000 - 300);
+         scoreElem.setAttributeNS(null, 'x', 400);
          scoreElem.setAttributeNS(null, 'y', 20);
          scoreElem.setAttributeNS(null, 'style', 'fill: green;')
          container.appendChild(scoreElem);
@@ -76,7 +77,7 @@
             
             container.innerHTML = ""
             
-            var score = 0
+            score = 0
             
             
             const initx = 200
