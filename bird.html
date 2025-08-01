@@ -1,10 +1,17 @@
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    
     </head>
     <body bgcolor="black">
-        <button onclick="DeviceMotionEvent.requestPermission()">gyro</button>
-        <svg id="cont" height="1000" width="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <svg id="cont" height="1000" width="1000" style="font-family:'Crafty Girls'; font-size:50px;
+      fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    
         </svg>
         <script>
@@ -17,6 +24,7 @@
             }, 100)
 
             onmousemove = (event) => {
+                document.getElementById("gyro").style.display = 'none'
                 ev = {}
                 ev.acceleration = {}
                 const x = event.clientX / 1000
@@ -37,7 +45,8 @@
             var energyScale = 1.0
             
             ondevicemotion = (event) => {
-            
+
+                document.getElementById("gyro").style.display = 'none'
                 var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
                 var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
                 prev = [x, y, z]
@@ -59,26 +68,36 @@
          var play = false
          var score = 0
          var highscore = 0
+         highscore = localStorage.getItem('highscore') ?? 0
          
          const svgns = "http://www.w3.org/2000/svg"
          const container = document.getElementById( 'cont' );
+
+         const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'y', 50);
+         scoreText.textContent = "00"
+
+         const retryText = document.createElementNS(svgns, "text");
+         retryText.setAttributeNS(null, 'x', 100);
+         retryText.setAttributeNS(null, 'y', 200);
+         retryText.setAttributeNS(null, 'style', "fill: pink");
          
-         const scoreElem = document.createElementNS(svgns, 'text');
-         scoreElem.innerText = "00";
-         scoreElem.setAttributeNS(null, 'x', 60);
-         scoreElem.setAttributeNS(null, 'y', 300);
-         scoreElem.setAttributeNS(null, 'style', "fill: yellow; font: bold 30px sans-serif;");
-         
+     
          setInterval(() => {
-            scoreElem.innerText = "" + score
+            scoreText.textContent = score
+            retryText.textContent = "HIGH SCORE: " + highscore
          }, 200)
          
          const start = () => {
             play = true
             
             container.innerHTML = ""
-            container.appendChild(scoreElem);
+            container.appendChild(scoreText);
+            try {
+                container.removeChild(retryText);
+            } catch {}
             
+
             score = 0
             
             
@@ -118,6 +137,9 @@
                 rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
                 container.appendChild(rect2);
                 rects.push(rect2)
+
+                container.removeChild(scoreText);
+                container.appendChild(scoreText);
             }
 
             cancel1 = setInterval(() => {
@@ -146,11 +168,11 @@
                 })
 
                 rects.forEach(r => {
-                   const rectEdge = parseInt(r.getAttributeNS(null, 'y'))
+                   const rectEdge = parseInt(r.getAttributeNS(null, 'x'))
                    
-                   if (y > rectEdge + 30 && r["counted"] !== true) {
+                   if (x > rectEdge + 30 && r["counted"] !== true) {
                      r["counted"] = true
-                     score += 10
+                     score += 5
                    }
                   
                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
@@ -160,7 +182,9 @@
                         play = false
                         if (score > highscore) {
                            highscore = score
+                           localStorage.setItem('highscore', highscore)
                         }
+                        container.appendChild(retryText);
                     }
 
                 })
