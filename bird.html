@@ -54,6 +54,7 @@
                 energy = 0
             }, 300)
         </script>
+        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
          var play = false
          const start = () => {
@@ -124,9 +125,9 @@
                 })
 
                 rects.forEach(r => {
-                    const rect = r.getBBox();
                     
-                    const lost = container.checkIntersection(circle, rect)
+                    
+                    const lost = Intersects.boxCircle(parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')), cx, cy, r)
                     if (lost) {
                         clearInterval(cancel1)
                         clearInterval(cancel2)
