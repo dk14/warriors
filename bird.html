@@ -55,7 +55,9 @@
             }, 300)
         </script>
         <script>
+         var play = false
          const start = () => {
+            play = true
             const svgns = "http://www.w3.org/2000/svg"
             const container = document.getElementById( 'cont' );
             container.innerHTML = ""
@@ -131,12 +133,18 @@
                     if (lost) {
                         clearInterval(cancel1)
                         clearInterval(cancel2)
+                        play = false
                     }
 
                 })
             }, 100)
          }
          start()
+         window.onclick = () => {
+            if (!play) {
+               start()
+            }
+         }
 
 
         </script>
