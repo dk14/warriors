@@ -102,7 +102,12 @@
             setInterval(() => {
                 const gravity = 4
                 const shift =  y - (energy * energy * 15000)
-                y = Math.max(0, Math.min(400, shift + gravity * (0.3 * 1000 / shift)))
+                y1 = Math.max(0, Math.min(400, shift + gravity))
+                if (y1 < y) {
+                    y = y1 
+                } else {
+                    y = y1 + gravity * (0.3 * 1000 / shift)
+                }
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
             }, 100)
