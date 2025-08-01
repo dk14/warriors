@@ -67,7 +67,7 @@
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
             circle.setAttributeNS(null, 'r', 30);
-            circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
+            circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px; filter: blur(3px)' );
             container.appendChild(circle);
 
             const rects = []
@@ -80,7 +80,7 @@
                 rect.setAttributeNS(null, 'y', h + y);
                 rect.setAttributeNS(null, 'width', 50);
                 rect.setAttributeNS(null, 'height', 200 - h);
-                rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
+                rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px; filter: blur(3px)' );
                 container.appendChild(rect);
                 rects.push(rect)
 
@@ -89,26 +89,38 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50);
                 rect2.setAttributeNS(null, 'height', 400 - (200 - h) - gate);
-                rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;filter: blur(3px)' );
                 container.appendChild(rect2);
                 rects.push(rect2)
             }
 
-            setInterval(() => {
+            cancel1 = setInterval(() => {
                 createRect(400, 400 - 200 + 30)
 
             }, 2000)
 
             
 
-            setInterval(() => {
+            const cancel2 = setInterval(() => {
                 const speed = 10
                 rects.forEach(r => {
-                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x', x)) - speed);
+                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
+                    const rect = container.createSVGRect();
+                    rect.x = parseInt(r.getAttributeNS(null, 'x'))
+                    rect.y = parseInt(r.getAttributeNS(null, 'y'))
+                    rect.height = parseInt(r.getAttributeNS(null, 'height'))
+                    rect.width = parseInt(r.getAttributeNS(null, 'width'))
+                    const lost = container.checkIntersection(circle, rect)
+                    if (lost) {
+                        clearInterval(cancel1)
+                        clearInterval(cancel2)
+                        clearInterval(cancel3)
+                    }
+
                 })
             }, 100)
 
-            setInterval(() => {
+            const cancel3 = setInterval(() => {
                 const gravity = 4
                 const shift =  y - (energy * energy * 15000)
                 y1 = Math.max(0, Math.min(400, shift + gravity))
