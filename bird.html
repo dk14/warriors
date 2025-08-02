@@ -132,7 +132,7 @@
 
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
-                rect.setAttributeNS(null, 'width', 50);
+                rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
                 rect.setAttributeNS(null, 'style', 'fill: yellow; stroke: red; stroke-width: 1px; ' );
                 container.appendChild(rect);
@@ -141,7 +141,7 @@
                 const rect2 = document.createElementNS(svgns, 'rect');
                 rect2.setAttributeNS(null, 'x', x);
                 rect2.setAttributeNS(null, 'y', 0);
-                rect2.setAttributeNS(null, 'width', 50);
+                rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
                 container.appendChild(rect2);
@@ -154,13 +154,13 @@
             cancel1 = setInterval(() => {
                 createRect(screenWidth, screenHeight - 200 + 30)
 
-            }, 2000)
+            }, 2000 * screenHeight / 755)
 
             var boost = 0
             const cancel2 = setInterval(() => {
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * screenHeight / 755) / rate)
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
