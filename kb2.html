@@ -66,8 +66,8 @@
             var out = ""
 
             setInterval(() => {     
-                const gravity = (4 + 5 * y / maxy) / 10
-                const shift = (y - (energy * energy * 5000))
+                const gravity = (4) / 10
+                const shift = (y - (energy * 100))
                 y1 = Math.max(0, Math.min(maxy, (shift + gravity)))
 
                 if (y1 < y) {
