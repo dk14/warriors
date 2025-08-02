@@ -61,13 +61,13 @@
             var y = maxy
             var console = []
 
-            const set = ["_", "<", "<", "<", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            const set = ["_", "_", "<", "<", "<", "<", "<", "<", "<", "<", "<", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
             var candidate = ""
             var out = ""
 
             setInterval(() => {     
                 const gravity = 2 / 10
-                const shift = (y - (energy * 200))
+                const shift = (y - (energy * 300))
                 y1 = Math.max(0, Math.min(maxy, (shift + gravity)))
 
                 if (y1 < y) {
