@@ -10,7 +10,7 @@
     </head>
     <body bgcolor="black">
         <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
-        <svg id="cont" height="1000" width="1000" style="font-family:'Crafty Girls'; font-size:50px;
+        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
       fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    
         </svg>
@@ -65,6 +65,11 @@
         </script>
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
+        var screenWidth = document.body.clientWidth - 20
+        var screenHeight = document.body.clientHeight - 40
+
+        const rate = 10
+
          var play = false
          var score = 0
          var highscore = 0
@@ -72,14 +77,16 @@
          
          const svgns = "http://www.w3.org/2000/svg"
          const container = document.getElementById( 'cont' );
+         container.setAttributeNS(null, "width", screenWidth)
+         container.setAttributeNS(null, "height", screenHeight)
 
          const scoreText = document.createElementNS(svgns, "text");
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
 
          const retryText = document.createElementNS(svgns, "text");
-         retryText.setAttributeNS(null, 'x', 100);
-         retryText.setAttributeNS(null, 'y', 200);
+         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
+         retryText.setAttributeNS(null, 'y', screenHeight / 2);
          retryText.setAttributeNS(null, 'style', "fill: pink");
          
      
@@ -119,13 +126,15 @@
 
             const createRect = (x, y) => {
                 const rect = document.createElementNS(svgns, 'rect');
-                const h =  130 * Math.random()
-                const gate =  Math.max(100, 300 * Math.random())
+                const bias = screenHeight * 0.1
+                const gate =  Math.max(200, 400 * Math.random())
+                const h = (screenHeight - gate)  * Math.random()
+
                 rect.setAttributeNS(null, 'x', x);
-                rect.setAttributeNS(null, 'y', h + y);
+                rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50);
-                rect.setAttributeNS(null, 'height', 200 - h);
-                rect.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px; ' );
+                rect.setAttributeNS(null, 'height', h);
+                rect.setAttributeNS(null, 'style', 'fill: yellow; stroke: red; stroke-width: 1px; ' );
                 container.appendChild(rect);
                 rects.push(rect)
 
@@ -133,7 +142,7 @@
                 rect2.setAttributeNS(null, 'x', x);
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50);
-                rect2.setAttributeNS(null, 'height', 400 - (200 - h) - gate);
+                rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
                 container.appendChild(rect2);
                 rects.push(rect2)
@@ -143,16 +152,18 @@
             }
 
             cancel1 = setInterval(() => {
-                createRect(400, 400 - 200 + 30)
+                createRect(screenWidth, screenHeight - 200 + 30)
 
             }, 2000)
 
+            var boost = 0
             const cancel2 = setInterval(() => {
-                const gravity = 4
-                const shift =  y - (energy * energy * 15000)
-                y1 = Math.max(0, Math.min(400, shift + gravity))
+                
+                const gravity = ((6 + 5 * y / screenHeight + 5 * boost) * screenHeight / 755) / rate
+                const shift = (y - (energy * energy * 15000 * screenHeight / 755) / rate)
+                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
-                    y1 = inity
+                    y1 = screenHeight
                 }
                 if (y1 < y) {
                     y = y1 
@@ -162,7 +173,7 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
                
-                const speed = 10
+                const speed = 10 / rate
                 rects.forEach(r => {
                     r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
                 })
@@ -173,6 +184,10 @@
                    if (x > rectEdge + 30 && r["counted"] !== true) {
                      r["counted"] = true
                      score += 5
+                   }
+
+                   if (x < rectEdge && x > rectEdge - 200 && parseInt(r.getAttributeNS(null, 'y') > screenHeight / 2)) {
+                        boost = (parseInt((r.getAttributeNS(null, 'y'))) - y) / screenHeight
                    }
                   
                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
@@ -188,7 +203,7 @@
                     }
 
                 })
-            }, 100)
+            }, 100 / rate)
          }
          start()
          window.onclick = () => {
