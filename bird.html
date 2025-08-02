@@ -127,7 +127,7 @@
             const createRect = (x, y) => {
                 const rect = document.createElementNS(svgns, 'rect');
                 const bias = screenHeight * 0.1
-                const gate =  Math.max(200, 400 * Math.random())
+                const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
                 const h = (screenHeight - gate)  * Math.random()
 
                 rect.setAttributeNS(null, 'x', x);
