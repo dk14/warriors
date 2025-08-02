@@ -159,7 +159,7 @@
             var boost = 0
             const cancel2 = setInterval(() => {
                 
-                const gravity = ((6 + 5 * y / screenHeight + 5 * boost) * screenHeight / 755) / rate
+                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * screenHeight / 755) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
