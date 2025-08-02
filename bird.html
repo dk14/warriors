@@ -23,8 +23,7 @@
                 //energy = 0
             }, 100)
 
-            onmousemove = (event) => {
-                document.getElementById("gyro").style.display = 'none'
+            onmousemove = (event) => {                
                 ev = {}
                 ev.acceleration = {}
                 const x = event.clientX / 1000
@@ -45,8 +44,9 @@
             var energyScale = 1.0
             
             ondevicemotion = (event) => {
-
-                document.getElementById("gyro").style.display = 'none'
+                setInterval(() => {
+                    document.getElementById("gyro").style.display = 'none'
+                }, 100)
                 var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
                 var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
                 prev = [x, y, z]
