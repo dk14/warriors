@@ -54,6 +54,7 @@
         </script>
         <script>
             const maxy = 755
+            const maxrate = 40
             var rate = 0
             var cursor = 0
 
@@ -65,25 +66,44 @@
             var out = ""
 
             setInterval(() => {     
-                const gravity = (6 + 5 * y) 
-                const shift = (y - (energy * energy * 15000))
-                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
+                const gravity = (6 + 5 * y / maxy) / 10
+                const shift = (y - (energy * energy * 5000))
+                y1 = Math.max(0, Math.min(maxy, (shift + gravity)))
+
                 if (y1 < y) {
                     y = y1 
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
-                rate = y / maxy
+
+                if (y > maxy) {
+                    y = maxy
+                }
+
+                if (y < 0) {
+                    y = 0
+                }
+                rate = (y) / maxy
             }, 10)
 
+            var i = 0
             setInterval(() => {
-                cursor += 1 / rate
+                const period = rate == 0 ? maxrate : Math.round(1 / rate)
+                i++
+                i %= (period * 10)
+                if (i == 0) {
+                    cursor ++
+                }
+                
                 cursor %= set.length
                 candidate = set[cursor]
-                if (rate < 2) {
+                if (period > 30) {
                     console.push(candidate)
+                    y = 0
+                    rate = 1
                 }
-                out = 
+                out = (console.length == 0 ? '' : console.reduce((a, b) => a + b)) + candidate + `\n        [${'|'.repeat(20 - y / 30)}${' '.repeat(y / 30)}]\n${period}`
+                document.getElementById("output").innerHTML = out
             }, 10)
 
         </script>
