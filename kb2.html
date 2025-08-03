@@ -4,7 +4,8 @@
     </head>
     <body bgcolor="black">
         <button style="border: 1px solid green; background-color: black; color: green" onclick="DeviceMotionEvent.requestPermission()">GYRO</button>
-        <pre id="output" style="color: hsla(120, 100%, 25%, 1)"></pre>
+        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 20px;"></pre>
+        <pre id="debug" style="color: hsla(120, 100%, 25%, 1)"></pre>
         <font style="color: hsla(120, 100%, 25%, 1)">ball speed:</font><input type="number" min="1" max="100" value="50" id="speed" style = "color:green; background-color: black;">
         <font style="color: hsla(120, 100%, 25%, 1)">ball gravity:</font><input type="number" min="1" max="100" value="700" id="gravity" style = "color:green; background-color: black;">
 
@@ -152,9 +153,11 @@
 
                 const style  = `color: hsla(120, ${100}%, ${
                     10 + period * 90 / 30
-                }%, 1)`
-                out = "\n" + (console.length == 0 ? '' : console.reduce((a, b) => a + b)) + `<font style="${style}">${candidate}</font>` + `\n\n\n\n\n\n        [${'|'.repeat(25 - y / 30)}${' '.repeat(y / 30)}]` + `\n\n\n\n\n\nperiod = ${period}, cursor = ${cursor}, i = ${i}, \n range = ${range}, rangeStart = ${rangeStart}, rangeEnd = ${rangeEnd}, \n speedFactor = ${speedFactor}, gravityFactor = ${gravityFactor}`
+                }%, 1); font-size: ${20 + period / 10}px; dominant-baseline: middle`
+                out = "\n" + (console.length == 0 ? '' : console.reduce((a, b) => a + b)) + `<font style="${style}">${candidate}</font>` 
+                
                 document.getElementById("output").innerHTML = out
+                document.getElementById("debug").innerHTML = `\n\n\n\n\n\n        [${'|'.repeat(25 - y / 30)}${' '.repeat(y / 30)}]` + `\n\n\n\n\n\nperiod = ${period}, cursor = ${cursor}, i = ${i}, \n range = ${range}, rangeStart = ${rangeStart}, rangeEnd = ${rangeEnd}, \n speedFactor = ${speedFactor}, gravityFactor = ${gravityFactor}`
 
                 prevPeriod = period
             }, 10)
