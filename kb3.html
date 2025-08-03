@@ -79,7 +79,7 @@
             setInterval(() => {
                 
                 
-                const gravity = ((6 + 5 * (screenHeight - y) / screenHeight) * screenHeight / 755) / rate
+                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
@@ -91,7 +91,7 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "_____<<<<<<<<<01234567890abcdefghijklmnopqrstuvwxyz".repeat(5).split("")
+                const template = "_____<<<<<<<<<01234567890abcdefghijklmnopqrstuvwxyz".split("")
                 var set = template
                 const cursor = Math.round(set.length * ((10 + screenHeight - y) / screenHeight))
                 if (cursor > maxcursor) {
