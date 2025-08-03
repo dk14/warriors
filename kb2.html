@@ -6,7 +6,7 @@
         <button style="border: 1px solid green; background-color: black; color: green" onclick="DeviceMotionEvent.requestPermission()">GYRO</button>
         <pre id="output" style="color: hsla(120, 100%, 25%, 1)"></pre>
         <font style="color: hsla(120, 100%, 25%, 1)">ball speed:</font><input type="number" min="1" max="100" value="50" id="speed" style = "color:green; background-color: black;">
-        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity:</font><input type="number" min="1" max="100" value="50" id="gravity" style = "color:green; background-color: black;">
+        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity:</font><input type="number" min="1" max="100" value="700" id="gravity" style = "color:green; background-color: black;">
 
         <script>
 
@@ -112,8 +112,8 @@
             var prevPeriod = 0
             setInterval(() => {
                 const period = rate == 0 ? maxrate : Math.round(1 / rate)
-                const periodFactor = Math.round(1 / (period / 30))
-                const range = periodFactor % set.length
+                const periodFactor = (1 / period)
+                const range = Math.round(periodFactor * set.length)
 
                 if (Math.abs(prevPeriod - period) > 0) {
                     rangeStart = Math.round(cursor / range) * range
