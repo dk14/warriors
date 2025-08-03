@@ -59,9 +59,12 @@
             var speedFactor = 1.0
             var gravityFactor = 1.0
 
-            setInterval(() => {   
-                speedFactor = 2 * document.getElementById("speed").value / 100
-                gravityFactor = 2 * document.getElementById("gravity").value / 100
+            setInterval(() => {  
+                if (document.getElementById("speed").value > 0 && document.getElementById("gravity").value > 0) {
+                    speedFactor = 2 * document.getElementById("speed").value / 100
+                    gravityFactor = 2 * document.getElementById("gravity").value / 100
+                }
+
             }, 100)
 
 
