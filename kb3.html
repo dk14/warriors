@@ -95,7 +95,7 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "____<<<0123012345674567890890abcdabcdefghefghijklmnijklmnopqrsopqrstuvwtuvwxyzxyz□,.()'!?:;□,.()'!?:;$".split("")
+                const template = "____<<<0123012345674567890890abcdabcdefghefghijklmnijklmnopqrsopqrstuvwtuvwxyzxyz,.()'!?:;□,.()'!?:;□□□$".split("")
                 var set = template
                 const cursor = Math.max(0, Math.min(set.length - 1, Math.round(set.length * ((3 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
@@ -114,6 +114,8 @@
                     } else if (candidate === set[maxcursor]) {
                         if (candidate === '<') {
                             console.pop(candidate)
+                        } if (candidate === '□') {
+                            console.push(' ')
                         } else {
                             console.push(candidate)
                         }
