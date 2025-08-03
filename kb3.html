@@ -95,14 +95,14 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "____<<<0123012345674567890890abcdabcdefghefghijklmnijklmnopqrsopqrstuvwtuvwxyzxyz,.()'!?:;□,.()'!?:;□□□$".split("")
+                const template = "____<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
                 var set = template
-                const cursor = Math.max(0, Math.min(set.length - 1, Math.round(set.length * ((3 + screenHeight - y) / screenHeight))))
+                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
                     maxcursor = cursor
                 }
 
-                if (set[maxcursor] === "$") {
+                if (set[maxcursor] === "=") {
                     maxcursor = 0
                     energy = 0
                     y = screenHeight
@@ -114,8 +114,6 @@
                     } else if (candidate === set[maxcursor]) {
                         if (candidate === '<') {
                             console.pop(candidate)
-                        } else if (candidate === '□') {
-                            console.push(' ')
                         } else {
                             console.push(candidate)
                         }
@@ -131,7 +129,7 @@
                     20 + (cursor > maxcursor ? 20 : 45 * (screenHeight - y) / screenHeight)
                 }%, 1);`
 
-                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>` //+ `    ${cursor} ${prevcursor}`
+                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 prevcursor = cursor
             }, 100 / rate)
          }
