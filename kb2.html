@@ -134,6 +134,10 @@
                     cursor = rangeStart
                 }     
 
+                if (cursor < rangeStart) {
+                    cursor = rangeStart
+                }  
+
                 candidate = set[cursor]
    
                 if (period > 30) {
