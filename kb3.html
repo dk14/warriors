@@ -79,7 +79,7 @@
             setInterval(() => {
                 
                 
-                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const gravity = ((6 + 5 * (screenHeight - y) / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
@@ -107,7 +107,11 @@
                     maxcursor = 0
                 }
 
-                document.getElementById("output").innerHTML = console.join("") + set[maxcursor]
+                const style  = `color: hsla(120, ${100}%, ${
+                    10 + cursor > maxcursor ? 20: 90 * y / screenHeight
+                }%, 1);`
+
+                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                
             }, 100 / rate)
          }
