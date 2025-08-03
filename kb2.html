@@ -117,7 +117,7 @@
                 const range = Math.round(periodFactor * set.length)
 
                 if (Math.abs(prevPeriod - period) > 0) {
-                    rangeStart = Math.round(cursor / range) * range
+                    rangeStart = (Math.round(cursor / range) * range) % (set.length - range - 1)
                     rangeEnd = rangeStart + range
                 }
                 
