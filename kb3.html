@@ -75,7 +75,11 @@
             var y = screenHeight
             var maxcursor = 0
 
+            var candidate = undefined
+            var prevcursor = undefined
+
             const console = [":"]
+
             setInterval(() => {
                 
                 
@@ -91,34 +95,38 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "____________01234567890abcdefghijklmnopqrstuvwxyz<<<<<<<<<<==".split("")
+                const template = "_<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
                     maxcursor = cursor
                 }
 
-                if (set[cursor] === '_' && set[maxcursor] !== '_') {
-                    if (set[maxcursor] === "<") {
-                        console.pop()
-                    } else {
-                        if (set[maxcursor] !== "=") {
-                            console.push(set[maxcursor])
-                        }
-                    }
+                if (set[maxcursor] === "=") {
                     maxcursor = 0
-                    y = 0
-                    if (set[maxcursor] !== "=") {
-                        energy = 0
+                    energy = 0
+                    y = screenHeight
+                }
+
+                if (cursor === 0 && prevcursor !== 0 && set[maxcursor] !== "_") {
+                    if (candidate === undefined) {
+                        candidate = set[maxcursor]
+                    } else if (candidate === set[maxcursor]) {
+                        console.push(candidate)
+                        candidate = undefined
+                        maxcursor = 0
+                    } else {
+                        candidate = undefined
                     }
+                    
                 }
 
                 const style  = `color: hsla(120, ${100}%, ${
-                    10 + cursor > maxcursor ? 20: 90 * y / screenHeight
+                    20 + (cursor > maxcursor ? 20 : 45 * (screenHeight - y) / screenHeight)
                 }%, 1);`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
-               
+                prevcursor = cursor
             }, 100 / rate)
          }
          start()
