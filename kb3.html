@@ -117,6 +117,7 @@
                 if (cursor === 0 && prevcursor !== 0 && set[maxcursor] !== "_") {
                     if (candidate === undefined) {
                         candidate = set[maxcursor]
+                        extragaravity = 0
                     } else if (candidate === set[maxcursor]) {
                         if (candidate === '<') {
                             console.pop(candidate)
