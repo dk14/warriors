@@ -102,7 +102,7 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "___□<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
+                const template = "___□□□<<<01234567890abcdefghijklmnopqrstuvwxyz;!.=".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
@@ -110,7 +110,7 @@
                 }
 
                 if (candidate !== undefined && i % 150 === 0 && maxcursor > 2) {
-                    maxcursor = Math.max(0, maxcursor - 1)
+                    maxcursor = Math.max(5, maxcursor - 1)
                     candidate = set[maxcursor]
                 }
 
