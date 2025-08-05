@@ -95,7 +95,8 @@
 
                 const template = "___□<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
                 var set = template
-                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
+                const step = ((10 + screenHeight - y) / screenHeight)
+                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * step)))
 
                 if (set[cursor] === "=") {
                     cursor = 0
@@ -103,7 +104,7 @@
                     y = screenHeight
                 }
 
-                if (cursor === 0 && prevcursor !== 0 && set[cursor] !== "_") {
+                if ((screenHeight - y) === cursor * screenHeight / set.length  && set[cursor] !== "_") {
                     if (set[cursor] === '<') {
                         console.pop()
                     } else {
