@@ -78,7 +78,10 @@
 
             const console = [":"]
 
+            var i = 0
             setInterval(() => {
+
+                i++
                 
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
@@ -95,8 +98,7 @@
 
                 const template = "___□<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
                 var set = template
-                const step = ((10 + screenHeight - y) / screenHeight)
-                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * step)))
+                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
 
                 if (set[cursor] === "=") {
                     cursor = 0
@@ -104,7 +106,9 @@
                     y = screenHeight
                 }
 
-                if ((screenHeight - y) === cursor * screenHeight / set.length  && set[cursor] !== "_") {
+                const step = screenHeight / set.length
+                const distance = (screenHeight - y) - cursor * step
+                if (distance < 1 && i % 900 === 0 && set[cursor] !== "_") {
                     if (set[cursor] === '<') {
                         console.pop()
                     } else {
@@ -113,7 +117,7 @@
                     cursor = 0
                 }
 
-                const style  = `color: hsla(${120}, ${100}%, ${50 + 20 * y / screenHeight}%, 1);`
+                const style  = `color: hsla(${120}, ${100}%, ${40 + 20 * (screenHeight - y) / screenHeight }%, 1);`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[cursor]}</font>`
             }, 100 / rate)
