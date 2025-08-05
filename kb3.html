@@ -146,7 +146,7 @@
                     
                 }
 
-                const style  = `color: hsla(${360 * y / screenHeight}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ( (screenHeight - y))}px`
+                const style  = `color: hsla(${360 * y / screenHeight}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ((screenHeight - y) / 2)}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 prevcursor = cursor
