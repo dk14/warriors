@@ -82,7 +82,11 @@
 
             const console = [":"]
 
+            var i = 0
+
             setInterval(() => {
+
+                i++
                 
                 
                 const gravity = ((6 + extragaravity + 5 * y / screenHeight) * screenHeight / 755) / rate
@@ -102,6 +106,11 @@
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
                     maxcursor = cursor
+                }
+
+                if (candidate !== undefined && i % 300 === 0 && maxcursor > 1) {
+                    maxcursor--
+                    candidate = set[maxcursor]
                 }
 
                 if (set[maxcursor] === "=") {
@@ -133,7 +142,7 @@
                     
                 }
 
-                const style  = `color: hsla(${360 * y / screenHeight}, ${100}%, ${50 + 20 * y / screenHeight}%, 1);`
+                const style  = `color: hsla(${360 * y / screenHeight}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ( (screenHeight - y))}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 prevcursor = cursor
