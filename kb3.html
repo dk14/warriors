@@ -10,7 +10,7 @@
     </head>
     <body bgcolor="black">
         <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
-        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 20px;"></pre>
+        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
 
         <script>
 
@@ -78,12 +78,14 @@
             var candidate = undefined
             var prevcursor = undefined
 
+            var extragaravity = 0
+
             const console = [":"]
 
             setInterval(() => {
                 
                 
-                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const gravity = ((6 + extragaravity + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
@@ -108,6 +110,10 @@
                     y = screenHeight
                 }
 
+                if (maxcursor - cursor > 2) {
+                    extragaravity = 5
+                }
+
                 if (cursor === 0 && prevcursor !== 0 && set[maxcursor] !== "_") {
                     if (candidate === undefined) {
                         candidate = set[maxcursor]
@@ -119,15 +125,14 @@
                         }
                         candidate = undefined
                         maxcursor = 0
+                        extragaravity = 0
                     } else {
                         candidate = undefined
                     }
                     
                 }
 
-                const style  = `color: hsla(120, ${100}%, ${
-                    20 + (cursor > maxcursor ? 20 : 45 * (screenHeight - y) / screenHeight)
-                }%, 1);`
+                const style  = `color: hsla(${360 * y / screenHeight}, ${100}%, ${50 + 20 * y / screenHeight}%, 1);`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 prevcursor = cursor
