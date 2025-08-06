@@ -189,7 +189,7 @@
                     globalgravity *= 0.8
                 }
 
-                if (maxcursor - cursor > 5) {
+                if (dist > 5 / globalspeed) {
                     extragaravity = 50 + cursor
                     extraspeed = 3.0
                 }
@@ -211,7 +211,7 @@
                     globalgravity *= 1.05     
                 }
 
-                const style  = `color: hsla(${120  + ((dist < 4) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 20 * ((screenHeight - y) / screenHeight)}px`
+                const style  = `color: hsla(${120  + ((dist < 5 / globalspeed) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 20 * ((screenHeight - y) / screenHeight)}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
             }, 100 / rate)
