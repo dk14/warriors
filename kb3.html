@@ -165,7 +165,10 @@
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
                     maxcursor = cursor
+                    i = 0
                 }
+
+
 
                 if (i % 150 === 0 && maxcursor > 2 && maxcursor - cursor < 4) {
                     maxcursor = Math.max(5, maxcursor - 1)
