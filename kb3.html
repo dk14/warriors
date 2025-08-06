@@ -61,7 +61,69 @@
                 energy = 0
             }, 300)
         </script>
-        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
+
+       <script>
+        window.lag = 5 //5
+        window.minprefixboundary = 5
+        window.indiscriminateChoicefullnessBound = 9
+        window.discriminateChoicefullnessBound = 1000
+        
+        
+        
+        function choice(arr){
+          
+          let unique = new Set(arr)
+          let counts = Array.from(unique).map(x => {
+            return [x, arr.filter(v => v===x).length]
+          }).sort((a, b) => b[1] - a[1])
+        
+          return counts
+            .slice(0, discriminateChoicefullnessBound)
+            .pop()[0]
+          
+          
+          //return arr.sort((a,b) =>
+            //arr.filter(v => v===b).length - arr.filter(v => v===a).length
+          //).pop();
+          //return arr[Math.min(longlag, arr.length - 1)]
+        }
+        
+        let compare = (arr1, arr2) => {
+          for (const [i, x] in arr1.entries()) {
+            if (x !== arr2[i]) {
+              return false
+            }
+          }
+          
+          return true
+        }
+        
+        
+        window.history = []
+        let predict = (pattern, history = window.history) => {
+          if (pattern.length <= minprefixboundary) return 0
+          if (history.length < pattern.length + lag) return 0
+          const N = history.length - pattern.length - lag
+          
+          let candidates = []
+          for (let i = N-1; i >= 0; i--) {
+            let chunk = history.slice(i, i + pattern.length)
+            if (compare(chunk, pattern)) {
+              candidates.push(history[i + pattern.length])
+              if (candidates.length >= indiscriminateChoicefullnessBound) {
+                break;
+              }
+            }
+          }
+          
+          if (candidates.length == 0){
+            return predict(pattern.slice(2), history) 
+          }
+          
+          return choice(candidates.slice(0, indiscriminateChoicefullnessBound))
+          
+        }
+       </script>
         <script>
         var screenWidth = document.body.clientWidth - 20
         var screenHeight = document.body.clientHeight - 40
@@ -75,9 +137,6 @@
             var y = screenHeight
             var maxcursor = 0
 
-            var candidate = undefined
-            var prevcursor = undefined
-
             var extragaravity = 0
             var extraspeed = 1.0
 
@@ -89,9 +148,8 @@
 
                 i++
                 
-                
                 const gravity = ((6 + extragaravity + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (extraspeed * energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const shift = (y - (extraspeed * energy * energy * 10000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -102,16 +160,15 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "___□□□<<<01234567890abcdefghijklmnopqrstuvwxyz;!.=".split("")
+                const template = "___<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.=".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 if (cursor > maxcursor) {
                     maxcursor = cursor
                 }
 
-                if (candidate !== undefined && i % 150 === 0 && maxcursor > 2) {
+                if (i % 150 === 0 && maxcursor > 2 && maxcursor - cursor < 3) {
                     maxcursor = Math.max(5, maxcursor - 1)
-                    candidate = set[maxcursor]
                 }
 
                 if (set[maxcursor] === "=") {
@@ -121,35 +178,26 @@
                 }
 
                 if (maxcursor - cursor > 5) {
-                    extragaravity = 50
+                    extragaravity = 50 + cursor
                     extraspeed = 3.0
                 }
 
-                if (cursor === 0 && prevcursor !== 0 && set[maxcursor] !== "_") {
-                    if (candidate === undefined) {
-                        candidate = set[maxcursor]
-                        extragaravity = 0
-                        i = 0
-                    } else if (candidate === set[maxcursor]) {
-                        if (candidate === '<') {
-                            console.pop(candidate)
-                        } else {
-                            console.push(candidate === '□' ? ' ' : candidate)
-                        }
-                        candidate = undefined
-                        maxcursor = 0
-                        extragaravity = 0
-                        extraspeed = 1.0
-                    } else {
-                        candidate = undefined
-                    }
+                const candidate = set[maxcursor]
+                if (cursor < 2 && set[maxcursor] !== "_") {
                     
+                    if (candidate === '<') {
+                        console.pop(candidate)
+                    } else {
+                        console.push(candidate === '□' ? ' ' : candidate)
+                    }
+                    maxcursor = 0
+                    extragaravity = 0
+                    extraspeed = 1.0        
                 }
 
                 const style  = `color: hsla(${360 * y / screenHeight}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ((screenHeight - y) / 10)}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
-                prevcursor = cursor
             }, 100 / rate)
          }
          start()
