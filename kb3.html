@@ -139,6 +139,8 @@
 
             var extragaravity = 0
             var extraspeed = 1.0
+            var globalspeed = 1.0
+            var globalgravity = 1.0
 
             const console = [":"]
 
@@ -151,8 +153,8 @@
                 const template = "___<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
-                const gravity = ((6 + extragaravity + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
-                const shift = (y - (extraspeed * energy * energy * 10000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = globalgravity * ((6 + extragaravity + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
+                const shift = (y - (globalspeed * extraspeed * energy * energy * 10000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -183,6 +185,8 @@
                     maxcursor = 0
                     energy = 0
                     y = screenHeight
+                    globalspeed *= 0.8
+                    globalgravity *= 0.8
                 }
 
                 if (maxcursor - cursor > 5) {
@@ -195,12 +199,16 @@
                     
                     if (candidate === '<') {
                         console.pop(candidate)
+                        globalspeed *= 0.9
+                        globalgravity *= 0.9    
                     } else {
                         console.push(candidate === '□' ? ' ' : candidate)
                     }
                     maxcursor = 0
                     extragaravity = 0
-                    extraspeed = 1.0        
+                    extraspeed = 1.0   
+                    globalspeed *= 1.05
+                    globalgravity *= 1.05     
                 }
 
                 const style  = `color: hsla(${120  + ((dist < 4) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 20 * ((screenHeight - y) / screenHeight)}px`
