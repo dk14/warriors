@@ -187,7 +187,7 @@
                     y = screenHeight
                     if (globalspeed > 0.8) {
                         globalspeed *= 0.9
-                        globalgravity *= 0.97
+                        //globalgravity *= 0.97
                     }
                     
                 }
@@ -204,7 +204,7 @@
                         console.pop(candidate)
                         if (globalspeed > 0.7) {
                             globalspeed *= 0.9
-                            globalgravity *= 0.97
+                            //globalgravity *= 0.97
                         }
                     } else {
                         console.push(candidate === '□' ? ' ' : candidate)
@@ -213,7 +213,7 @@
                     extragaravity = 0
                     extraspeed = 1.0   
                     globalspeed *= 1.05
-                    globalgravity *= 1.05     
+                    //globalgravity *= 1.05     
                 }
 
                 const style  = `color: hsla(${120  + ((dist < 5 / (globalspeed * 1.03)) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 20 * ((screenHeight - y) / screenHeight)}px`
