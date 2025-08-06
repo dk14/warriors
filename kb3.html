@@ -185,9 +185,9 @@
                     maxcursor = 0
                     energy = 0
                     y = screenHeight
-                    if (globalspeed > 0.6) {
-                        globalspeed *= 0.8
-                        globalgravity *= 0.95
+                    if (globalspeed > 0.8) {
+                        globalspeed *= 0.9
+                        globalgravity *= 0.97
                     }
                     
                 }
@@ -202,9 +202,9 @@
                     
                     if (candidate === '<') {
                         console.pop(candidate)
-                        if (globalspeed > 0.6) {
-                            globalspeed *= 0.8
-                            globalgravity *= 0.95
+                        if (globalspeed > 0.7) {
+                            globalspeed *= 0.9
+                            globalgravity *= 0.97
                         }
                     } else {
                         console.push(candidate === '□' ? ' ' : candidate)
