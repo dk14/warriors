@@ -147,8 +147,11 @@
             setInterval(() => {
 
                 i++
-                
-                const gravity = ((6 + extragaravity + 5 * y / screenHeight) * screenHeight / 755) / rate
+
+                const template = "___<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+                var set = template
+                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
+                const gravity = ((6 + extragaravity + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
                 const shift = (y - (extraspeed * energy * energy * 10000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
@@ -160,9 +163,8 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const template = "___<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
-                var set = template
-                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
+
+                
                 if (cursor > maxcursor) {
                     maxcursor = cursor
                     i = 0
@@ -198,7 +200,7 @@
                     extraspeed = 1.0        
                 }
 
-                const style  = `color: hsla(${360 * y / screenHeight}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ((screenHeight - y) / 10)}px`
+                const style  = `color: hsla(${120}, ${90 + 5 * (candidate === undefined ? 0: 1)}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + ((screenHeight - y) / 10)}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
             }, 100 / rate)
