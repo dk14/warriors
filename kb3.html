@@ -150,7 +150,7 @@
 
                 i++
 
-                const template = "_____<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+                const template = "_____<<<□□□↵↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 const gravity = globalgravity * ((6 + extragaravity + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
@@ -207,7 +207,7 @@
                             //globalgravity *= 0.97
                         }
                     } else {
-                        console.push(candidate === '□' ? ' ' : candidate)
+                        console.push(candidate === '□' ? ' ' : (candidate === '↵' ? "\n" : candidate))
                         globalspeed *= 1.05
                     }
                     maxcursor = 0
