@@ -176,6 +176,10 @@
                 const speed = 10 / rate
                 rects.forEach(r => {
                     r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
+                    if (parseInt(r.getAttributeNS(null, 'x')) < - 50 * screenHeight / 755) {
+                        container.removeChild(r)
+                        rects.splice(rects.findIndex(x => x === r), 1)
+                    }
                 })
 
                 rects.forEach(r => {
