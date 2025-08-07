@@ -11,7 +11,9 @@
     <body bgcolor="black">
         <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
         <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
-
+        <svg id="svg" width="400" height="600" style="position: absolute; top: 0">
+            <circle id="cursor" cx="10" cy="50" r="1" fill="black" stroke="yellow" opacity="0.5" stroke-width="2"></circle>
+        </svg>
         <script>
 
             var prevX = 0
@@ -147,6 +149,8 @@
 
             const console = [":"]
 
+            
+
             var i = 0
 
             setInterval(() => {
@@ -219,9 +223,16 @@
                     //globalgravity *= 1.05     
                 }
 
-                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 70 * ((screenHeight - y) / screenHeight)}px`
+                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
+                
+                const cy = (console.join("").split("\n").length - 1) * 40
+                const cx = (console.join("").substring(console.join("").lastIndexOf("\n") + 1).length) * 25
+                const c = document.getElementById("svg").getElementById("cursor")
+                const cursorpix = 40 * 25 * y / screenHeight
+                c.setAttributeNS(null, "cx", cx + cursorpix % 40)
+                c.setAttributeNS(null, "cy", cy + 77 + 40 - cursorpix / 25)
             }, 100 / rate)
          }
          start()
