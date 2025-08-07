@@ -133,13 +133,15 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
                 const pos = ((screenHeight - y) / screenHeight)
-                //score = maxpos
+                //score = "" + maxpos
 
                 if (pos > maxpos) {
                     maxpos = pos
                 }
 
-                if (pos < 0.01 && maxpos > 0.07) {
+                if (pos < 0.01 && maxpos > 0.8) {
+                    score = score.slice(0, -1)
+                } else if (pos < 0.01 && maxpos > 0.26) {
                     score += "1"
                     maxpos = 0
                 } else if (pos < 0.01 && maxpos > 0.03) {
