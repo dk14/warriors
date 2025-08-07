@@ -124,6 +124,9 @@
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
+                    score = ":"
+                    energy = 0
+                    maxpos = 0
                 }
                 if (y1 < y) {
                     y = y1 
@@ -140,9 +143,7 @@
                 }
 
                 if (pos < 0.03 && maxpos > 0.98) {
-                    score = ":"
-                    energy = 0
-                    maxpos = 0
+                    
                 } else if (pos < 0.03 && maxpos > 0.26) {
                     score += "1"
                     maxpos = 0
