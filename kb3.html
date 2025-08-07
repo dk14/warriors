@@ -53,6 +53,9 @@
                 if (energy > energyThreshold) {
                     energy = energyThreshold
                 }
+                if (energy < 0.01) {
+                    energy = 0
+                }
                 
             
             }
