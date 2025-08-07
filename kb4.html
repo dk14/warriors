@@ -139,13 +139,13 @@
                     maxpos = pos
                 }
 
-                if (pos < 0.01 && maxpos > 0.8) {
+                if (pos < 0.03 && maxpos > 0.8) {
                     score = ":"
                     maxpos = 0
-                } else if (pos < 0.01 && maxpos > 0.26) {
+                } else if (pos < 0.03 && maxpos > 0.26) {
                     score += "1"
                     maxpos = 0
-                } else if (pos < 0.01 && maxpos > 0.03) {
+                } else if (pos < 0.03 && maxpos > 0.09) {
                     score += "0"
                     maxpos = 0
                 }
