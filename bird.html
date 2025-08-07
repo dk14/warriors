@@ -206,6 +206,11 @@
             }, 100 / rate)
          }
          start()
+         document.addEventListener("touchend", () => {
+            if (!play) {
+               start()
+            }
+         });
          window.onclick = () => {
             if (!play) {
                start()
