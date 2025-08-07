@@ -150,7 +150,7 @@
 
                 i++
 
-                const template = "___<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+                const template = "_____<<<□□□01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 const gravity = globalgravity * ((6 + extragaravity + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
@@ -193,7 +193,7 @@
                 }
 
                 if (dist > 5) {
-                    extragaravity = 50 + cursor
+                    extragaravity = 50 + 10 * dist
                     extraspeed = 3.0
                 }
 
@@ -216,7 +216,7 @@
                     //globalgravity *= 1.05     
                 }
 
-                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 50 * ((screenHeight - y) / screenHeight)}px`
+                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 + 70 * ((screenHeight - y) / screenHeight)}px`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
             }, 100 / rate)
