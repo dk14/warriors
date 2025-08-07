@@ -150,6 +150,11 @@
                 } else if (pos < 0.03 && maxpos > 0.09) {
                     score += "0"
                     maxpos = 0
+                    
+                }
+               
+                if (score.length !== 0 && score.length % 8 == 0) {
+                     score += " "
                 }
                
                 const speed = 10 / rate
