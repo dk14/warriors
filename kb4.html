@@ -9,9 +9,11 @@
     
     </head>
     <body bgcolor="black">
-        <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
-        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
-
+        <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
+      fill:green;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   
+        </svg>
         <script>
 
             var prevX = 0
@@ -43,7 +45,7 @@
             
             ondevicemotion = (event) => {
                 setInterval(() => {
-                    //document.getElementById("gyro").style.display = 'none'
+                    document.getElementById("gyro").style.display = 'none'
                 }, 100)
                 var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
                 var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
@@ -67,23 +69,58 @@
         var screenHeight = document.body.clientHeight - 40
 
         const rate = 10
+
+         var play = false
+         var score = ":"
+         var highscore = 0
+         highscore = localStorage.getItem('highscore') ?? 0
+         
+         const svgns = "http://www.w3.org/2000/svg"
+         const container = document.getElementById( 'cont' );
+         container.setAttributeNS(null, "width", screenWidth)
+         container.setAttributeNS(null, "height", screenHeight)
+
+         const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'y', 50);
+         scoreText.textContent = "00"
+
+     
+         setInterval(() => {
+            scoreText.textContent = score
+         }, 10)
          
          const start = () => {
+            play = true
             
-            const inity = 300
+            container.innerHTML = ""
+            container.appendChild(scoreText);
+            try {
+                container.removeChild(retryText);
+            } catch {}
+            
+            
+            const initx = 200
+            const inity = 755
             const radius = 30 * screenHeight / 755
-            var y = screenHeight
+            var x = initx
+            var y = inity
 
-            var prevcursor = undefined
+            var maxpos = 0
+            
 
-            const console = [":"]
+            const circle = document.createElementNS(svgns, 'circle');
+            circle.setAttributeNS(null, 'cx', x);
+            circle.setAttributeNS(null, 'cy', y);
+            circle.setAttributeNS(null, 'r', radius);
+            circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
+            container.appendChild(circle);
 
-            var count = 0
-            setInterval(() => {
+
+            var boost = 0
+            const cancel2 = setInterval(() => {
                 
-                
-                const gravity = ((10 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 30000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = ((80 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const shift = (y - (energy * energy * 50000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -93,41 +130,38 @@
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
+                circle.setAttributeNS(null, 'cx', x);
+                circle.setAttributeNS(null, 'cy', y); 
+                const pos = ((screenHeight - y) / screenHeight)
+                //score = maxpos
 
-                const template = "___□□□<<<<01234567890abcdefghijklmnopqrstuvwxyz=".split("")
-                var set = template
-                const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
-
-                if (set[cursor] === "=") {
-                    cursor = 0
-                    energy = 0
-                    y = screenHeight
+                if (pos > maxpos) {
+                    maxpos = pos
                 }
 
-                count++
-
-                if (count > 500 && set[cursor] !== "_") {
-                    count = 0
-                    if (set[cursor] === '<') {
-                        console.pop()
-                    } else {
-                        console.push(set[cursor] === '□' ? ' ' : set[cursor])
-                    }
-
-                    energy = 0
-                    
-                    y = 0
-
+                if (pos < 0.01 && maxpos > 0.07) {
+                    score += "1"
+                    maxpos = 0
+                } else if (pos < 0.01 && maxpos > 0.03) {
+                    score += "0"
+                    maxpos = 0
                 }
-
-                const style  = `color: hsla(${360 * y / screenHeight}, ${100}%, ${10 + count / 40}%, 1); font-size: ${40 + count / 40}px`
-
-                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[cursor]}</font>`
-                prevcursor = cursor
+               
+                const speed = 10 / rate
+                
             }, 100 / rate)
          }
          start()
-
+         document.addEventListener("touchend", () => {
+            if (!play) {
+               start()
+            }
+         });
+         window.onclick = () => {
+            if (!play) {
+               start()
+            }
+         }
 
 
         </script>
