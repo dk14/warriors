@@ -9,11 +9,13 @@
     
     </head>
     <body bgcolor="black">
-        <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+       <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
         <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
-      fill:green;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      fill:green;position: absolute; top: 0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    
         </svg>
+        
         <script>
 
             var prevX = 0
@@ -78,25 +80,11 @@
          const svgns = "http://www.w3.org/2000/svg"
          const container = document.getElementById( 'cont' );
          container.setAttributeNS(null, "width", screenWidth)
-         container.setAttributeNS(null, "height", screenHeight)
-
-         const scoreText = document.createElementNS(svgns, "text");
-         scoreText.setAttributeNS(null, 'y', 50);
-         scoreText.textContent = "00"
-
-     
-         setInterval(() => {
-            scoreText.textContent = score
-         }, 10)
+         container.setAttributeNS(null, "height", screenHeight - 100)
          
 
             
-            container.innerHTML = ""
-            container.appendChild(scoreText);
-            try {
-                container.removeChild(retryText);
-            } catch {}
-            
+            container.innerHTML = ""            
             
             const initx = 200
             const inity = 755
@@ -116,11 +104,13 @@
 
 
             const console = [":"]
-            const template = "_____<<<□□□↵↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+            const template = "<_<_<_<_<□↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
             var set = template
             var cursor = 0
 
             var i = 0
+
+            var roll = 5
 
             const cancel2 = setInterval(() => {
                 i++
@@ -131,7 +121,8 @@
                     y1 = screenHeight
                     energy = 0
                     maxpos = 0
-                    console.pop()
+                    cursor = 3
+                    
                 }
                 if (y1 < y) {
                     y = y1 
@@ -153,12 +144,17 @@
                 const candidate = set[cursor % set.length]
 
                 if (maxpos > 0.1) {
-                    if (i % 80 === 0) {
+
+                    if (i % 200 === 0 && pos > 0.1) {
                         cursor--
+                        if (cursor < 0) {
+                            cursor = 0
+                        }
+                        
                     }
 
-                    if (pos < 0.03) {
-                        
+
+                    if (pos < 0.03 && candidate !== '_') {
                         if (candidate === '<') {
                             console.pop()
                         } else {
@@ -166,14 +162,25 @@
                         }
                         maxpos = 0
                     }
+                    if (pos < 0.03) {
+                        maxpos = 0
+                        roll = 5
+                    }
 
                 } else {
-                    if (i % 5 === 0) {
+                    if (i % roll === 0) {
                         cursor++
+                        if (cursor % set.length === 0) {
+                            roll *= 2
+                        }
                     }
+                    
                 }
 
-                score = console.join("") + candidate
+                const style  = `color: hsla(${120}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px`
+
+                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${candidate}</font>`
+                
                
                
                 const speed = 10 / rate
