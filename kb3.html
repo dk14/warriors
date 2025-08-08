@@ -60,7 +60,7 @@
                     energy = energyThreshold
                 }
                 if (energy < 0.03) {
-                    //energy = 0
+                    energy = 0
                 }
                 
             
@@ -166,8 +166,8 @@
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 
 
-                const gravity = 2 * globalgravity * ((7 + extragaravity + 10 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
-                const shift = (y - (globalspeed * extraspeed * energy * 4000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
+                const shift = (y - (globalspeed * extraspeed * energy * 450 * (screenHeight / 755) * (screenHeight / 755)) / rate)
 
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 
@@ -201,7 +201,7 @@
                     energy = 0
                     y = screenHeight
                     if (globalspeed > 0.85) {
-                        globalspeed *= 0.8
+                        globalspeed *= 0.98
                         globalgravity = 1.0
                     }
                     
