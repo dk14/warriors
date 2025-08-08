@@ -14,7 +14,7 @@
         <svg id="svg" width="5000" height="5000" style="position: absolute; top: 0; z-index: -1;">
             <circle id="cursor" cx="10" cy="50" r="1" fill="black" stroke="white" opacity="0.6" stroke-width="2"></circle>
             <circle id="cursor2" cx="10" cy="50" r="1" fill="black" stroke="white" opacity="0.9" stroke-width="2"></circle>
-             <text id="hint" x="5" y="15" fill="red" style="font-size: 40px;">a</text>
+            <!--  <text id="hint" x="5" y="15" fill="red" style="font-size: 40px;">a</text> -->
         </svg>
         <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">gyro</button>
         <script>
@@ -242,19 +242,21 @@
                 const c = document.getElementById("svg").getElementById("cursor")
                 const cursorpix = 40 * 20 * y / screenHeight
                 c.setAttributeNS(null, "cx", cx + (cursorpix % 40) * 0.7)
-                c.setAttributeNS(null, "cy", cy + 15 + 35 - cursorpix / 25)
+                c.setAttributeNS(null, "cy", cy + 10 + 35 - cursorpix / 25)
 
                 const c2 = document.getElementById("svg").getElementById("cursor2")
                 c2.setAttributeNS(null, "cx", cx + 30)
-                c2.setAttributeNS(null, "cy", cy + 15 + 35 - cursorpix / 25)
+                c2.setAttributeNS(null, "cy", cy + 10 + 35 - cursorpix / 25)
                 c2.setAttributeNS(null, "stroke", `hsla(${130  + y}, 100%, ${70 + 20 * y / screenHeight}%, 1)`)
 
+                /**
                 const t = document.getElementById("svg").getElementById("hint")
                 t.setAttributeNS(null, "x", cx + 37 )
                 t.setAttributeNS(null, "y", cy + 35 + 15)
                 t.innerHTML = set[nextcursor]
                 const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, ${(dist < 5) ? 0.7 : 0.2}); font-size: ${20 }px`
                 t.setAttributeNS(null, "style", tstyle)
+                */
             }, 100 / rate)
          }
          start()
