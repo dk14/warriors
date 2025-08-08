@@ -233,7 +233,6 @@
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 
-                /**
                 const nextdist = 0.03 * (shift + gravity)
                 const nextcursor =  Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - (0.98 * (shift + gravity))) / screenHeight))))
 
@@ -255,7 +254,6 @@
                 t.innerHTML = set[nextcursor]
                 const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, ${(dist < 5) ? 0.7 : 0.2}); font-size: ${20 }px`
                 t.setAttributeNS(null, "style", tstyle)
-                */
             }, 100 / rate)
          }
          start()
