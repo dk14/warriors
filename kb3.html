@@ -177,7 +177,8 @@
                 measurements[cursor]++
                 const measure1 = measurements[cursor] - Math.min(...Object.values(measurements))
                 const measure2 = measurements[cursor + 1] !== undefined ? measurements[cursor + 1] - Math.min(...Object.values(measurements)) : 0
-                const measure = measure1 + measure2
+                const measure3 = measurements[cursor + 4] !== undefined ? measurements[cursor + 4] - Math.min(...Object.values(measurements)) : 0
+                const measure = measure1 + measure2 + measure3
 
                 if (measure > 0 && cursor > 5) {
                     globalgravity = Math.min(globalspeed * 2.5, globalspeed * 1.0 + 0.1 * (attempts * measure))
