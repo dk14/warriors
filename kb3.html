@@ -10,7 +10,7 @@
     </head>
     <body bgcolor="black" style="overflow-x: hidden; overflow-y: hidden">
         
-        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
+        <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px; margin:0; padding:0; line-height: 45px"></pre>
         <svg id="svg" width="5000" height="5000" style="position: absolute; top: 0; z-index: -1;">
             <circle id="cursor" cx="10" cy="50" r="1" fill="black" stroke="white" opacity="0.6" stroke-width="2"></circle>
             <circle id="cursor2" cx="10" cy="50" r="1" fill="black" stroke="white" opacity="0.9" stroke-width="2"></circle>
@@ -237,16 +237,19 @@
                 const nextdist = 0.03 * (shift + gravity)
                 const nextcursor =  Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - (0.98 * (shift + gravity))) / screenHeight))))
 
-                const cy = (console.join("").split("\n").length - 1) * 40
+                const shiftconsole = document.getElementById("output").getBoundingClientRect().top
+                const cy = shiftconsole + (console.join("").split("\n").length - 1) * (40 + 5) - 5
                 const cx = (console.join("").substring(console.join("").lastIndexOf("\n") + 1).length) * 24
                 const c = document.getElementById("svg").getElementById("cursor")
                 const cursorpix = 40 * 20 * y / screenHeight
+
+               
                 c.setAttributeNS(null, "cx", cx + (cursorpix % 40) * 0.7)
-                c.setAttributeNS(null, "cy", cy + 20 + 35 - cursorpix / 20)
+                c.setAttributeNS(null, "cy", cy + shiftconsole + 40 - cursorpix / 20)
 
                 const c2 = document.getElementById("svg").getElementById("cursor2")
                 c2.setAttributeNS(null, "cx", cx + 30)
-                c2.setAttributeNS(null, "cy", cy + 20 + 35 - cursorpix / 20)
+                c2.setAttributeNS(null, "cy", cy + shiftconsole + 40 - cursorpix / 20)
                 c2.setAttributeNS(null, "stroke", `hsla(${130  + y}, 100%, ${70 + 20 * y / screenHeight}%, 1)`)
 
                 /**
