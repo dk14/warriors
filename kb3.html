@@ -32,8 +32,8 @@
                 ev.acceleration = {}
                 const x = event.clientX / 1000
                 const y = event.clientY / 1000
-                ev.acceleration.x = (event.clientX - prevX) / 5
-                ev.acceleration.y = (event.clientY - prevY) / 5
+                ev.acceleration.x = (event.clientX - prevX) / 2
+                ev.acceleration.y = (event.clientY - prevY) / 2
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
@@ -153,9 +153,10 @@
 
             const console = [":"]
 
-            
+            const measurements = {}
 
             var i = 0
+            var attempts = 0
 
             setInterval(() => {
 
@@ -164,7 +165,11 @@
                 const template = "_____<<<□□□↵↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
-                
+               
+                if(measurements[cursor] === undefined) {
+                    measurements[cursor] = 0
+                }
+                measurements[cursor] ++
 
                 const gravity = 1.1 * globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
                 const shift = (y - (globalspeed * extraspeed * energy * 750 * (screenHeight / 755) * (screenHeight / 755)) / rate)
@@ -204,6 +209,7 @@
                         //globalspeed *= 0.98
                         globalgravity = 1.0
                     }
+                    attempts++
                     
                 }
 
@@ -228,7 +234,9 @@
                     maxcursor = 0
                     extragaravity = 0
                     extraspeed = 1.0   
-                    globalgravity = 1.0    
+                    globalgravity = 1.0 
+                    attempts = 0
+                    measurements = {}   
                 }
 
                 const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px; line-height: 1em;`
