@@ -139,7 +139,7 @@
 
         const rate = 10
          
-         const start = () => {
+
             
             const inity = 300
             const radius = 30 * screenHeight / 755
@@ -153,14 +153,19 @@
 
             const console = [":"]
 
-            const measurements = {}
+            var measurements = {}
 
             var i = 0
             var attempts = 0
+            var prevcursor = undefined
 
             setInterval(() => {
 
                 i++
+
+                if (i % 500 === 0) {
+                    measurements = {}
+                }
 
                 const template = "_____<<<□□□↵↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
                 var set = template
@@ -169,7 +174,18 @@
                 if(measurements[cursor] === undefined) {
                     measurements[cursor] = 0
                 }
-                measurements[cursor] ++
+                measurements[cursor]++
+                const measure1 = measurements[cursor] - Math.min(...Object.values(measurements))
+                const measure2 = measurements[cursor + 1] !== undefined ? measurements[cursor + 1] - Math.min(...Object.values(measurements)) : 0
+                const measure = measure1 + measure2
+
+                if (measure > 0 && cursor > 5) {
+                    globalgravity = Math.min(globalspeed * 2.5, globalspeed * 1.0 + 0.1 * (attempts * measure))
+                } else {
+                    globalgravity = 1.0
+                }
+
+
 
                 const gravity = 1.1 * globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
                 const shift = (y - (globalspeed * extraspeed * energy * 750 * (screenHeight / 755) * (screenHeight / 755)) / rate)
@@ -207,9 +223,10 @@
                     y = screenHeight
                     if (globalspeed > 0.85) {
                         //globalspeed *= 0.98
-                        globalgravity = 1.0
+                        
                     }
                     attempts++
+                    globalgravity = 1.0
                     
                 }
 
@@ -219,17 +236,17 @@
                 }
 
                 const candidate = set[maxcursor]
+
                 if (cursor < 2 && set[maxcursor] !== "_") {
                     
                     if (candidate === '<') {
                         console.pop(candidate)
                         if (globalspeed > 0.85) {
-                            globalspeed = 1.0
                             globalgravity = 1.0
                         }
                     } else {
                         console.push(candidate === '□' ? ' ' : (candidate === '↵' ? "\n" : candidate))
-                        globalspeed = 1.0
+                        //globalspeed = 1.0
                     }
                     maxcursor = 0
                     extragaravity = 0
@@ -243,6 +260,8 @@
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 
+                prevcursor = cursor
+
                 const nextdist = 0.03 * (shift + gravity)
                 const nextcursor =  Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - (0.98 * (shift + gravity))) / screenHeight))))
 
@@ -270,8 +289,6 @@
                 t.setAttributeNS(null, "style", tstyle)
                 */
             }, 100 / rate)
-         }
-         start()
 
 
 
