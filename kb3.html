@@ -178,9 +178,6 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const nextdist = 0.03 * (shift + gravity)
-                const nextcursor =  Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - (0.98 * (shift + gravity))) / screenHeight))))
-
                 const dist = maxcursor - cursor
 
                 
@@ -236,6 +233,9 @@
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 
+                const nextdist = 0.03 * (shift + gravity)
+                const nextcursor =  Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - (0.98 * (shift + gravity))) / screenHeight))))
+
                 const cy = (console.join("").split("\n").length - 1) * 47
                 const cx = (console.join("").substring(console.join("").lastIndexOf("\n") + 1).length) * 24
                 const c = document.getElementById("svg").getElementById("cursor")
