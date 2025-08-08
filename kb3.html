@@ -32,8 +32,8 @@
                 ev.acceleration = {}
                 const x = event.clientX / 1000
                 const y = event.clientY / 1000
-                ev.acceleration.x = (event.clientX - prevX) / 20
-                ev.acceleration.y = (event.clientY - prevY) / 20
+                ev.acceleration.x = (event.clientX - prevX) / 10
+                ev.acceleration.y = (event.clientY - prevY) / 10
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
@@ -60,7 +60,7 @@
                     energy = energyThreshold
                 }
                 if (energy < 0.03) {
-                    //energy = 0
+                    energy = 0
                 }
                 
             
@@ -166,7 +166,7 @@
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                 
 
-                const gravity = 0.5 * globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
+                const gravity = 0.7 * globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
                 const shift = (y - (globalspeed * extraspeed * energy * 450 * (screenHeight / 755) * (screenHeight / 755)) / rate)
 
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
