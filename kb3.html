@@ -167,7 +167,7 @@
                 
 
                 const gravity = globalgravity * ((7 + extragaravity + 10 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
-                const shift = (y - (globalspeed * extraspeed * energy * 450 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const shift = (y - (globalspeed * extraspeed * energy * energy * 10000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
 
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 
