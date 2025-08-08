@@ -246,7 +246,7 @@
                 t.setAttributeNS(null, "x", cx + 25 )
                 t.setAttributeNS(null, "y", cy + 105)
                 t.innerHTML = set[nextcursor]
-                const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, 0.5); font-size: ${20 }px`
+                const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, ${(dist < 5) ? 0.7 : 0.2}); font-size: ${20 }px`
                 t.setAttributeNS(null, "style", tstyle)
             }, 100 / rate)
          }
