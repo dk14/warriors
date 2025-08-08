@@ -157,6 +157,10 @@
             var i = 0
 
             setInterval(() => {
+                globalgravity *= 1.0
+            }, 100)
+
+            setInterval(() => {
 
                 i++
 
@@ -201,7 +205,7 @@
                     y = screenHeight
                     if (globalspeed > 0.85) {
                         globalspeed *= 0.98
-                        //globalgravity *= 0.97
+                        globalgravity = 1.0
                     }
                     
                 }
@@ -218,7 +222,7 @@
                         console.pop(candidate)
                         if (globalspeed > 0.85) {
                             globalspeed = 1.0
-                            //globalgravity *= 0.97
+                            globalgravity = 1.0
                         }
                     } else {
                         console.push(candidate === '□' ? ' ' : (candidate === '↵' ? "\n" : candidate))
@@ -227,7 +231,7 @@
                     maxcursor = 0
                     extragaravity = 0
                     extraspeed = 1.0   
-                    //globalgravity *= 1.05     
+                    globalgravity = 1.0    
                 }
 
                 const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px; line-height: 1em;`
