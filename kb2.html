@@ -3,7 +3,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body bgcolor="black">
-        <button style="border: 1px solid green; background-color: black; color: green" onclick="DeviceMotionEvent.requestPermission()">GYRO</button>
+        <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;" onclick="DeviceMotionEvent.requestPermission()">GYRO</button>
         <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 20px;"></pre>
         <pre id="debug" style="color: hsla(120, 100%, 25%, 1)"></pre>
         <font style="color: hsla(120, 100%, 25%, 1)">ball speed:</font><input type="number" min="1" max="100" value="90" id="speed" style = "color:green; background-color: black;">
