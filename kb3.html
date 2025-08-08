@@ -230,7 +230,7 @@
                     //globalgravity *= 1.05     
                 }
 
-                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px`
+                const style  = `color: hsla(${120  + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px; line-height: 1em;`
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 
@@ -242,11 +242,11 @@
                 const c = document.getElementById("svg").getElementById("cursor")
                 const cursorpix = 40 * 20 * y / screenHeight
                 c.setAttributeNS(null, "cx", cx + (cursorpix % 40) * 0.7)
-                c.setAttributeNS(null, "cy", cy + 10 + 35 - cursorpix / 25)
+                c.setAttributeNS(null, "cy", cy + 20 + 35 - cursorpix / 20)
 
                 const c2 = document.getElementById("svg").getElementById("cursor2")
                 c2.setAttributeNS(null, "cx", cx + 30)
-                c2.setAttributeNS(null, "cy", cy + 10 + 35 - cursorpix / 25)
+                c2.setAttributeNS(null, "cy", cy + 20 + 35 - cursorpix / 20)
                 c2.setAttributeNS(null, "stroke", `hsla(${130  + y}, 100%, ${70 + 20 * y / screenHeight}%, 1)`)
 
                 /**
