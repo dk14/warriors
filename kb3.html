@@ -244,12 +244,12 @@
                 c.setAttributeNS(null, "cy", cy + 77 + 35 - cursorpix / 25)
 
                 const c2 = document.getElementById("svg").getElementById("cursor2")
-                c2.setAttributeNS(null, "cx", cx + 27)
+                c2.setAttributeNS(null, "cx", cx + 30)
                 c2.setAttributeNS(null, "cy", cy + 77 + 35 - cursorpix / 25)
-
+                c2.setAttributeNS(null, "stroke", `hsla(${130  + y}, 100%, ${70 + 20 * y / screenHeight}%, 1)`)
 
                 const t = document.getElementById("svg").getElementById("hint")
-                t.setAttributeNS(null, "x", cx + 30 )
+                t.setAttributeNS(null, "x", cx + 37 )
                 t.setAttributeNS(null, "y", cy + 105)
                 t.innerHTML = set[nextcursor]
                 const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, ${(dist < 5) ? 0.7 : 0.2}); font-size: ${20 }px`
