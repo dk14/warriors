@@ -8,11 +8,12 @@
     <meta name="mobile-web-app-status-bar-style" content="black-translucent">
     
     </head>
-    <body bgcolor="black">
+    <body bgcolor="black" style="overflow-x: hidden; overflow-y: hidden">
         <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
         <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
-        <svg id="svg" width="400" height="600" style="position: absolute; top: 0">
-            <circle id="cursor" cx="10" cy="50" r="1" fill="black" stroke="yellow" opacity="0.5" stroke-width="2"></circle>
+        <svg id="svg" width="5000" height="5000" style="position: absolute; top: 0">
+            <circle id="cursor" cx="10" cy="50" r="1" fill="black" stroke="yellow" opacity="0.2" stroke-width="2"></circle>
+            <circle id="cursor2" cx="10" cy="50" r="1" fill="black" stroke="white" opacity="0.6" stroke-width="2"></circle>
              <text id="hint" x="5" y="15" fill="red" style="font-size: 40px;">a</text>
         </svg>
         <script>
@@ -235,15 +236,20 @@
 
                 document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[maxcursor]}</font>`
                 
-                const cy = (console.join("").split("\n").length - 1) * 40
-                const cx = (console.join("").substring(console.join("").lastIndexOf("\n") + 1).length) * 25
+                const cy = (console.join("").split("\n").length - 1) * 47
+                const cx = (console.join("").substring(console.join("").lastIndexOf("\n") + 1).length) * 24
                 const c = document.getElementById("svg").getElementById("cursor")
                 const cursorpix = 40 * 20 * y / screenHeight
                 c.setAttributeNS(null, "cx", cx + (cursorpix % 40) * 0.7)
                 c.setAttributeNS(null, "cy", cy + 77 + 35 - cursorpix / 25)
 
+                const c2 = document.getElementById("svg").getElementById("cursor2")
+                c2.setAttributeNS(null, "cx", cx + 27)
+                c2.setAttributeNS(null, "cy", cy + 77 + 35 - cursorpix / 25)
+
+
                 const t = document.getElementById("svg").getElementById("hint")
-                t.setAttributeNS(null, "x", cx + 25 )
+                t.setAttributeNS(null, "x", cx + 30 )
                 t.setAttributeNS(null, "y", cy + 105)
                 t.innerHTML = set[nextcursor]
                 const tstyle = `fill: hsla(${130  + y + ((dist < 5) ? 180 + 20 * dist : 0)}, ${95}%, ${50 + 20 * nextdist / 40}%, ${(dist < 5) ? 0.7 : 0.2}); font-size: ${20 }px`
