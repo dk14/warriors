@@ -192,7 +192,7 @@
                 if (i % 150 === 0 && maxcursor > 2 && maxcursor - cursor < (4 + y / (2 * screenHeight))) {
                     maxcursor = cursor
                     extragaravity = 0
-                    extraspeed = extraspeed * 0.999 
+                    extraspeed = 1.0
                 }
 
                 if (set[maxcursor] === "=") {
