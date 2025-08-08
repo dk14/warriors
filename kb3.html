@@ -32,8 +32,8 @@
                 ev.acceleration = {}
                 const x = event.clientX / 1000
                 const y = event.clientY / 1000
-                ev.acceleration.x = (event.clientX - prevX) / 20
-                ev.acceleration.y = (event.clientY - prevY) / 20
+                ev.acceleration.x = (event.clientX - prevX) / 10
+                ev.acceleration.y = (event.clientY - prevY) / 10
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
@@ -208,7 +208,7 @@
                 }
 
                 if (dist > 5) {
-                    extragaravity = 50 + 100 * dist
+                    extragaravity = 50 + 200 * dist
                     extraspeed = 3.0
                 }
 
