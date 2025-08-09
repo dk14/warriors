@@ -264,24 +264,26 @@ filterUnits="userSpaceOnUse"
                 const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
                 const h = (screenHeight - gate)  * Math.random()
 
-                rect.setAttributeNS(null, 'filter', 'url(#turbulence-displacement)  url(#neon)')
+                
                 
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
                 rect.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px; ' );
+                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)  url(#neon)')
                 container.appendChild(rect);
                 rects.push(rect)
 
                 
                 const rect2 = document.createElementNS(svgns, 'rect');
-                rect2.setAttributeNS(null, 'filter', 'url(#turbulence-displacement)  url(#neon)')
                 rect2.setAttributeNS(null, 'x', x);
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px;' );
+                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)  url(#neon)')
+                
                 container.appendChild(rect2);
                 rects.push(rect2)
 
