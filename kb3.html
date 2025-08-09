@@ -183,7 +183,7 @@
                 const measure = (3 * measure1 + 2 * measure2 + 2 * measure3 + measure4 + measure5) / 9
 
                 if (measure > 0) {
-                    globalspeed = Math.max(0.6, 1.0 - 0.02 * (attempts * measure))
+                    globalspeed = Math.max(0.6, 1.0 - 0.02 * ((attempts + 0.1) * measure))
                 } else {
                     globalspeed = 1.0
                 }
