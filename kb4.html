@@ -8,11 +8,12 @@
     <meta name="mobile-web-app-status-bar-style" content="black-translucent">
     
     </head>
-    <body bgcolor="black">
+    <body bgcolor="black"  style="overflow-x: hidden; overflow-y: hidden"s>
        <button style="border: 1px solid green; background-color: black; color: green"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
         <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;"></pre>
+         <pre id="current" style="color: hsla(120, 100%, 25%, 1); font-size: 40px;position: absolute;"></pre>
         <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
-      fill:green;position: absolute; top: 0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      fill:green;position: absolute; top: 0; z-index:-100;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    
         </svg>
         
@@ -104,25 +105,18 @@
 
 
             const console = [":"]
-            const template = "<_<_<_<_<□↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+            const template = "_____<<<<□↵abcdefghijklmnopqrstuvwxyz===".split("")
             var set = template
-            var cursor = 0
 
             var i = 0
 
-            var roll = 5
-
             const cancel2 = setInterval(() => {
                 i++
-                const gravity = ((60 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 50000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
-                    energy = 0
-                    maxpos = 0
-                    cursor = 3
-                    
                 }
                 if (y1 < y) {
                     y = y1 
@@ -134,54 +128,41 @@
                 const pos = ((screenHeight - y) / screenHeight)
                 //score = "" + maxpos
 
+                if (pos < 0) {
+                    pos = 0
+                }
 
 
                 if (pos > maxpos) {
                     maxpos = pos
                 }
 
+                const cursor = Math.round(set.length * maxpos)
 
                 const candidate = set[cursor % set.length]
 
-                if (maxpos > 0.1) {
-
-                    if (i % 200 === 0 && pos > 0.1) {
-                        cursor--
-                        if (cursor < 0) {
-                            cursor = 0
-                        }
-                        
+                if (pos < 0.03 && candidate !== '_') {
+                    if (candidate === '<') {
+                        console.pop()
+                    } else {
+                        console.push(candidate === '□' ? ' ' : (candidate === '↵' ? "\n" : candidate))
                     }
-
-
-                    if (pos < 0.03 && candidate !== '_') {
-                        if (candidate === '<') {
-                            console.pop()
-                        } else {
-                            console.push(candidate === '□' ? ' ' : (candidate === '↵' ? "\n" : candidate))
-                        }
-                        maxpos = 0
-                    }
-                    if (pos < 0.03) {
-                        maxpos = 0
-                        roll = 5
-                    }
-
-                } else {
-                    if (i % roll === 0) {
-                        cursor++
-                        if (cursor % set.length === 0) {
-                            roll *= 2
-                        }
-                    }
-                    
+                    maxpos = 0
                 }
+                if (pos < 0.03) {
+                    maxpos = 0
+                    roll = 5
+                }
+
+
 
                 const style  = `color: hsla(${120}, ${95}%, ${50 + 20 * y / screenHeight}%, 1); font-size: ${40 }px`
 
-                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${candidate}</font>`
-                
+                document.getElementById("output").innerHTML = console.join("") + `<font style="${style}">${set[cursor]}</font>`
+                document.getElementById("current").innerHTML = `<font style="${style}">${ set[Math.round(set.length * pos)]}</font>`
                
+                document.getElementById("current").style.left = x
+                document.getElementById("current").style.top = y - 40
                
                 const speed = 10 / rate
                 
