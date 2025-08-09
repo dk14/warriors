@@ -80,6 +80,23 @@
                       scale="20"
                       xChannelSelector="R"
                       yChannelSelector="G"
+                       />
+
+</filter>
+
+<filter id="turbulence-displacement2"
+        x="-50%" y="-50%" width="200%" height="200%">
+   <!-- Source -->
+   <feTurbulence type="turbulence"
+                 baseFrequency="0.05"
+                 numOctaves="2"
+                 result="noise" />
+   <!-- Combiner -->
+   <feDisplacementMap in="SourceGraphic"
+                      in2="noise"
+                      scale="20"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
                       result="glass" />
 
     <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="glass" />
@@ -216,7 +233,7 @@
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
             circle.setAttributeNS(null, 'r', radius * 1);
-            circle.setAttributeNS(null, 'style', 'fill: cyan; opacity: 1;  stroke: black; stroke-width: 0px;' );
+            circle.setAttributeNS(null, 'style', 'fill: black; opacity: 1;  stroke: black; stroke-width: 0px;' );
             container.appendChild(circle);
 
             const rects = []
@@ -233,7 +250,7 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: red; stroke-width: 0px; ' );
+                rect.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: yellow; stroke-width: 1px; ' );
                 rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
                 container.appendChild(rect);
                 rects.push(rect)
@@ -244,7 +261,7 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: red; stroke-width: 0px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: yellow; stroke-width: 1px;' );
                 rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
 
                 container.appendChild(rect2);
