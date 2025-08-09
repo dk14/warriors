@@ -77,7 +77,7 @@
    <!-- Combiner -->
    <feDisplacementMap in="SourceGraphic"
                       in2="noise"
-                      scale="20"
+                      scale="5"
                       xChannelSelector="R"
                       yChannelSelector="G"
                        />
@@ -271,13 +271,15 @@
                 container.appendChild(scoreText);
             }
 
-            cancel1 = setInterval(() => {
-                createRect(screenWidth, screenHeight - 200 + 30)
-
-            }, 2000 * screenHeight / 755)
-
             var boost = 0
+            var i = 0
             const cancel2 = setInterval(() => {
+
+                i++
+
+                if (i % 250 === 0) {
+                    createRect(screenWidth, screenHeight - 200 + 30)
+                }
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
@@ -292,6 +294,7 @@
                 }
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
+                
                
                 const speed = 10 / rate
                 rects.forEach(r => {
@@ -316,7 +319,6 @@
                   
                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
                     if (lost) {
-                        clearInterval(cancel1)
                         clearInterval(cancel2)
                         play = false
                         if (score > highscore) {
