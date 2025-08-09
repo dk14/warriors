@@ -176,9 +176,11 @@
                 }
                 measurements[cursor]++
                 const measure1 = measurements[cursor] - Math.min(...Object.values(measurements))
+                const measure5 = measurements[cursor - 1] !== undefined ? measurements[cursor - 1] - Math.min(...Object.values(measurements)) : 0
+                const measure4 = measurements[cursor - 4] !== undefined ? measurements[cursor - 4] - Math.min(...Object.values(measurements)) : 0
                 const measure2 = measurements[cursor + 1] !== undefined ? measurements[cursor + 1] - Math.min(...Object.values(measurements)) : 0
                 const measure3 = measurements[cursor + 2] !== undefined ? measurements[cursor + 4] - Math.min(...Object.values(measurements)) : 0
-                const measure = (measure1 + measure2 + measure3) / 3
+                const measure = (2 * measure1 + measure2 + measure3 + measure4 + measure5) / 6
 
                 if (measure > 0 && cursor > 5) {
                     globalspeed = Math.max(0.6, 1.0 - 0.01 * (attempts * measure))
