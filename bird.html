@@ -173,7 +173,7 @@
         var screenWidth = document.body.clientWidth - 20
         var screenHeight = document.body.clientHeight - 40
 
-        const rate = 5
+        const rate = 10
 
          var play = false
          var score = 0
@@ -281,7 +281,10 @@
                 i++
 
                 if (i % 250 === 0) {
-                    createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
+                    setTimeout(() => {
+                        createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
+                    }, 100)
+                    
                 }
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
