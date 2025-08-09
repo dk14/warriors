@@ -302,7 +302,7 @@
                 if (i % 5 === 0) {
                     rects.forEach(r => {
                         
-                            r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 5 * speed);
+                            r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 5 * speed * screenWidth / 500);
                             if (parseInt(r.getAttributeNS(null, 'x')) < - 50 * screenHeight / 755) {
                                 container.removeChild(r)
                                 rects.splice(rects.findIndex(x => x === r), 1)
