@@ -159,6 +159,8 @@
             var attempts = 0
             var prevcursor = undefined
 
+            const speedFactor = 450
+
             setInterval(() => {
 
                 i++
@@ -183,13 +185,13 @@
                 const measure = (3 * measure1 + 2 * measure2 + 2 * measure3 + measure4 + measure5) / 9
 
                 if (measure > 0) {
-                    globalspeed = Math.max(0.6, 1.0 - 0.1 * ((attempts + 0.1) * measure))
+                    globalspeed = Math.max(0.6 * 750 / speedFactor, 1.0 - 0.1 * ((attempts + 0.1) * measure))
                 } else {
                     globalspeed = 1.0
                 }
 
                 const gravity = 1.1 * globalgravity * ((7 + extragaravity + 5 * energy + 5 * y / screenHeight - 2 * cursor / set.length) * screenHeight / 755) / rate
-                const shift = (y - (globalspeed * extraspeed * energy * 750 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const shift = (y - (globalspeed * extraspeed * energy * speedFactor * (screenHeight / 755) * (screenHeight / 755)) / rate)
 
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 
