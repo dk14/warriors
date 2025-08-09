@@ -15,95 +15,7 @@
        
        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
       fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-
-        </svg>
-        <script>
-
-            var prevX = 0
-            var prevY = 0
-
-            setInterval(() => {
-                //energy = 0
-            }, 100)
-
-            onmousemove = (event) => {                
-                ev = {}
-                ev.acceleration = {}
-                const x = event.clientX / 1000
-                const y = event.clientY / 1000
-                ev.acceleration.x = event.clientX - prevX
-                ev.acceleration.y = event.clientY - prevY
-                ev.acceleration.z = 0
-                prevX = x
-                prevY = y
-                ondevicemotion(ev)
-            }
-
-            var prev = [0,0,0]
-            var energy = 0.001
-            
-            var energyThreshold = 0.05
-            var minEnergy = 0.0
-            var energyScale = 1.0
-            
-            ondevicemotion = (event) => {
-                setInterval(() => {
-                    document.getElementById("gyro").style.display = 'none'
-                }, 100)
-                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
-                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
-                prev = [x, y, z]
-                var [x, y, z] = [dx, dy, dz]
-                energy = energyScale * (dx * dx + dy * dy + dz * dz)
-                if (energy > energyThreshold) {
-                    energy = energyThreshold
-                }
-                
-            
-            }
-
-            setInterval(() => {
-                energy = 0
-            }, 300)
-        </script>
-        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
-        <script>
-        var screenWidth = document.body.clientWidth - 20
-        var screenHeight = document.body.clientHeight - 40
-
-        const rate = 10
-
-         var play = false
-         var score = 0
-         var highscore = 0
-         highscore = localStorage.getItem('highscore') ?? 0
-         
-         const svgns = "http://www.w3.org/2000/svg"
-         const container = document.getElementById( 'cont' );
-         container.setAttributeNS(null, "width", screenWidth)
-         container.setAttributeNS(null, "height", screenHeight)
-
-         const scoreText = document.createElementNS(svgns, "text");
-         scoreText.setAttributeNS(null, 'y', 50);
-         scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
-
-         const retryText = document.createElementNS(svgns, "text");
-         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
-         retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: pink");
-         
-     
-         setInterval(() => {
-            scoreText.textContent = score
-            retryText.textContent = "HIGH SCORE: " + highscore
-         }, 200)
-         
-         const start = () => {
-            play = true
-            
-            container.innerHTML = `
-                <defs>
+              <defs>
 
                     <filter id="blurEffect" filterUnits="userSpaceOnUse"
             x="-50%" y="-50%" width="200%" height="200%">
@@ -223,6 +135,98 @@ filterUnits="userSpaceOnUse"
 
 
                 </defs>
+                <g id="scene">
+
+                </g>
+            
+        </svg>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            setInterval(() => {
+                //energy = 0
+            }, 100)
+
+            onmousemove = (event) => {                
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.05
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event) => {
+                setInterval(() => {
+                    document.getElementById("gyro").style.display = 'none'
+                }, 100)
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
+                }
+                
+            
+            }
+
+            setInterval(() => {
+                energy = 0
+            }, 300)
+        </script>
+        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
+        <script>
+        var screenWidth = document.body.clientWidth - 20
+        var screenHeight = document.body.clientHeight - 40
+
+        const rate = 10
+
+         var play = false
+         var score = 0
+         var highscore = 0
+         highscore = localStorage.getItem('highscore') ?? 0
+         
+         const svgns = "http://www.w3.org/2000/svg"
+         const container = document.getElementById( 'cont' ).getElementById( 'scene' );
+         document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
+         document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
+
+         const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'y', 50);
+         scoreText.textContent = "00"
+         scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
+
+         const retryText = document.createElementNS(svgns, "text");
+         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
+         retryText.setAttributeNS(null, 'y', screenHeight / 2);
+         retryText.setAttributeNS(null, 'style', "fill: pink");
+         
+     
+         setInterval(() => {
+            scoreText.textContent = score
+            retryText.textContent = "HIGH SCORE: " + highscore
+         }, 200)
+         
+         const start = () => {
+            play = true
+            
+            container.innerHTML = `
+  
             `
             container.appendChild(scoreText);
             try {
