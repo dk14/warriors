@@ -238,22 +238,20 @@
 
             const rects = []
 
-            const createRect = (x, y) => {
+            const createRect = (x, y, g) => {
                 const rect = document.createElementNS(svgns, 'rect');
                 const bias = screenHeight * 0.1
                 const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
                 const h = (screenHeight - gate)  * Math.random()
 
-                
-                
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
                 rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 1px; ' );
-                //rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
+                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect.setAttributeNS(null, 'filter', ' url(#neon)')
-                container.appendChild(rect);
+                g.appendChild(rect);
                 rects.push(rect)
 
                 
@@ -263,10 +261,10 @@
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 1px;' );
-                //rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
+                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
 
-                container.appendChild(rect2);
+                g.appendChild(rect2);
                 rects.push(rect2)
 
                 container.removeChild(scoreText);
@@ -274,12 +272,16 @@
             }
 
             var i = 0
+
+            const blocks = document.createElementNS(svgns, 'g');
+            container.appendChild(blocks);
+            
             const cancel2 = setInterval(() => {
 
                 i++
 
-                if (i % 250 * screenHeight / 755 === 0) {
-                    createRect(screenWidth, screenHeight - 200 + 30)
+                if (i % 250 === 0) {
+                    createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
                 }
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
@@ -295,45 +297,41 @@
                 }
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
+
+                const translate = - 0.8 * i
+
+                blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
-               
-                const speed = 10 / rate
 
-                if (i % 5 === 0) {
-                    rects.forEach(r => {
-                        
-                            r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 5 * speed * screenWidth / 500);
-                            if (parseInt(r.getAttributeNS(null, 'x')) < - 50 * screenHeight / 755) {
-                                container.removeChild(r)
-                                rects.splice(rects.findIndex(x => x === r), 1)
-                            }
+                rects.forEach(r => {
+                                
+                    const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
 
-                        
-                        
-                    })
+                    if (rcx < - 50 * screenHeight / 755) {
+                        blocks.removeChild(r)
+                        rects.splice(rects.findIndex(x => x === r), 1)
+                    }
 
-                    rects.forEach(r => {
-                    const rectEdge = parseInt(r.getAttributeNS(null, 'x'))
+                    const rectEdge = rcx
                     
                     if (x > rectEdge + 30 && r["counted"] !== true) {
                         r["counted"] = true
                         score += 5
                     }
 
-                    
-                    const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
-                        if (lost) {
-                            clearInterval(cancel2)
-                            play = false
-                            if (score > highscore) {
+                    const lost = Intersects.circleBox(x, y, radius, rcx, parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
+                    if (lost) {
+                        clearInterval(cancel2)
+                        play = false
+                        if (score > highscore) {
                             highscore = score
                             localStorage.setItem('highscore', highscore)
-                            }
-                            container.appendChild(retryText);
                         }
+                        container.appendChild(retryText);
+                    }
 
-                    })
-                }
+                })
+
             }, 100 / rate)
          }
          start()
