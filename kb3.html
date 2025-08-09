@@ -167,7 +167,7 @@
                     measurements = {}
                 }
 
-                const template = "_____<<<□□□↵↵01234567890abcdefghijklmnopqrstuvwxyz;!.===".split("")
+                const template = "_____<<<<<<□□□↵↵↵01234567890abcdefghijklmnopqrstuvwxyz;!,,...===".split("")
                 var set = template
                 const cursor = Math.max(0,Math.min(set.length - 1, Math.round(set.length * ((10 + screenHeight - y) / screenHeight))))
                
@@ -179,11 +179,11 @@
                 const measure5 = measurements[cursor - 1] !== undefined ? measurements[cursor - 1] - Math.min(...Object.values(measurements)) : 0
                 const measure4 = measurements[cursor - 4] !== undefined ? measurements[cursor - 4] - Math.min(...Object.values(measurements)) : 0
                 const measure2 = measurements[cursor + 1] !== undefined ? measurements[cursor + 1] - Math.min(...Object.values(measurements)) : 0
-                const measure3 = measurements[cursor + 2] !== undefined ? measurements[cursor + 4] - Math.min(...Object.values(measurements)) : 0
+                const measure3 = measurements[cursor + 2] !== undefined ? measurements[cursor + 2] - Math.min(...Object.values(measurements)) : 0
                 const measure = (3 * measure1 + 2 * measure2 + 2 * measure3 + measure4 + measure5) / 9
 
                 if (measure > 0) {
-                    globalspeed = Math.max(0.6, 1.0 - 0.02 * ((attempts + 0.1) * measure))
+                    globalspeed = Math.max(0.6, 1.0 - 0.1 * ((attempts + 0.1) * measure))
                 } else {
                     globalspeed = 1.0
                 }
