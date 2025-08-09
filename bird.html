@@ -22,39 +22,6 @@
                         <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
                     </filter>
 
-                    
-                
-
-                  
-
-                    <filter id="red-glow" filterUnits="userSpaceOnUse"
-            x="-50%" y="-50%" width="200%" height="200%">
-       <!-- blur the text at different levels-->
-      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur5"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur10"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur20"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="30" result="blur30"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="50" result="blur50"/>
-      <!-- merge all the blurs except for the first one -->
-      <feMerge result="blur-merged">
-        <feMergeNode in="blur10"/>
-        <feMergeNode in="blur20"/>
-        <feMergeNode in="blur30"/>
-        <feMergeNode in="blur50"/>
-      </feMerge>
-      <!-- recolour the merged blurs red-->
-      <feColorMatrix result="red-blur" in="blur-merged" type="matrix"
-                     values="1 0 0 0 0
-                             0 0.06 0 0 0
-                             0 0 0.44 0 0
-                             0 0 0 1 0" />
-      <feMerge>
-        <feMergeNode in="red-blur"/>       <!-- largest blurs coloured red -->
-        <feMergeNode in="blur10"/>          <!-- smallest blur left white -->
-        <feMergeNode in="SourceGraphic"/>  <!-- original white text -->
-      </feMerge>
-    </filter>
-
     <filter id="neon" filterUnits="userSpaceOnUse"
             x="-50%" y="-50%" width="200%" height="200%">
     <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="SourceGraphic" />
@@ -95,34 +62,9 @@ filterUnits="userSpaceOnUse"
       seed="5"
       result="turbulence"
     />
-    <feComponentTransfer in="turbulence" result="mapped">
-      <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-      <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-      <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-    </feComponentTransfer>
-    <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
-    <feSpecularLighting
-      in="softMap"
-      surfaceScale="5"
-      specularConstant="1"
-      specularExponent="100"
-      lighting-color="white"
-      result="specLight"
-    >
-      <fePointLight x="-200" y="-200" z="300" />
-    </feSpecularLighting>
-    <feComposite
-      in="specLight"
-      operator="arithmetic"
-      k1="0"
-      k2="1"
-      k3="1"
-      k4="0"
-      result="litImage"
-    />
     <feDisplacementMap
       in="SourceGraphic"
-      in2="softMap"
+      in2="turbulence"
       scale="100"
       xChannelSelector="R"
       yChannelSelector="G"
@@ -223,14 +165,14 @@ filterUnits="userSpaceOnUse"
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
+         //scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
          retryText.setAttributeNS(null, 'style', "fill: pink");
-         retryText.setAttributeNS(null, 'filter', ' url(#neon)')
+         //retryText.setAttributeNS(null, 'filter', ' url(#neon)')
          
      
          setInterval(() => {
@@ -262,7 +204,7 @@ filterUnits="userSpaceOnUse"
             
 
             const circle = document.createElementNS(svgns, 'circle');
-            circle.setAttributeNS(null, 'filter', ' url(#neon2) url(#glass-distortion)')
+            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
             //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
@@ -285,7 +227,7 @@ filterUnits="userSpaceOnUse"
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
                 rect.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px; ' );
-                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)  url(#neon)')
+                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
                 container.appendChild(rect);
                 rects.push(rect)
 
@@ -296,7 +238,7 @@ filterUnits="userSpaceOnUse"
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px;' );
-                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)  url(#neon)')
+                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
 
                 container.appendChild(rect2);
                 rects.push(rect2)
