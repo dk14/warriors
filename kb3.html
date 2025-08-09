@@ -181,9 +181,9 @@
                 const measure = (measure1 + measure2 + measure3) / 3
 
                 if (measure > 0 && cursor > 5) {
-                    globalgravity = Math.min(globalspeed * 2, globalspeed * 1.0 + 0.1 * (attempts * measure))
+                    globalspeed = Math.max(0.5, 1.0 - 0.1 * (attempts * measure))
                 } else {
-                    globalgravity = 1.0
+                    globalspeed = 1.0
                 }
 
 
@@ -252,6 +252,7 @@
                     maxcursor = 0
                     extragaravity = 0
                     extraspeed = 1.0   
+                    globalspeed = 1.0
                     globalgravity = 1.0 
                     attempts = 0
                     measurements = {}   
