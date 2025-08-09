@@ -217,6 +217,7 @@ filterUnits="userSpaceOnUse"
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
          retryText.setAttributeNS(null, 'style', "fill: pink");
+         retryText.setAttributeNS(null, 'filter', ' url(#neon)')
          
      
          setInterval(() => {
@@ -283,7 +284,7 @@ filterUnits="userSpaceOnUse"
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px;' );
                 rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)  url(#neon)')
-                
+
                 container.appendChild(rect2);
                 rects.push(rect2)
 
