@@ -207,6 +207,7 @@ filterUnits="userSpaceOnUse"
          document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
 
          const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
          scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
