@@ -210,6 +210,7 @@ filterUnits="userSpaceOnUse"
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
          scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
+         container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
@@ -225,11 +226,12 @@ filterUnits="userSpaceOnUse"
          const start = () => {
             play = true
             
-            container.innerHTML = `
-  
-            `
-            container.appendChild(scoreText);
+            while (container.firstChild) {
+                container.removeChild(container.lastChild);
+            }
+            
             try {
+                container.appendChild(scoreText);
                 container.removeChild(retryText);
             } catch {}
             
@@ -245,7 +247,7 @@ filterUnits="userSpaceOnUse"
             
 
             const circle = document.createElementNS(svgns, 'circle');
-            circle.setAttributeNS(null, 'filter', 'url(#red-glow) url(#glass-distortion)')
+            circle.setAttributeNS(null, 'filter', ' url(#red-glow) url(#glass-distortion)')
             //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
