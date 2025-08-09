@@ -88,7 +88,7 @@
         x="-50%" y="-50%" width="200%" height="200%">
    <!-- Source -->
    <feTurbulence type="turbulence"
-                 baseFrequency="0.05"
+                 baseFrequency="0.005"
                  numOctaves="2"
                  result="noise" />
    <!-- Combiner -->
@@ -250,7 +250,7 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; stroke: green; stroke-width: 2px; ' );
+                rect.setAttributeNS(null, 'style', 'fill: black; stroke: yellow; stroke-width: 2px; ' );
                 rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect.setAttributeNS(null, 'filter', ' url(#neon)')
                 container.appendChild(rect);
@@ -262,7 +262,7 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: red; stroke-width: 2px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: yellow; stroke-width: 2px;' );
                 rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
 
