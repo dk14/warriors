@@ -36,20 +36,6 @@
     </feMerge>
   </filter>
 
-  <filter id="neon2"
-            x="-50%" y="-50%" width="200%" height="200%">
-    <feFlood flood-color="cyan" flood-opacity="0.5" in="SourceGraphic" />
-    <feComposite operator="in" in2="SourceGraphic" />
-    <feGaussianBlur stdDeviation="10" />
-    <feComponentTransfer result="glow1">
-      <feFuncA type="linear" slope="4" intercept="0" />
-    </feComponentTransfer>
-    <feMerge>
-       <feMergeNode in="glow1" />
-       <feMergeNode in="SourceGraphic" />
-    </feMerge>
-  </filter>
-
 <filter
     id="glass-distortion"
             x="-50%" y="-50%" width="200%" height="200%"
@@ -67,12 +53,22 @@
       scale="100"
       xChannelSelector="R"
       yChannelSelector="G"
+      result="glass"
     />
+     <feFlood flood-color="cyan" flood-opacity="0.5" in="glass" />
+    <feComposite operator="in" in2="glass" />
+    <feGaussianBlur stdDeviation="10" />
+    <feComponentTransfer result="glow1">
+      <feFuncA type="linear" slope="4" intercept="0" />
+    </feComponentTransfer>
+    <feMerge>
+       <feMergeNode in="glow1" />
+       <feMergeNode in="glass" />
+    </feMerge>
   </filter>
 
   <filter id="turbulence-displacement"
-        x="0" y="0"
-        width="100%" height="100%">
+        x="-50%" y="-50%" width="200%" height="200%">
    <!-- Source -->
    <feTurbulence type="turbulence"
                  baseFrequency="0.05"
@@ -83,7 +79,19 @@
                       in2="noise"
                       scale="20"
                       xChannelSelector="R"
-                      yChannelSelector="G" />
+                      yChannelSelector="G"
+                      result="glass" />
+
+    <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="glass" />
+    <feComposite operator="in" in2="glass" />
+    <feGaussianBlur stdDeviation="10" />
+    <feComponentTransfer result="glow1">
+      <feFuncA type="linear" slope="4" intercept="0" />
+    </feComponentTransfer>
+    <feMerge>
+       <feMergeNode in="glow1" />
+       <feMergeNode in="glass" />
+    </feMerge>
 </filter>
 
 
@@ -164,14 +172,14 @@
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
-         //scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
+         scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
          retryText.setAttributeNS(null, 'style', "fill: pink");
-         //retryText.setAttributeNS(null, 'filter', ' url(#neon)')
+         retryText.setAttributeNS(null, 'filter', ' url(#neon)')
          
      
          setInterval(() => {
@@ -225,7 +233,7 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px; ' );
+                rect.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: red; stroke-width: 0px; ' );
                 rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
                 container.appendChild(rect);
                 rects.push(rect)
@@ -236,7 +244,7 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: red; opacity: 0.2; stroke: red; stroke-width: 0px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: black; opacity: 0.5; stroke: red; stroke-width: 0px;' );
                 rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
 
                 container.appendChild(rect2);
