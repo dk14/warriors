@@ -57,7 +57,7 @@
     />
      <feFlood flood-color="cyan" flood-opacity="0.5" in="glass" />
     <feComposite operator="in" in2="glass" />
-    <feGaussianBlur stdDeviation="10" />
+    <feGaussianBlur stdDeviation="20" />
     <feComponentTransfer result="glow1">
       <feFuncA type="linear" slope="4" intercept="0" />
     </feComponentTransfer>
@@ -144,7 +144,7 @@
             var prev = [0,0,0]
             var energy = 0.001
             
-            var energyThreshold = 0.05
+            var energyThreshold = 0.06
             var minEnergy = 0.0
             var energyScale = 1.0
             
