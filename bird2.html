@@ -138,6 +138,7 @@
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
+                ev.mouse = true
                 ondevicemotion(ev)
             }
 
@@ -159,6 +160,10 @@
                 energy = energyScale * (dx * dx + dy * dy + dz * dz)
                 if (energy > energyThreshold) {
                     energy = energyThreshold
+                }
+
+                if (!ev.mouse) {
+                    energy *= 1.3
                 }
                 
             
