@@ -147,8 +147,7 @@
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
-                ev.mouse = true
-                ondevicemotion(ev)
+                ondevicemotion(ev, true)
             }
 
             var prev = [0,0,0]
@@ -158,7 +157,7 @@
             var minEnergy = 0.0
             var energyScale = 1.0
             
-            ondevicemotion = (event) => {
+            ondevicemotion = (event, mouse = false) => {
                 setInterval(() => {
                     document.getElementById("gyro").style.display = 'none'
                 }, 100)
@@ -171,7 +170,7 @@
                     energy = energyThreshold
                 }
 
-                if (ev.mouse !== true) {
+                if (mouse !== true) {
                     energy *= 1.5
                 }
                 
