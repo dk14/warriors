@@ -301,17 +301,18 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
 
-             }, 80 / rate)
+             }, 100 / rate)
 
             const cancel3 = setInterval(() => {
-
-            
 
                 const translate = - 0.8 * i
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
+            }, 200 / rate)
 
+            const cancel4 = setInterval(() => {
+                const translate = - 0.8 * i
                 rects.forEach(r => {
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
@@ -334,6 +335,7 @@
                     if (lost) {
                         clearInterval(cancel2)
                         clearInterval(cancel3)
+                        clearInterval(cancel4)
                         play = false
                         if (score > highscore) {
                             highscore = score
@@ -344,7 +346,7 @@
 
                 })
 
-            }, 100 / rate)
+            }, 1000 / rate)
          }
          start()
          document.addEventListener("touchend", () => {
