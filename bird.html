@@ -280,12 +280,7 @@
 
                 i++
 
-                if (i % 250 === 0) {
-                    setTimeout(() => {
-                        createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
-                    }, 100)
-                    
-                }
+
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
@@ -304,6 +299,10 @@
              }, 100 / rate)
 
             const cancel3 = setInterval(() => {
+
+                if (i % 250 === 0) {
+                    createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
+                }
 
                 const translate = - 0.8 * i
 
