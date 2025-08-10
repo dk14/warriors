@@ -171,9 +171,9 @@
                     energy = energyThreshold
                 }
 
-                //if (!ev.mouse) {
-                    energy *= 2.0
-                //}
+                if (ev.mouse !== true) {
+                    energy *= 1.5
+                }
                 
             
             }
