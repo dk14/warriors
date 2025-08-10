@@ -57,7 +57,7 @@
     />
      <feFlood flood-color="cyan" flood-opacity="0.5" in="glass" />
     <feComposite operator="in" in2="glass" />
-    <feGaussianBlur stdDeviation="10" />
+    <feGaussianBlur stdDeviation="3" />
     <feComponentTransfer result="glow1">
       <feFuncA type="linear" slope="4" intercept="0" />
     </feComponentTransfer>
@@ -254,11 +254,11 @@
             
 
             const circle = document.createElementNS(svgns, 'circle');
-            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion2)')
+            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
             //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
-            circle.setAttributeNS(null, 'r', radius * 1.0);
+            circle.setAttributeNS(null, 'r', radius * 1.5);
             circle.setAttributeNS(null, 'style', 'fill: hsla(120); opacity: 1;  stroke: white; stroke-width: 0px;' );
             container.appendChild(circle);
 
