@@ -142,6 +142,13 @@
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
          retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
          
+         const retryRect = document.createElementNS(svgns, "rect");
+
+         retryRect.setAttributeNS(null, 'x', 0);
+         retryRect.setAttributeNS(null, 'y', 0);
+         retryRect.setAttributeNS(null, 'width', screenWidth);
+         retryRect.setAttributeNS(null, 'height', screenHeight);
+         retryRect.setAttributeNS(null, 'style', "fill: black; opacity: 0.5");
      
          setInterval(() => {
             scoreText.textContent = score
@@ -325,6 +332,8 @@
                             highscore = score
                             localStorage.setItem('highscore', highscore)
                         }
+                        
+                        container.appendChild(retryRect);
                         container.appendChild(retryText);
                     }
 
