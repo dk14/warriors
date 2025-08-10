@@ -133,14 +133,14 @@
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'style', "fill: lightgreen; opacity: 0.7");
+         scoreText.setAttributeNS(null, 'style', "fill: lightgreen; font-style: italic; opacity: 0.5");
      
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px; font-weight:bolder; opacity: 0.5");
+         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
          
      
          setInterval(() => {
