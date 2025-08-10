@@ -23,7 +23,7 @@
                     </filter>
 
     <filter id="neon"
-            x="-50%" y="-50%" width="200%" height="200%">
+            x="-100%" y="-100%" width="400%" height="400%">
     <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="SourceGraphic" />
     <feComposite operator="in" in2="SourceGraphic" />
     <feGaussianBlur stdDeviation="10" />
@@ -38,7 +38,7 @@
 
 <filter
     id="glass-distortion"
-            x="-50%" y="-50%" width="200%" height="200%"
+            x="-100%" y="-100%" width="400%" height="400%"
   >
     <feTurbulence
       type="fractalNoise"
@@ -68,7 +68,7 @@
   </filter>
 
   <filter id="turbulence-displacement"
-        x="-50%" y="-50%" width="200%" height="200%">
+        x="-100%" y="-100%" width="400%" height="400%">
    <!-- Source -->
    <feTurbulence type="turbulence"
                  baseFrequency="0.05"
@@ -85,7 +85,7 @@
 </filter>
 
 <filter id="turbulence-displacement2"
-        x="-50%" y="-50%" width="200%" height="200%">
+        x="-100%" y="-100%" width="400%" height="400%">
    <!-- Source -->
    <feTurbulence type="turbulence"
                  baseFrequency="0.05"
@@ -220,7 +220,7 @@
             score = 0
             
             
-            const initx = 200  * screenHeight / 755
+            const initx = screenWidth / 3
             const inity = 300  * screenHeight / 755
             const radius = 30 * screenHeight / 755
             var x = initx
