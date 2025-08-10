@@ -332,8 +332,8 @@
                 circles.forEach((c, ii) => {
                     const cx = parseInt(c.getAttributeNS(null, 'cx'))
                     const cy = parseInt(c.getAttributeNS(null, 'cy'))
-                    c.setAttributeNS(null, 'cx', x + 20 * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))) 
-                    c.setAttributeNS(null, 'cy', y + 20 * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60)));  
+                    c.setAttributeNS(null, 'cx', x + 20 * 755 / screenHeight  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))) 
+                    c.setAttributeNS(null, 'cy', y + 20 * 755 / screenHeight  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60)));  
                     
                 })
 
