@@ -248,8 +248,8 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 1px; ' );
-                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
+                rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 30px; ' );
+                rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
                 //rect.setAttributeNS(null, 'filter', ' url(#neon)')
                 g.appendChild(rect);
                 rects.push(rect)
@@ -260,8 +260,8 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 1px;' );
-                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
+                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 30px;' );
+                rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
                 //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
 
                 g.appendChild(rect2);
@@ -298,13 +298,11 @@
 
              }, 100 / rate)
 
-             for (let i = 0; i < 100 * 250; i++ ) {
-                 if (i % 250 === 0) {
+            const cancel3 = setInterval(() => {
+
+                if (i % 250 === 0) {
                     createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
                 }
-             }
-
-            const cancel3 = setInterval(() => {
 
                 const translate = - 0.8 * i
 
@@ -318,7 +316,7 @@
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
 
-                    //r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
+                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
 
                     if (rcx < - 50 * screenHeight / 755) {
                         blocks.removeChild(r)
