@@ -251,7 +251,7 @@
                 //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y);
-                circle.setAttributeNS(null, 'r', radius  * 1.4 * 755 / screenHeight);
+                circle.setAttributeNS(null, 'r', radius  * 1.4 * screenHeight / 755);
                 circle.setAttributeNS(null, 'fill', `url(#${grad})`);
                 circle.style = `mix-blend-mode: plus-lighter; opacity: 0.5`;
                 container.appendChild(circle);
