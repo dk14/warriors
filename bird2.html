@@ -130,10 +130,10 @@
          document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
 
          const scoreText = document.createElementNS(svgns, "text");
-         scoreText.setAttributeNS(null, 'x', 10);
-         scoreText.setAttributeNS(null, 'y', 50);
+         scoreText.setAttributeNS(null, 'x', 20);
+         scoreText.setAttributeNS(null, 'y', 60);
          scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'style', "fill: lightgreen; font-style: italic; opacity: 0.5");
+         scoreText.setAttributeNS(null, 'style', "fill: lightgreen; font-size: 60px; font-style: italic; opacity: 0.5;");
      
          container.appendChild(scoreText);
 
