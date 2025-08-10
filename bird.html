@@ -67,6 +67,29 @@
     </feMerge>
   </filter>
 
+  <filter
+    id="glass-distortion2"
+            x="-100%" y="-100%" width="400%" height="400%"
+  >
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.01 0.01"
+      numOctaves="1"
+      seed="5"
+      result="turbulence"
+    />
+    <feDisplacementMap
+      in="SourceGraphic"
+      in2="turbulence"
+      scale="100"
+      xChannelSelector="R"
+      yChannelSelector="G"
+      result="glass"
+    />
+
+
+  </filter>
+
   <filter id="turbulence-displacement"
         x="-100%" y="-100%" width="400%" height="400%">
    <!-- Source -->
@@ -228,12 +251,12 @@
             
 
             const circle = document.createElementNS(svgns, 'circle');
-            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
+            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion2)')
             //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
             circle.setAttributeNS(null, 'r', radius * 1.0);
-            circle.setAttributeNS(null, 'style', 'fill: yellow; opacity: 1;  stroke: black; stroke-width: 0px;' );
+            circle.setAttributeNS(null, 'style', 'fill: cyan; opacity: 1;  stroke: pink; stroke-width: 30px;' );
             container.appendChild(circle);
 
             const rects = []
