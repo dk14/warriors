@@ -300,13 +300,15 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
 
+                if (i % 250 === 0 && rects.length < 12) {
+                    createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
+                }
+
              }, 100 / rate)
 
             const cancel3 = setInterval(() => {
 
-                if (i % 250 === 0 && rects.length < 12) {
-                    createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
-                }
+
 
                 const translate = - 0.8 * i
 
