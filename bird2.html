@@ -15,117 +15,18 @@
        
        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
       fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <defs>
+            <defs>
+                
+                <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="rgba(228,228,0,1.0)" />
+                <stop offset="95%" stop-color="rgba(0, 30,0,0.05)" />
+                <stop offset="100%" stop-color="rgba(220,220,0,0)"/>
+                </radialGradient>
 
-                    <filter id="blurEffect" filterUnits="userSpaceOnUse"
-            x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
-                    </filter>
+            </defs>
+            <g id="scene">
 
-    <filter id="neon"
-            x="-100%" y="-100%" width="400%" height="400%">
-    <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="SourceGraphic" />
-    <feComposite operator="in" in2="SourceGraphic" />
-    <feGaussianBlur stdDeviation="10" />
-    <feComponentTransfer result="glow1">
-      <feFuncA type="linear" slope="4" intercept="0" />
-    </feComponentTransfer>
-    <feMerge>
-       <feMergeNode in="glow1" />
-       <feMergeNode in="SourceGraphic" />
-    </feMerge>
-  </filter>
-
-<filter
-    id="glass-distortion"
-            x="-100%" y="-100%" width="400%" height="400%"
-  >
-      <style>
-       circle { mix-blend-mode: plus-lighter; }
-    </style>
-    <feTurbulence
-      type="fractalNoise"
-      baseFrequency="0.01 0.01"
-      numOctaves="1"
-      seed="5"
-      result="turbulence"
-    />
-    <feDisplacementMap
-      in="SourceGraphic"
-      in2="turbulence"
-      scale="100"
-      xChannelSelector="R"
-      yChannelSelector="G"
-      result="glass"
-    />
-     <feFlood flood-color="cyan" flood-opacity="0.5" in="glass" />
-    <feComposite operator="in" in2="glass" />
-    <feGaussianBlur stdDeviation="15" />
-    <feComponentTransfer result="glow1">
-      <feFuncA type="linear" slope="4" intercept="0" />
-    </feComponentTransfer>
-    <feMerge>
-       <feMergeNode in="glow1" />
-       <feMergeNode in="glass" />
-    </feMerge>
-  </filter>
-
-  <filter id="turbulence-displacement"
-        x="-100%" y="-100%" width="400%" height="400%">
-   <!-- Source -->
-   <feTurbulence type="turbulence"
-                 baseFrequency="0.05"
-                 numOctaves="2"
-                 result="noise" />
-   <!-- Combiner -->
-   <feDisplacementMap in="SourceGraphic"
-                      in2="noise"
-                      scale="5"
-                      xChannelSelector="R"
-                      yChannelSelector="G"
-                       />
-
-</filter>
-
-<filter id="turbulence-displacement2"
-        x="-100%" y="-100%" width="400%" height="400%">
-   <!-- Source -->
-   <feTurbulence type="turbulence"
-                 baseFrequency="0.04"
-                 numOctaves="2"
-                 result="noise" />
-   <!-- Combiner -->
-   <feDisplacementMap in="SourceGraphic"
-                      in2="noise"
-                      scale="20"
-                      xChannelSelector="R"
-                      yChannelSelector="G"
-                      result="glass" />
-
-    <feFlood flood-color="rgb(255,255,128)" flood-opacity="0.5" in="glass" />
-    <feComposite operator="in" in2="glass" />
-    <feGaussianBlur stdDeviation="4" />
-    <feComponentTransfer result="glow1">
-      <feFuncA type="linear" slope="4" intercept="0" />
-    </feComponentTransfer>
-    <feMerge>
-       <feMergeNode in="glow1" />
-       <feMergeNode in="glass" />
-    </feMerge>
-    
-</filter>
-    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" stop-color="rgba(228,228,0,1.0)" />
-      <stop offset="95%" stop-color="rgba(0, 30,0,0.05)" />
-      <stop offset="100%" stop-color="rgba(220,220,0,0)"/>
-    </radialGradient>
-
-
-
-                </defs>
-                 <g id="scene">
-
-                </g>
+            </g>
             
         </svg>
         <script>
