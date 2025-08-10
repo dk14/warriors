@@ -304,7 +304,7 @@
 
             const cancel3 = setInterval(() => {
 
-                if (i % 250 === 0) {
+                if (i % 250 === 0 && rects.length < 12) {
                     createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
                 }
 
@@ -316,18 +316,25 @@
 
             const cancel4 = setInterval(() => {
                 const translate = - 0.8 * i
-                rects.forEach(r => {
+                rects.forEach((r, ii) => {
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
-
-                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
 
                     const edge = parseInt(r.getAttributeNS(null, 'y')) < 30 ? parseInt(r.getAttributeNS(null, 'height')) : parseInt(r.getAttributeNS(null, 'y'))
                     r.style.opacity = 0.2 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
-                    if (rcx < - 50 * screenHeight / 755) {
+                    if (rcx < - 50) {
                         blocks.removeChild(r)
+
+                        rects.slice(0, ii).forEach(rr => {
+                            rr.remove()
+                        })
+
                         rects.splice(rects.findIndex(x => x === r), 1)
+                        rects.splice(0, rects.findIndex(x => x === r))
+                        
+                        r.remove()
+                        
                     }
 
                     const rectEdge = rcx
@@ -342,6 +349,7 @@
                         clearInterval(cancel2)
                         clearInterval(cancel3)
                         clearInterval(cancel4)
+                        rects.length = 0
                         play = false
                         if (score > highscore) {
                             highscore = score
