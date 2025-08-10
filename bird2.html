@@ -57,7 +57,7 @@
     />
      <feFlood flood-color="cyan" flood-opacity="0.5" in="glass" />
     <feComposite operator="in" in2="glass" />
-    <feGaussianBlur stdDeviation="20" />
+    <feGaussianBlur stdDeviation="30" />
     <feComponentTransfer result="glow1">
       <feFuncA type="linear" slope="4" intercept="0" />
     </feComponentTransfer>
@@ -248,7 +248,7 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 10px; ' );
+                rect.setAttributeNS(null, 'style', 'fill: black; opacity: 0.2; stroke: pink; stroke-width: 10px; ' );
                 //rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect.setAttributeNS(null, 'filter', ' url(#neon)')
                 g.appendChild(rect);
@@ -260,7 +260,7 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 10px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: black; opacity: 0.2; stroke: cyan; stroke-width: 10px;' );
                 //rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
 
