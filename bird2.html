@@ -59,14 +59,8 @@
                 context.fill();
             }
 
-            drawCircle(0.5, 0.5, 0.2, 0.2, 1.0)
-            drawCircle(0.5, 0.5, 0.2, 0.2, 0.13)
-   
-    
-            
- 
- 
-
+            drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
+            drawCircle(0.5, 0.5, 0.2, 0.5, 0.07)
 
         </script>
         <script>
@@ -139,14 +133,14 @@
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'style', "fill: lightgreen");
+         scoreText.setAttributeNS(null, 'style', "fill: lightgreen; opacity: 0.7");
          scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px; font-weight:bolder");
+         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px; font-weight:bolder; opacity: 0.5");
          retryText.setAttributeNS(null, 'filter', ' url(#neon)')
          
      
