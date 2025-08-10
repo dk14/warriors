@@ -248,7 +248,7 @@
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
                 rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 1px; ' );
+                rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 10px; ' );
                 //rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect.setAttributeNS(null, 'filter', ' url(#neon)')
                 g.appendChild(rect);
@@ -260,7 +260,7 @@
                 rect2.setAttributeNS(null, 'y', 0);
                 rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 1px;' );
+                rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 10px;' );
                 //rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
                 //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
 
@@ -275,7 +275,7 @@
 
             const blocks = document.createElementNS(svgns, 'g');
             container.appendChild(blocks);
-            blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
+            blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
             
             const cancel2 = setInterval(() => {
 
