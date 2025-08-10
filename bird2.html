@@ -307,7 +307,7 @@
 
             const blocks = document.createElementNS(svgns, 'g');
             container.appendChild(blocks);
-            blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
+            //blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
             
             const cancel2 = setInterval(() => {
 
@@ -356,10 +356,6 @@
             const cancel4 = setInterval(() => {
                 const translate = - 0.8 * i
                 rects.forEach((r, ii) => {
-
-                    if (i % 10 === 0) {
-                        r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
-                    }
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
 
