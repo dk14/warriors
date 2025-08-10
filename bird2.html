@@ -9,12 +9,14 @@
     
     </head>
     <body bgcolor="black">
-       <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">gyro</button>
+       <button style="border: 3px solid green; background-color: black; color: green; z-index: 100; font-size: 40px;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">GYRO</button>
         
-       
+       <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index:-20">
+
+       </canvas>
        
        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
-      fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      fill:yellow; position: absolute; top: 0; left: 0; z-index:-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <defs>
                 
                 <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
@@ -31,12 +33,46 @@
         </svg>
         <script>
 
+            const canvas = document.getElementById("canvas")
+            const context = canvas.getContext('2d');
+
+             canvas.width = document.body.clientWidth - 20
+            canvas.height = document.body.clientHeight - 40
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const drawCircle = (x, y, r, c, op) => {
+                context.beginPath();
+                
+                
+                const gradient = context.createRadialGradient(x * canvas.width,  y * canvas.height, 0, x * canvas.width, y * canvas.height, r * 2 * canvas.height);
+                gradient.addColorStop(0, `hsla(${c * 360}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c * 360}, 100%, 50%, 0)`);
+                context.globalCompositeOperation = "lighter";
+                context.fillStyle = gradient;
+                context.arc(x * canvas.width, y * canvas.height, r * 2 * canvas.height, 0, 2 * Math.PI, true);
+                context.fill();
+
+                context.globalCompositeOperation = "darken";
+                 context.fillStyle = `hsla(0, 0%, 0%, ${1 - op})`
+                context.arc(x * canvas.width, y * canvas.height, r * 2 * canvas.height, 0, 2 * Math.PI, true);
+                context.fill();
+            }
+
+            drawCircle(0.5, 0.5, 0.2, 0.2, 1.0)
+            drawCircle(0.5, 0.5, 0.2, 0.2, 0.13)
+   
+    
+            
+ 
+ 
+
+
+        </script>
+        <script>
+
             var prevX = 0
             var prevY = 0
-
-            setInterval(() => {
-                //energy = 0
-            }, 100)
 
             onmousemove = (event) => {                
                 ev = {}
