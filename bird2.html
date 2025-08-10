@@ -189,19 +189,22 @@
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
+         scoreText.setAttributeNS(null, 'style', "fill: lightgreen");
          scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: yellow");
+         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px; font-weight:bolder");
          retryText.setAttributeNS(null, 'filter', ' url(#neon)')
          
      
          setInterval(() => {
             scoreText.textContent = score
             retryText.textContent = "HIGH SCORE: " + highscore
+            retryText.setAttributeNS(null, 'x', screenWidth / 2 - retryText.getBoundingClientRect().width / 2);
+            retryText.setAttributeNS(null, 'y', screenHeight / 2);
          }, 200)
          
          const start = () => {
