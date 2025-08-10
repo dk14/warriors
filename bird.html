@@ -226,6 +226,8 @@
          setInterval(() => {
             scoreText.textContent = score
             retryText.textContent = " HIGH SCORE " + highscore
+            retryText.setAttributeNS(null, 'x', screenWidth / 2 - retryText.getBoundingClientRect().width / 2);
+            retryText.setAttributeNS(null, 'y', screenHeight / 2);
          }, 200)
          
          const start = () => {
