@@ -40,6 +40,9 @@
     id="glass-distortion"
             x="-100%" y="-100%" width="400%" height="400%"
   >
+      <style>
+       circle { mix-blend-mode: plus-lighter; }
+    </style>
     <feTurbulence
       type="fractalNoise"
       baseFrequency="0.01 0.01"
@@ -109,12 +112,18 @@
        <feMergeNode in="glow1" />
        <feMergeNode in="glass" />
     </feMerge>
+    
 </filter>
+    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="rgba(228,228,0,1.0)" />
+      <stop offset="95%" stop-color="rgba(0, 30,0,0.05)" />
+      <stop offset="100%" stop-color="rgba(220,220,0,0)"/>
+    </radialGradient>
 
 
 
                 </defs>
-                <g id="scene">
+                 <g id="scene">
 
                 </g>
             
@@ -235,14 +244,29 @@
             var y = inity
             
 
-            const circle = document.createElementNS(svgns, 'circle');
-            circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
-            //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
-            circle.setAttributeNS(null, 'cx', x);
-            circle.setAttributeNS(null, 'cy', y);
-            circle.setAttributeNS(null, 'r', radius * 1.0);
-            circle.setAttributeNS(null, 'style', 'fill: yellow; opacity: 1;  stroke: black; stroke-width: 0px;' );
-            container.appendChild(circle);
+            const createCircle = (grad = 'grad1') => {
+
+                 const circle = document.createElementNS(svgns, 'circle');
+                //circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
+                //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
+                circle.setAttributeNS(null, 'cx', x);
+                circle.setAttributeNS(null, 'cy', y);
+                circle.setAttributeNS(null, 'r', radius  * 1.4);
+                circle.setAttributeNS(null, 'fill', `url(#${grad})`);
+                circle.style = `mix-blend-mode: plus-lighter; opacity: 0.5`;
+                container.appendChild(circle);
+                return circle
+
+            }
+
+            const circle = createCircle()
+
+            const circles = []
+
+            for (let ii = 0; ii < 10; ii++) {
+                circles.push(createCircle())
+            }
+           
 
             const rects = []
 
@@ -283,7 +307,7 @@
 
             const blocks = document.createElementNS(svgns, 'g');
             container.appendChild(blocks);
-            //blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement)')
+            blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
             
             const cancel2 = setInterval(() => {
 
@@ -305,6 +329,14 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
 
+                circles.forEach((c, ii) => {
+                    const cx = parseInt(c.getAttributeNS(null, 'cx'))
+                    const cy = parseInt(c.getAttributeNS(null, 'cy'))
+                    c.setAttributeNS(null, 'cx', x + 20 * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))) 
+                    c.setAttributeNS(null, 'cy', y + 20 * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60)));  
+                    
+                })
+
                 if (i % 250 === 0 && rects.length < 12) {
                     createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
                 }
@@ -324,11 +356,15 @@
             const cancel4 = setInterval(() => {
                 const translate = - 0.8 * i
                 rects.forEach((r, ii) => {
+
+                    if (i % 10 === 0) {
+                        r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
+                    }
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
 
                     const edge = parseInt(r.getAttributeNS(null, 'y')) < 30 ? parseInt(r.getAttributeNS(null, 'height')) : parseInt(r.getAttributeNS(null, 'y'))
-                    r.style.opacity = 0.2 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
+                    r.style.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
                     if (rcx < - 50) {
                         blocks.removeChild(r)
