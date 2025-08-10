@@ -13,8 +13,8 @@
         
        
        
-       <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
-      fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+       <svg id="cont" style="font-family:'Crafty Girls'; font-size:40px;
+      fill:lightgreen;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
               <defs>
 
                     <filter id="blurEffect" filterUnits="userSpaceOnUse"
@@ -212,19 +212,20 @@
          scoreText.setAttributeNS(null, 'x', 10);
          scoreText.setAttributeNS(null, 'y', 50);
          scoreText.textContent = "00"
-         scoreText.setAttributeNS(null, 'filter', ' url(#neon)')
+         scoreText.setAttributeNS(null, 'style', "fill: light-green; font-size: 50px");
+         scoreText.setAttributeNS(null, 'filter', ' url(#glass-distortion2)')
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: yellow");
-         retryText.setAttributeNS(null, 'filter', ' url(#neon)')
+         retryText.setAttributeNS(null, 'style', "fill: light-green;");
+        //retryText.setAttributeNS(null, 'filter', '  url(#glass-distortion2)')
          
      
          setInterval(() => {
             scoreText.textContent = score
-            retryText.textContent = "       HIGH: " + highscore
+            retryText.textContent = " HIGH SCORE " + highscore
          }, 200)
          
          const start = () => {
