@@ -232,7 +232,7 @@
             //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
             circle.setAttributeNS(null, 'cx', x);
             circle.setAttributeNS(null, 'cy', y);
-            circle.setAttributeNS(null, 'r', radius * 1);
+            circle.setAttributeNS(null, 'r', radius * 1.2);
             circle.setAttributeNS(null, 'style', 'fill: yellow; opacity: 1;  stroke: black; stroke-width: 0px;' );
             container.appendChild(circle);
 
@@ -246,7 +246,7 @@
 
                 rect.setAttributeNS(null, 'x', x);
                 rect.setAttributeNS(null, 'y', (screenHeight - h));
-                rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
+                rect.setAttributeNS(null, 'width', 70 * screenHeight / 755);
                 rect.setAttributeNS(null, 'height', h);
                 rect.setAttributeNS(null, 'style', 'fill: black; stroke: pink; stroke-width: 1px; ' );
                 rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
@@ -258,7 +258,7 @@
                 const rect2 = document.createElementNS(svgns, 'rect');
                 rect2.setAttributeNS(null, 'x', x);
                 rect2.setAttributeNS(null, 'y', 0);
-                rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
+                rect2.setAttributeNS(null, 'width', 70 * screenHeight / 755);
                 rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
                 rect2.setAttributeNS(null, 'style', 'fill: black; stroke: cyan; stroke-width: 1px;' );
                 rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
