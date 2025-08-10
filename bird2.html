@@ -322,6 +322,9 @@
 
                     r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - 1)
 
+                    const edge = parseInt(r.getAttributeNS(null, 'y')) < 30 ? parseInt(r.getAttributeNS(null, 'height')) : parseInt(r.getAttributeNS(null, 'y'))
+                    r.style.opacity = 0.2 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
+
                     if (rcx < - 50 * screenHeight / 755) {
                         blocks.removeChild(r)
                         rects.splice(rects.findIndex(x => x === r), 1)
