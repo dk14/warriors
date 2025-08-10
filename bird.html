@@ -301,6 +301,12 @@
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
 
+             }, 100 / rate)
+
+            const cancel3 = setInterval(() => {
+
+            
+
                 const translate = - 0.8 * i
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
@@ -325,6 +331,7 @@
                     const lost = Intersects.circleBox(x, y, radius, rcx, parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
                     if (lost) {
                         clearInterval(cancel2)
+                        clearInterval(cancel3)
                         play = false
                         if (score > highscore) {
                             highscore = score
