@@ -337,24 +337,26 @@
                     
                 })
 
-                if (i % 250 === 0 && rects.length < 12) {
+                if (i % 200 === 0 && rects.length < 12) {
                     createRect(screenWidth - 100 + i, screenHeight - 200 + 30, blocks)
                 }
 
              }, 100 / rate)
 
+            const speed = 1.0
+
             const cancel3 = setInterval(() => {
 
 
 
-                const translate = - 0.8 * i
+                const translate = - speed * i
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
             }, 200 / rate)
 
             const cancel4 = setInterval(() => {
-                const translate = - 0.8 * i
+                const translate = - speed * i
                 rects.forEach((r, ii) => {
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
