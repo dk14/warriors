@@ -33,10 +33,41 @@
         </svg>
         <script>
 
+            var before,now;
+            before=Date.now();
+            const fpshist = []
+            window.fps=60;
+            requestAnimationFrame(
+                function loop(){
+                    now=Date.now();
+
+                    fpshist.push(Math.round(1000/(now-before) / 10))
+                    fpshist.splice(0, fpshist.length - 10)
+
+                    if (fpshist.length > 10) {
+
+                        const fpsprecise=fpshist.reduce((a, b) => a + b) / array.length
+
+                        if (fpsprecise < 20) {
+                            window.fps=15;
+                        } else if (fpsprecise < 50) {
+                            window.fps=30;
+                        } else {
+                            window.fps=60;
+                        }
+
+                    }
+                    
+
+                    before=now;
+                    requestAnimationFrame(loop);
+                }
+            );
+
             const canvas = document.getElementById("canvas")
             const context = canvas.getContext('2d');
 
-             canvas.width = document.body.clientWidth - 20
+            canvas.width = document.body.clientWidth - 20
             canvas.height = document.body.clientHeight - 40
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -252,7 +283,7 @@
 
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755) * (60 / window.fps)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -279,20 +310,20 @@
 
              }, 100 / rate)
 
-            const speed = 1.0
+            const speed = () => 1.0 * (60 / window.fps)
 
             const cancel3 = setInterval(() => {
 
 
 
-                const translate = - speed * i
+                const translate = - speed() * i
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
             }, 200 / rate)
 
             const cancel4 = setInterval(() => {
-                const translate = - speed * i
+                const translate = - speed() * i
                 rects.forEach((r, ii) => {
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
