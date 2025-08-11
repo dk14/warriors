@@ -279,7 +279,7 @@
             
             const cancel2 = setInterval(() => {
 
-                i++
+                i+= (60 / window.fps)
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755) * (60 / window.fps)) / rate)
@@ -309,20 +309,20 @@
 
              }, 100 / rate)
 
-            const speed = () => 1.0 * (60 / window.fps)
+            const speed = 1.0
 
             const cancel3 = setInterval(() => {
 
 
 
-                const translate = - speed() * i
+                const translate = - speed * i
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
             }, 200 / rate)
 
             const cancel4 = setInterval(() => {
-                const translate = - speed() * i
+                const translate = - speed * i
                 rects.forEach((r, ii) => {
                                 
                     const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
