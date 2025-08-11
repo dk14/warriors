@@ -41,24 +41,25 @@
                 function loop(){
                     now=Date.now();
 
-                    fpshist.push(Math.round(1000/(now-before) / 10))
+                    fpshist.push(Math.round(1000/(now-before)))
                     fpshist.splice(0, fpshist.length - 10)
 
-                    if (fpshist.length > 10) {
+                    if (fpshist.length > 8) {
+                        const fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
 
-                        const fpsprecise=fpshist.reduce((a, b) => a + b) / array.length
-
-                        if (fpsprecise < 20) {
+                        if (fpsprecise < 5) {
+                            window.fps=3;
+                        } else if (fpsprecise < 10) {
+                            window.fps=7;
+                        } else if (fpsprecise < 20) {
                             window.fps=15;
                         } else if (fpsprecise < 50) {
                             window.fps=30;
                         } else {
                             window.fps=60;
                         }
-
                     }
                     
-
                     before=now;
                     requestAnimationFrame(loop);
                 }
