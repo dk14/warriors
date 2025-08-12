@@ -225,7 +225,8 @@
                 //circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
                 //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
                 circle.setAttributeNS(null, 'cx', x);
-                circle.setAttributeNS(null, 'cy', y);
+                circle.setAttributeNS(null, 'cy', 0);
+                circle.setAttributeNS(null, "transform", `translate(0, ${y})`)
                 circle.setAttributeNS(null, 'r', radius  * 1.7 * 755 / screenHeight);
                 circle.setAttributeNS(null, 'fill', `url(#${grad})`);
                 circle.style = `mix-blend-mode: plus-lighter; opacity: 0.5`;
@@ -300,13 +301,14 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
                 circle.setAttributeNS(null, 'cx', x);
-                circle.setAttributeNS(null, 'cy', y); 
+                circle.setAttributeNS(null, "transform", `translate(0, ${y})`)
 
                 circles.forEach((c, ii) => {
                     const cx = parseInt(c.getAttributeNS(null, 'cx'))
                     const cy = parseInt(c.getAttributeNS(null, 'cy'))
-                    c.setAttributeNS(null, 'cx', x + 23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))) 
-                    c.setAttributeNS(null, 'cy', y + 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60)));  
+                    const dx =  23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
+                    const dy = y + 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
+                    c.setAttributeNS(null, "transform", `translate(${dx}, ${dy})`)
                     
                 })
 
