@@ -230,11 +230,11 @@
                 circle.r = radius  * 1.7 * 755 / screenHeight;
             
                 circle.opacity = 0.5
-                circle.fill = 'yellow'
 
-                //circle.fill = context.createRadialGradient(x * canvas.width,  y * canvas.height, 0, x * canvas.width, y * canvas.height, r * 2 * canvas.height);
-                // gradient.addColorStop(0, `hsla(${c * 360}, 100%, 50%, 0.5)`);
-                //gradient.addColorStop(1,  `hsla(${c * 360}, 100%, 50%, 0)`);
+                circle.blend = "lighter";
+                
+                circle.fill = "gradient"
+
 
                 drawings.push(circle)
                 return circle
@@ -254,27 +254,57 @@
 
             const draw = () => {
                 context.clearRect(0, 0, screenWidth, screenHeight)
+
+                drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
+                drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
                 drawings.forEach(d => {
-                    if (d.type === 'rect') {
+                    context.globalCompositeOperation = d.blend ?? "source-over"
+                    if (d.opacity !== undefined) {
+                        if (d.stroke) {
+                            d.stroke[3] = d.opacity
+                        }
+                        if (d.fill !== "gradient") {
+                            d.fill[3] = d.opacity
+                        }
                         
-                        context.fillStyle = d.fill
-                        context.strokeStyle = d.stroke
-                        context.lineWidth = 5;
+                    }
+                   
+                    if (d.type === 'rect') {
+                        context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                        
+
+                        context.lineWidth = d.strokeWidth ?? 0;
                         context.beginPath();
                         context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
                         
                         context.fill();
-                        context.stroke();
-                    } else if (d.type === 'circle') {
+                        if (d.strokeWidth) {
+                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                            context.stroke();
+                        }
                         
-                        context.fillStyle = d.fill
-                        context.strokeStyle = d.stroke
-                        context.lineWidth = 5;
+                    } else if (d.type === 'circle') {
+                        if (d.fill === 'gradient') {
+                            const gradient = context.createRadialGradient(d.cx + (d.dcx ?? 0),  d.cy + (d.dcy ?? 0), 0, d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), circle.r );
+                            gradient.addColorStop(0, `rgba(228,228,0,1.0)`);
+                            gradient.addColorStop(0.95,  `rgba(0, 30,0,0.05)`);
+                            gradient.addColorStop(1,  `rgba(220,220,0,0`);
+                            context.fillStyle = gradient
+                        } else {
+                            context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                        }
+                        
+                        
+                        context.lineWidth = d.strokeWidth ?? 0;
                         context.beginPath();
                         context.arc(d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r, 0, 2 * Math.PI, true);
                         
                         context.fill();
-                        context.stroke();
+
+                        if (d.strokeWidth) {
+                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                            context.stroke();
+                        }
                     }
                 })
                 requestAnimationFrame(draw)
@@ -284,7 +314,7 @@
 
 
 
-            const createRect = (x, y) => {
+            const createRect = (x, y, id) => {
 
                 const bias = screenHeight * 0.1
                 const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
@@ -297,10 +327,11 @@
                 rect.y = screenHeight - h
                 rect.width = 50 * screenHeight / 755
                 rect.height = h
-                rect.fill = "black"
-                rect.stroke = "pink"
-                rect.opacity = 0.01
+                rect.fill = [0,0,0,1.0]
+                rect.stroke = [255, 192, 203, 1.0]
+                rect.opacity = 0.0
                 rect.strokeWidth = 10
+                rect.id = id + "1"
 
                 drawings.push(rect)
                 rects.push(rect)
@@ -315,9 +346,11 @@
 
                 rect2.width = 50 * screenHeight / 755
                 rect2.height =  ((screenHeight - h) - gate)
-                rect2.fill = "black"
-                rect2.stroke = "cyan"
+                rect2.fill = [0,0,0,1.0]
+                rect2.stroke = [0, 255, 255, 1.0]
                 rect2.strokeWidth = 10
+                rect2.opacity = 0.0
+                rect2.id = id + "2"
 
                 rects.push(rect2)
                 drawings.push(rect2)
@@ -358,7 +391,7 @@
                 })
 
                 if (i % 200 === 0 && rects.length < 12) {
-                    createRect(screenWidth + i, screenHeight - 200 + 30)
+                    createRect(screenWidth + i, screenHeight - 200 + 30, i)
                 }
 
              }, 100 / rate)
@@ -378,18 +411,13 @@
                                 
                     const rcx = r.x + (r.dx ?? 0)
 
-                    const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + r.dy
+                    const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + (r.dy ?? 0)
                     r.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
-                    if (rcx < - 50) {
-
-                        rects.slice(0, ii).forEach(rr => {
-                            rr.remove()
-                        })
-
-                        rects.splice(rects.findIndex(x => x === r), 1)
-                        drawings.splice(rects.findIndex(x => x === r), 1)
-                        rects.splice(0, rects.findIndex(x => x === r))
+                    
+                    if (rcx < -50) {
+                        rects.splice(rects.findIndex(x => x.id === r.id), 1)
+                        drawings.splice(drawings.findIndex(x => x.id === r.id), 1)
  
                     }
 
