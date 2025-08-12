@@ -328,7 +328,7 @@
 
                 blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
                 
-            }, 200 / rate)
+            }, 100 / rate)
 
             const cancel4 = setInterval(() => {
                 const translate = - speed * i
@@ -378,7 +378,7 @@
 
                 })
 
-            }, 1000 / rate)
+            }, 300 / rate)
          }
          start()
          document.addEventListener("touchend", () => {
