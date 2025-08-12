@@ -387,7 +387,7 @@
   
             const cancel2 = setInterval(() => {
 
-                i += Math.round(60 / fps)
+                i += 1
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - (energy * energy * 15000 * (screenHeight / 755)) / rate)
