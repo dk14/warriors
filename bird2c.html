@@ -1,0 +1,438 @@
+<html>
+    <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, minimal-ui, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="./favicon.png">
+     <title>Sunspot</title>
+    </head>
+    <body bgcolor="black">
+       <button style="border: 3px solid green; background-color: black; color: green; z-index: 100; font-size: 40px;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">GYRO</button>
+        
+       <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index:-20">
+
+       </canvas>
+       
+       <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
+      fill:yellow; position: absolute; top: 0; left: 0; z-index:-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs>
+                
+                <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stop-color="rgba(228,228,0,1.0)" />
+                <stop offset="95%" stop-color="rgba(0, 30,0,0.05)" />
+                <stop offset="100%" stop-color="rgba(220,220,0,0)"/>
+                </radialGradient>
+
+            </defs>
+            <g id="scene">
+
+            </g>
+            
+        </svg>
+        <script>
+            try {
+               navigator.wakeLock.request();
+            } catch {
+
+            }
+            
+
+            var before,now;
+            before=Date.now();
+            const fpshist = []
+            window.fps=60;
+            requestAnimationFrame(
+                function loop(){
+                    now=Date.now();
+
+                    fpshist.push(Math.round(1000/(now-before)))
+                    fpshist.splice(0, fpshist.length - 10)
+
+                    if (fpshist.length > 8) {
+                        const fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
+
+                        if (fpsprecise < 5) {
+                            window.fps=3;
+                        } else if (fpsprecise < 10) {
+                            window.fps=7;
+                        } else if (fpsprecise < 20) {
+                            window.fps=15;
+                        } else if (fpsprecise < 50) {
+                            window.fps=30;
+                        } else {
+                            window.fps=60;
+                        }
+                    }
+                    
+                    before=now;
+                    requestAnimationFrame(loop);
+                }
+            );
+
+            window.canvas = document.getElementById("canvas")
+            const context = canvas.getContext('2d');
+
+            canvas.width = document.body.clientWidth - 20
+            canvas.height = document.body.clientHeight - 40
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const drawCircle = (x, y, r, c, op) => {
+                context.beginPath();
+                
+                
+                const gradient = context.createRadialGradient(x * canvas.width,  y * canvas.height, 0, x * canvas.width, y * canvas.height, r * 2 * canvas.height);
+                gradient.addColorStop(0, `hsla(${c * 360}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c * 360}, 100%, 50%, 0)`);
+                context.globalCompositeOperation = "lighter";
+                context.fillStyle = gradient;
+                context.arc(x * canvas.width, y * canvas.height, r * 2 * canvas.height, 0, 2 * Math.PI, true);
+                context.fill();
+
+                context.globalCompositeOperation = "darken";
+                 context.fillStyle = `hsla(0, 0%, 0%, ${1 - op})`
+                context.arc(x * canvas.width, y * canvas.height, r * 2 * canvas.height, 0, 2 * Math.PI, true);
+                context.fill();
+            }
+
+            //drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
+            //drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
+
+        </script>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            onmousemove = (event) => {                
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev, true)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.06
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event, mouse = false) => {
+                setInterval(() => {
+                    document.getElementById("gyro").style.display = 'none'
+                }, 100)
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
+                }
+
+                if (mouse !== true) {
+                    energy *= 1.3
+                }
+                
+            
+            }
+
+            setInterval(() => {
+                energy = 0
+            }, 300)
+        </script>
+        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
+        <script>
+        var screenWidth = document.body.clientWidth - 20
+        var screenHeight = document.body.clientHeight - 40
+
+        const rate = 10
+
+         var play = false
+         var score = 0
+         var highscore = 0
+         highscore = localStorage.getItem('highscore') ?? 0
+         
+         const svgns = "http://www.w3.org/2000/svg"
+         const container = document.getElementById( 'cont' ).getElementById( 'scene' );
+         document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
+         document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
+
+         const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'x', 30);
+         scoreText.setAttributeNS(null, 'y', 88);
+         scoreText.textContent = "00"
+         scoreText.setAttributeNS(null, 'style', "fill: cyan; font-size: 80px; font-style: italic; opacity: 0.3;");
+     
+         container.appendChild(scoreText);
+
+         const retryText = document.createElementNS(svgns, "text");
+         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
+         retryText.setAttributeNS(null, 'y', screenHeight / 2);
+         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
+         
+         const retryRect = document.createElementNS(svgns, "rect");
+
+         retryRect.setAttributeNS(null, 'x', 0);
+         retryRect.setAttributeNS(null, 'y', 0);
+         retryRect.setAttributeNS(null, 'width', screenWidth);
+         retryRect.setAttributeNS(null, 'height', screenHeight);
+         retryRect.setAttributeNS(null, 'style', "fill: black; opacity: 0.5");
+     
+         setInterval(() => {
+            scoreText.textContent = score
+            retryText.textContent = "HIGH SCORE: " + highscore
+            retryText.setAttributeNS(null, 'x', screenWidth / 2 - retryText.getBoundingClientRect().width / 2);
+            retryText.setAttributeNS(null, 'y', screenHeight / 2);
+         }, 200)
+         
+         const start = () => {
+            play = true
+            
+            while (container.firstChild) {
+                container.removeChild(container.lastChild);
+            }
+            
+            try {
+                container.appendChild(scoreText);
+                container.removeChild(retryText);
+            } catch {}
+            
+            score = 0
+            const initx = screenWidth / 3
+            const inity = 300  * screenHeight / 755
+            const radius = 30 * screenHeight / 755
+            var x = initx
+            var y = inity
+
+            const drawings = []
+
+            const createCircle = (grad = 'grad1') => {
+
+                const circle = {
+                    type: 'circle'
+                }
+
+                circle.cx = x
+                circle.cy = y
+                circle.dcx = 0
+                circle.dcy = 0
+                circle.r = radius  * 1.7 * 755 / screenHeight;
+            
+                circle.opacity = 0.5
+                circle.fill = 'yellow'
+
+                //circle.fill = context.createRadialGradient(x * canvas.width,  y * canvas.height, 0, x * canvas.width, y * canvas.height, r * 2 * canvas.height);
+                // gradient.addColorStop(0, `hsla(${c * 360}, 100%, 50%, 0.5)`);
+                //gradient.addColorStop(1,  `hsla(${c * 360}, 100%, 50%, 0)`);
+
+                drawings.push(circle)
+                return circle
+
+            }
+
+            const circle = createCircle()
+
+            const circles = []
+
+            for (let ii = 0; ii < 10; ii++) {
+                circles.push(createCircle())
+            }
+           
+
+            const rects = []
+
+            const draw = () => {
+                context.clearRect(0, 0, screenWidth, screenHeight)
+                drawings.forEach(d => {
+                    if (d.type === 'rect') {
+                        
+                        context.fillStyle = d.fill
+                        context.strokeStyle = d.stroke
+                        context.lineWidth = 5;
+                        context.beginPath();
+                        context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
+                        
+                        context.fill();
+                        context.stroke();
+                    } else if (d.type === 'circle') {
+                        
+                        context.fillStyle = d.fill
+                        context.strokeStyle = d.stroke
+                        context.lineWidth = 5;
+                        context.beginPath();
+                        context.arc(d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r, 0, 2 * Math.PI, true);
+                        
+                        context.fill();
+                        context.stroke();
+                    }
+                })
+                requestAnimationFrame(draw)
+
+            }
+            draw()
+
+
+
+            const createRect = (x, y) => {
+
+                const bias = screenHeight * 0.1
+                const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
+                const h = (screenHeight - gate)  * Math.random()
+
+                const rect = {
+                    type: 'rect'
+                }
+                rect.x = x
+                rect.y = screenHeight - h
+                rect.width = 50 * screenHeight / 755
+                rect.height = h
+                rect.fill = "black"
+                rect.stroke = "pink"
+                rect.opacity = 0.01
+                rect.strokeWidth = 10
+
+                drawings.push(rect)
+                rects.push(rect)
+
+                
+                const rect2 = {
+                    type: 'rect'
+                }
+
+                rect2.x = x
+                rect2.y = 0
+
+                rect2.width = 50 * screenHeight / 755
+                rect2.height =  ((screenHeight - h) - gate)
+                rect2.fill = "black"
+                rect2.stroke = "cyan"
+                rect2.strokeWidth = 10
+
+                rects.push(rect2)
+                drawings.push(rect2)
+
+                container.removeChild(scoreText);
+                container.appendChild(scoreText);
+            }
+
+            var i = 0
+  
+            const cancel2 = setInterval(() => {
+
+                i+= (60 / window.fps)
+                
+                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (60 / window.fps)) / rate)
+                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity * (60 / window.fps))))
+                if (y1 < 30) {
+                    y1 = screenHeight
+                }
+                if (y1 < y) {
+                    y = y1 
+                } else {
+                    y = y1 + gravity * (0.3 * 1000 / shift)
+                }
+                circle.cx = x;
+                circle.cy = y;
+
+                circles.forEach((c, ii) => {
+                    const cx = c.cx
+                    const cy = c.cy
+                    const dx = 23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
+                    const dy = 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
+                    c.dcx = dx
+                    c.dcy = dy
+                    c.cy = y
+
+                })
+
+                if (i % 200 === 0 && rects.length < 12) {
+                    createRect(screenWidth + i, screenHeight - 200 + 30)
+                }
+
+             }, 100 / rate)
+
+            const speed = 1.0
+
+            const cancel3 = setInterval(() => {
+                const translate = - speed * i
+                rects.forEach(b => {
+                    b.dx = translate
+                })   
+            }, 100 / rate)
+
+            const cancel4 = setInterval(() => {
+                const translate = - speed * i
+                rects.forEach((r, ii) => {
+                                
+                    const rcx = r.x + (r.dx ?? 0)
+
+                    const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + r.dy
+                    r.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
+
+                    if (rcx < - 50) {
+
+                        rects.slice(0, ii).forEach(rr => {
+                            rr.remove()
+                        })
+
+                        rects.splice(rects.findIndex(x => x === r), 1)
+                        drawings.splice(rects.findIndex(x => x === r), 1)
+                        rects.splice(0, rects.findIndex(x => x === r))
+ 
+                    }
+
+                    const rectEdge = rcx
+                    
+                    if (x > rectEdge + 30 && r["counted"] !== true) {
+                        r["counted"] = true
+                        score += 5
+                    }
+
+                    const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
+                    if (lost) {
+                        clearInterval(cancel2)
+                        clearInterval(cancel3)
+                        clearInterval(cancel4)
+                        rects.length = 0
+                        play = false
+                        if (score > highscore) {
+                            highscore = score
+                            localStorage.setItem('highscore', highscore)
+                        }
+                        
+                        container.appendChild(retryRect);
+                        container.appendChild(retryText);
+                    }
+
+                })
+
+            }, 300 / rate)
+         }
+         start()
+         document.addEventListener("touchend", () => {
+            if (!play) {
+               start()
+            }
+         });
+         window.onclick = () => {
+            if (!play) {
+               start()
+            }
+         }
+
+
+        </script>
+    </body>
+</html>
