@@ -72,7 +72,7 @@
                 }
             );
 
-            const canvas = document.getElementById("canvas")
+            window.canvas = document.getElementById("canvas")
             const context = canvas.getContext('2d');
 
             canvas.width = document.body.clientWidth - 20
@@ -98,8 +98,8 @@
                 context.fill();
             }
 
-            drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
-            drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
+            //drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
+            //drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
 
         </script>
         <script>
@@ -208,29 +208,35 @@
                 container.removeChild(retryText);
             } catch {}
             
-
             score = 0
-            
-            
             const initx = screenWidth / 3
             const inity = 300  * screenHeight / 755
             const radius = 30 * screenHeight / 755
             var x = initx
             var y = inity
-            
+
+            const drawings = []
 
             const createCircle = (grad = 'grad1') => {
 
-                 const circle = document.createElementNS(svgns, 'circle');
-                //circle.setAttributeNS(null, 'filter', ' url(#glass-distortion)')
-                //circle.setAttributeNS(null, 'backdrop-filter', 'blur(3px)')
-                circle.setAttributeNS(null, 'cx', x);
-                circle.setAttributeNS(null, 'cy', 0);
-                circle.setAttributeNS(null, "transform", `translate(0, ${y})`)
-                circle.setAttributeNS(null, 'r', radius  * 1.7 * 755 / screenHeight);
-                circle.setAttributeNS(null, 'fill', `url(#${grad})`);
-                circle.style = `mix-blend-mode: plus-lighter; opacity: 0.5`;
-                container.appendChild(circle);
+                const circle = {
+                    type: 'circle'
+                }
+
+                circle.cx = x
+                circle.cy = y
+                circle.dcx = 0
+                circle.dcy = 0
+                circle.r = radius  * 1.7 * 755 / screenHeight;
+            
+                circle.opacity = 0.5
+
+                circle.blend = "lighter";
+                
+                circle.fill = "gradient"
+
+
+                drawings.push(circle)
                 return circle
 
             }
@@ -246,45 +252,115 @@
 
             const rects = []
 
-            const createRect = (x, y, g) => {
-                const rect = document.createElementNS(svgns, 'rect');
+            const draw = () => {
+                context.clearRect(0, 0, screenWidth, screenHeight)
+
+                drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
+                drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
+                drawings.forEach(d => {
+                    context.globalCompositeOperation = d.blend ?? "source-over"
+                    if (d.opacity !== undefined) {
+                        if (d.stroke) {
+                            d.stroke[3] = d.opacity
+                        }
+                        if (d.fill !== "gradient") {
+                            d.fill[3] = d.opacity
+                        }
+                        
+                    }
+                   
+                    if (d.type === 'rect') {
+                        context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                        
+
+                        context.lineWidth = d.strokeWidth ?? 0;
+                        context.beginPath();
+                        context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
+                        
+                        context.fill();
+                        if (d.strokeWidth) {
+                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                            context.stroke();
+                        }
+                        
+                    } else if (d.type === 'circle') {
+                        if (d.fill === 'gradient') {
+                            const gradient = context.createRadialGradient(d.cx + (d.dcx ?? 0),  d.cy + (d.dcy ?? 0), 0, d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), circle.r );
+                            gradient.addColorStop(0, `rgba(228,228,0,1.0)`);
+                            gradient.addColorStop(0.95,  `rgba(0, 30,0,0.05)`);
+                            gradient.addColorStop(1,  `rgba(220,220,0,0`);
+                            context.fillStyle = gradient
+                        } else {
+                            context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                        }
+                        
+                        
+                        context.lineWidth = d.strokeWidth ?? 0;
+                        context.beginPath();
+                        context.arc(d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r, 0, 2 * Math.PI, true);
+                        
+                        context.fill();
+
+                        if (d.strokeWidth) {
+                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                            context.stroke();
+                        }
+                    }
+                })
+                requestAnimationFrame(draw)
+
+            }
+            draw()
+
+
+
+            const createRect = (x, y, id) => {
+
                 const bias = screenHeight * 0.1
                 const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
                 const h = (screenHeight - gate)  * Math.random()
 
-                rect.setAttributeNS(null, 'x', x);
-                rect.setAttributeNS(null, 'y', (screenHeight - h));
-                rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
-                rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: black; opacity: 0.01; stroke: pink; stroke-width: 10px; ' );
-                //rect.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
-                //rect.setAttributeNS(null, 'filter', ' url(#neon)')
-                g.appendChild(rect);
+                const rect = {
+                    type: 'rect'
+                }
+                rect.x = x
+                rect.y = screenHeight - h
+                rect.width = 50 * screenHeight / 755
+                rect.height = h
+                rect.fill = [0,0,0,1.0]
+                rect.stroke = [255, 192, 203, 1.0]
+                rect.opacity = 0.0
+                rect.strokeWidth = 10
+                rect.id = id + "1"
+
+                drawings.push(rect)
                 rects.push(rect)
 
                 
-                const rect2 = document.createElementNS(svgns, 'rect');
-                rect2.setAttributeNS(null, 'x', x);
-                rect2.setAttributeNS(null, 'y', 0);
-                rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
-                rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: black; opacity: 0.01; stroke: cyan; stroke-width: 10px;' );
-                //rect2.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
-                //rect2.setAttributeNS(null, 'filter', ' url(#neon)')
+                const rect2 = {
+                    type: 'rect'
+                }
 
-                g.appendChild(rect2);
+                rect2.x = x
+                rect2.y = 0
+
+                rect2.width = 50 * screenHeight / 755
+                rect2.height =  ((screenHeight - h) - gate)
+                rect2.fill = [0,0,0,1.0]
+                rect2.stroke = [0, 255, 255, 1.0]
+                rect2.strokeWidth = 10
+                rect2.opacity = 0.0
+                rect2.id = id + "2"
+
                 rects.push(rect2)
+                drawings.push(rect2)
 
                 container.removeChild(scoreText);
                 container.appendChild(scoreText);
             }
 
             var i = 0
-
-            const blocks = document.createElementNS(svgns, 'g');
-            container.appendChild(blocks);
-            //blocks.setAttributeNS(null, 'filter', ' url(#turbulence-displacement2)')
-            
+  
             const cancel2 = setInterval(() => {
 
                 i+= (60 / window.fps)
@@ -300,20 +376,22 @@
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
-                circle.setAttributeNS(null, 'cx', x);
-                circle.setAttributeNS(null, "transform", `translate(0, ${y})`)
+                circle.cx = x;
+                circle.cy = y;
 
                 circles.forEach((c, ii) => {
-                    const cx = parseInt(c.getAttributeNS(null, 'cx'))
-                    const cy = parseInt(c.getAttributeNS(null, 'cy'))
-                    const dx =  23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
-                    const dy = y + 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
-                    c.setAttributeNS(null, "transform", `translate(${dx}, ${dy})`)
-                    
+                    const cx = c.cx
+                    const cy = c.cy
+                    const dx = 23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
+                    const dy = 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
+                    c.dcx = dx
+                    c.dcy = dy
+                    c.cy = y
+
                 })
 
                 if (i % 200 === 0 && rects.length < 12) {
-                    createRect(screenWidth + i, screenHeight - 200 + 30, blocks)
+                    createRect(screenWidth + i, screenHeight - 200 + 30, i)
                 }
 
              }, 100 / rate)
@@ -321,36 +399,26 @@
             const speed = 1.0
 
             const cancel3 = setInterval(() => {
-
-
-
                 const translate = - speed * i
-
-                blocks.setAttributeNS(null, "transform", `translate(${translate}, 0)`)
-                
+                rects.forEach(b => {
+                    b.dx = translate
+                })   
             }, 100 / rate)
 
             const cancel4 = setInterval(() => {
                 const translate = - speed * i
                 rects.forEach((r, ii) => {
                                 
-                    const rcx =  parseInt(r.getAttributeNS(null, 'x')) + translate
+                    const rcx = r.x + (r.dx ?? 0)
 
-                    const edge = parseInt(r.getAttributeNS(null, 'y')) < 30 ? parseInt(r.getAttributeNS(null, 'height')) : parseInt(r.getAttributeNS(null, 'y'))
-                    r.style.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
+                    const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + (r.dy ?? 0)
+                    r.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
-                    if (rcx < - 50) {
-                        blocks.removeChild(r)
-
-                        rects.slice(0, ii).forEach(rr => {
-                            rr.remove()
-                        })
-
-                        rects.splice(rects.findIndex(x => x === r), 1)
-                        rects.splice(0, rects.findIndex(x => x === r))
-                        
-                        r.remove()
-                        
+                    
+                    if (rcx < -50) {
+                        rects.splice(rects.findIndex(x => x.id === r.id), 1)
+                        drawings.splice(drawings.findIndex(x => x.id === r.id), 1)
+ 
                     }
 
                     const rectEdge = rcx
@@ -360,7 +428,7 @@
                         score += 5
                     }
 
-                    const lost = Intersects.circleBox(x, y, radius, rcx, parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
+                    const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
                     if (lost) {
                         clearInterval(cancel2)
                         clearInterval(cancel3)
