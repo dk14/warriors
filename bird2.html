@@ -290,7 +290,7 @@
                 i+= (60 / window.fps)
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755) * (60 / window.fps) * (60 / window.fps)) / rate)
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (60 / window.fps)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity * (60 / window.fps))))
                 if (y1 < 30) {
                     y1 = screenHeight
