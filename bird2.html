@@ -42,7 +42,7 @@
                     fpshist.push(Math.round(1000/(now-before)))
                     fpshist.splice(0, fpshist.length - 10)
 
-                    if (fpshist.length > 8) {
+                    if (fpshist.length > 3) {
                         const fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
 
                         if (fpsprecise < 5) {
@@ -385,11 +385,11 @@
   
             const cancel2 = setInterval(() => {
 
-                i+= (60 / window.fps)
+                i+= (60 / fps)
                 
                 const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (60 / window.fps)) / rate)
-                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity * (60 / window.fps))))
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755)) / rate)
+                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
                 }
