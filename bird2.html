@@ -451,8 +451,8 @@
                 window.i += delta
                 time = performance.now()
 
-                const gravity = ((20 * delta + 12 * y / screenHeight) * screenHeight / 755) / 10
-                const shift = (y - (delta * energy * energy * 15000) / 10)
+                const gravity = ((10 * delta + 7 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - (delta * energy * energy * 10000) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
