@@ -24,6 +24,7 @@
             
         </svg>
         <script>
+
             try {
                navigator.wakeLock.request();
             } catch {
@@ -72,6 +73,46 @@
             canvas.height = document.body.clientHeight - 40
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
+
+            const canvasStream = canvas.captureStream()
+      
+      
+      
+            const videoElem = document.createElement("video");
+            videoElem.srcObject = canvasStream
+            
+            videoElem.autoplay = true
+            videoElem.controls = true
+            videoElem.style.display = "none"
+
+
+
+            const fullscreen = document.createElement("button");
+      
+            fullscreen.style = "border: none;opacity: 0.2; position: absolute; left: 10px; bottom: 10px; background-color: black; color: green; z-index: 200; font-size: 40px;"
+            
+            fullscreen.innerText = ">"
+            fullscreen.onclick = () => {
+                if (videoElem.style.display === 'none') {
+                    videoElem.style.display = "block"
+                    videoElem.play()
+                    if (videoElem.requestFullscreen) {
+                        videoElem.requestFullscreen();
+                    } else if (videoElem.webkitRequestFullscreen)  {
+                        videoElem.webkitRequestFullscreen();
+                    } else if (videoElem.msRequestFullScreen) {
+                        videoElem.msRequestFullScreen();
+                    }
+                } else {
+                    videoElem.style.display = "none"
+                }
+                
+               
+            }
+
+            document.body.appendChild(videoElem)
+            document.body.appendChild(fullscreen)
+
 
             const drawCircle = (x, y, r, c, op) => {
                 context.beginPath();
@@ -190,6 +231,7 @@
          }, 200)
          
          const start = () => {
+            fullscreen.style.display = 'none'
             play = true
             
             while (container.firstChild) {
@@ -477,6 +519,7 @@
                         
                         container.appendChild(retryRect);
                         container.appendChild(retryText);
+                        fullscreen.style.display = 'block'
                     }
 
                 })
