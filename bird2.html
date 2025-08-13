@@ -214,6 +214,7 @@
         </script>
         <script src="https://sfxr.me/riffwave.js"></script>
         <script src="https://sfxr.me/sfxr.js"></script>
+        <script src="http://unpkg.com/tone"></script>
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
         var screenWidth = document.body.clientWidth - 20
@@ -438,48 +439,35 @@
             const speed = 1.0
             var time = performance.now()
 
+            const synth = new Tone.FMSynth({
+				harmonicity: 2.5,
+				oscillator: {
+					type: "fatsawtooth",
+				},
+				envelope: {
+					attack: 0.1,
+					decay: 0.2,
+					sustain: 0.2,
+					release: 0.3,
+				},
+				modulation: {
+					type: "sine",
+				},
+				modulationEnvelope: {
+					attack: 0.1,
+					decay: 0.01,
+				},
+			}).toDestination();
+
+            //synth.triggerAttack("C4", "8n");
+            const now = Tone.now();
+        
+
             const audioloop = setInterval(() => {
                 if (energy > 0.05) {
-                 const energyFx = {
-  "oldParams": true,
-  "wave_type": 2,
-  "p_env_attack": -0.3298714024496457,
-  "p_env_sustain": 0.2,
-  "p_env_punch": 0.0,
-  "p_env_decay": 0.2,
-  "p_base_freq": -0.08982722812869581,
-  "p_freq_limit": 0,
-  "p_freq_ramp": 0.0000032748356018026195,
-  "p_freq_dramp": -0.000002919549620800777,
-  "p_vib_strength": 0.9753747140984704,
-  "p_vib_speed": -1.534750915792924,
-  "p_arp_mod": -0.18565827637697785,
-  "p_arp_speed": 0.61793513925731736,
-  "p_duty": -0.5,
-  "p_duty_ramp": -0.1602264979946932,
-  "p_repeat_speed": -0.769251580475788,
-  "p_pha_offset": -0.3082003471000922,
-  "p_pha_ramp": -0.011727757326593587,
-  "p_lpf_freq": 0.5000303684412374,
-  "p_lpf_ramp": -0.7906053230860064,
-  "p_lpf_resonance": 1.0129702169444383,
-  "p_hpf_freq": 7.620632389541082e-7,
-  "p_hpf_ramp": 0.51637323002609294,
-  "sound_vol": 0.25,
-  "sample_rate": 44100,
-  "sample_size": 16
-}
-
-                energyFx["p_base_freq"] = 0.05 + 0.05 * (screenHeight - y % (screenWidth / 2)) / screenHeight
-                energyFx["sound_vol"] = (0.25 * energy ?? 0)
-
-
-
-                
-                    const sound = sfxr.toAudio(energyFx);
-                    sound.play();
+                 
                 }
-            }, 600)
+            }, 100)
 
             const loop = setInterval(() => {
 
