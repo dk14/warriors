@@ -533,7 +533,7 @@
                         container.appendChild(retryText);
                         fullscreen.style.display = 'block'
                         setTimeout(() => {
-                            if (!play) {
+                            if (!play && videoElem.style.display === 'block') {
                                 start()
                             }
                         }, 3000)
