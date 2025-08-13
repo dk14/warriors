@@ -125,7 +125,7 @@
                 
                 const gradient = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width , canvas.width / 2, canvas.height / 2, 0);
                 gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
-                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.15)`);
+                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.17)`);
 
                 context.fillStyle = gradient
                 context.arc(canvas.width / 2, canvas.height / 2, canvas.width * 2, 0, 2 * Math.PI, true);
@@ -443,7 +443,7 @@
                 time = performance.now()
 
                 const gravity = delta * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
-                const shift = (y - delta * (energy * energy * 15000) / 10)
+                const shift = (y - (energy * energy * 15000) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
