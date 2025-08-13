@@ -439,30 +439,6 @@
             const speed = 1.0
             var time = performance.now()
 
-            const synth = new Tone.FMSynth({
-				harmonicity: 2.5,
-				oscillator: {
-					type: "fatsawtooth",
-				},
-				envelope: {
-					attack: 0.1,
-					decay: 0.2,
-					sustain: 0.2,
-					release: 0.3,
-				},
-				modulation: {
-					type: "sine",
-				},
-				modulationEnvelope: {
-					attack: 0.1,
-					decay: 0.01,
-				},
-			}).toDestination();
-
-            //synth.triggerAttack("C4", "8n");
-            const now = Tone.now();
-        
-
             const audioloop = setInterval(() => {
                 if (energy > 0.05) {
                  
