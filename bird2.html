@@ -305,7 +305,7 @@
 
             const circle = createCircle()
 
-            const flash = createFlash()
+            //const flash = createFlash()
 
             const circles = []
 
@@ -454,8 +454,8 @@
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
-                circle.cx = flash.cx = x;
-                circle.cy = flash.cy = y;
+                circle.cx = x;
+                circle.cy = y;
 
                 circles.forEach((c, ii) => {
                     const cx = c.cx
