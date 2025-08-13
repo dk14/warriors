@@ -324,8 +324,9 @@
 
             const draw = () => {
                 context.clearRect(0, 0, screenWidth, screenHeight)
-                context.fillStyle = `black`
+                
                 if (videoElem.style.display === 'block') {
+                    context.fillStyle = `black`
                     context.beginPath();
                     context.rect(0, 0, screenWidth, screenHeight);
                     context.fill()
