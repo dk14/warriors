@@ -118,6 +118,29 @@
             document.body.appendChild(fullscreen)
 
 
+
+            const drawVingette = () => {
+                context.beginPath();
+                
+                
+                const gradient = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width , canvas.width / 2, canvas.height / 2, 0);
+                gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
+                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.15)`);
+
+                context.fillStyle = gradient
+                context.arc(canvas.width / 2, canvas.height / 2, canvas.width * 2, 0, 2 * Math.PI, true);
+                context.fill();
+
+                context.globalCompositeOperation = "lighter";
+                const gradient2 = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width * 2 , canvas.width / 2, canvas.height / 2, 0);
+                gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
+                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.1)`);
+                context.fillStyle = gradient2
+                context.arc(canvas.width / 2, canvas.height / 2, 0, 0, 2 * Math.PI, true);
+                context.fill();
+            }
+
+
             const drawCircle = (x, y, r, c, op) => {
                 context.beginPath();
                 
@@ -194,7 +217,6 @@
         var screenWidth = document.body.clientWidth - 20
         var screenHeight = document.body.clientHeight - 40
 
-        const rate = 10
 
          var play = false
          var score = 0
@@ -279,46 +301,13 @@
 
             }
 
-            const createFlash = () => {
-
-                const circle = {
-                    type: 'circle'
-                }
-
-                circle.cx = x
-                circle.cy = y
-                circle.dcx = 0
-                circle.dcy = 0
-                circle.r = 300 * 755 / screenHeight;
-            
-                circle.opacity = 0.12
-
-                circle.blend = "lighter";
-                
-                circle.fill = "gradient"
-
-
-                drawings.push(circle)
-                return circle
-
-            }
-
             const circle = createCircle()
-
-            //const flash = createFlash()
 
             const circles = []
 
             for (let ii = 0; ii < 10; ii++) {
                 circles.push(createCircle())
             }
-
-            const flashes = []
-
-            for (let ii = 0; ii < 10; ii++) {
-                //flashes.push(createFlash())
-            }
-           
 
             const rects = []
 
@@ -332,9 +321,14 @@
                     context.fill()
                 }
 
-
-                drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
-                drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
+                drawVingette()
+                if (score % 150 > 60) {
+                   //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
+                    //drawCircle(0.5, 0.5 * ((100 * y / screenHeight) % 30) / 100, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 30) / 100., 0.8)
+                } else {
+                    
+                }
+                
                 drawings.forEach(d => {
                     context.globalCompositeOperation = d.blend ?? "source-over"
                     if (d.opacity !== undefined) {
@@ -437,14 +431,19 @@
                 container.appendChild(scoreText);
             }
 
-            var i = 0
-  
-            const cancel2 = setInterval(() => {
 
-                i += (fps === 60 ? 1 : 2)
-                
-                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * (fps === 60 ? 1 : 2) * (screenHeight / 755)) / rate)
+            window.i = 0
+            const speed = 1.0
+            var time = performance.now()
+
+            const loop = setInterval(() => {
+
+                const delta = Math.round((performance.now().toFixed() - time) / 10)
+                window.i += delta
+                time = performance.now()
+
+                const gravity = delta * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - delta * (energy * energy * 15000) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -468,35 +467,15 @@
 
                 })
 
-                flashes.forEach((c, ii) => {
-                    const cx = c.cx
-                    const cy = c.cy
-                    const dx = 23 * (screenHeight / 755)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
-                    const dy = 24 * (screenHeight / 755)  * (Math.cos(ii % 5 + i / 20) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
-                    c.dcx = dx
-                    c.dcy = dy
-                    c.cy = y
-
-                })
-
-                if (i % 200 === 0 && rects.length < 12) {
+                if (i % 200 === (delta - 1) && rects.length < 12) {
                     createRect(screenWidth + i, screenHeight - 200 + 30, i)
                 }
 
-             }, 100 / rate)
+ 
 
-            const speed = 1.0
-
-            const cancel3 = setInterval(() => {
-                const translate = - speed * i
-                rects.forEach(b => {
-                    b.dx = translate
-                })   
-            }, 100 / rate)
-
-            const cancel4 = setInterval(() => {
-                const translate = - speed * i
                 rects.forEach((r, ii) => {
+
+                    r.dx = - speed * i
                                 
                     const rcx = r.x + (r.dx ?? 0)
 
@@ -518,10 +497,8 @@
                     }
 
                     const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
-                    if (lost) {
-                        clearInterval(cancel2)
-                        clearInterval(cancel3)
-                        clearInterval(cancel4)
+                    if (lost && false) {
+                        clearInterval(loop)
                         rects.length = 0
                         play = false
                         if (score > highscore) {
@@ -541,7 +518,7 @@
 
                 })
 
-            }, 300 / rate)
+            }, 10)
          }
          start()
          document.addEventListener("touchend", () => {
