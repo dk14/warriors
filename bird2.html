@@ -459,8 +459,8 @@
                 circles.forEach((c, ii) => {
                     const cx = c.cx
                     const cy = c.cy
-                    const dx = 20 * (5 * energy + 0.5 * y / screenHeight) * (screenHeight / 755) * (screenWidth / 300)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy + energy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
-                    const dy = 18  * (5 * energy + 0.8 * y / screenHeight) *(screenHeight / 755)  * (Math.cos(ii % 5 + i / 20 + energy + y/screenHeight) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
+                    const dx = 20 * (5 * energy + 1.0 * y / screenHeight) * (screenHeight / 755) * (screenWidth / 300)  * (Math.sin(ii % 7 + i / 50 + 0.01 * cy + energy) + Math.sin(90 - 0.01 * cy + (y % 20) / 60))
+                    const dy = 18  * (5 * energy + 1.3 * y / screenHeight) *(screenHeight / 755)  * (Math.cos(ii % 5 + i / 20 + energy) + Math.sin(30 + 0.00001 * cx * cy + (y % 20) / 60) + Math.sin(0.1 * (y * y % 20) / 60));  
                     c.dcx = dx
                     c.dcy = dy
                     c.cy = y
