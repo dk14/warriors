@@ -241,7 +241,7 @@
          const retryText = document.createElementNS(svgns, "text");
          retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
          retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: lightgreen;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
+         retryText.setAttributeNS(null, 'style', "fill: #FFC1CC;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
          
          const retryRect = document.createElementNS(svgns, "rect");
 
@@ -440,7 +440,7 @@
 
             const audioloop = setInterval(() => {
                 if (energy > 0.05) {
-                const energyFx = {
+                 const energyFx = {
   "oldParams": true,
   "wave_type": 2,
   "p_env_attack": -0.3298714024496457,
@@ -451,8 +451,8 @@
   "p_freq_limit": 0,
   "p_freq_ramp": 0.0000032748356018026195,
   "p_freq_dramp": -0.000002919549620800777,
-  "p_vib_strength": 0.4753747140984704,
-  "p_vib_speed": -0.6534750915792924,
+  "p_vib_strength": 0.9753747140984704,
+  "p_vib_speed": -1.534750915792924,
   "p_arp_mod": -0.18565827637697785,
   "p_arp_speed": 0.61793513925731736,
   "p_duty": -0.5,
@@ -460,7 +460,7 @@
   "p_repeat_speed": -0.769251580475788,
   "p_pha_offset": -0.3082003471000922,
   "p_pha_ramp": -0.011727757326593587,
-  "p_lpf_freq": 0.1000303684412374,
+  "p_lpf_freq": 0.5000303684412374,
   "p_lpf_ramp": -0.7906053230860064,
   "p_lpf_resonance": 1.0129702169444383,
   "p_hpf_freq": 7.620632389541082e-7,
@@ -471,7 +471,7 @@
 }
 
                 energyFx["p_base_freq"] = 0.05 + 0.05 * (screenHeight - y % (screenWidth / 2)) / screenHeight
-                energyFx["sound_vol"] = (5 * energy ?? 0)
+                energyFx["sound_vol"] = (0.25 * energy ?? 0)
 
 
 
