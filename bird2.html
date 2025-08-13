@@ -324,6 +324,10 @@
 
             const draw = () => {
                 context.clearRect(0, 0, screenWidth, screenHeight)
+                context.fillStyle = `black`
+                context.beginPath();
+                context.rect(0, 0, screenWidth, screenHeight);
+                context.fill()
 
                 drawCircle(0.5, 0.5, 0.2, 0.5, 1.0)
                 drawCircle(0.5, 0.5, 0.2, 0.5, 0.05)
