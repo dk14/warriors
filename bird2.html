@@ -442,11 +442,11 @@
                 if (energy > 0.05) {
                 const energyFx = {
   "oldParams": true,
-  "wave_type": 1,
-  "p_env_attack": -0.2298714024496457,
-  "p_env_sustain": 0.1,
+  "wave_type": 2,
+  "p_env_attack": -0.3298714024496457,
+  "p_env_sustain": 0.2,
   "p_env_punch": 0.0,
-  "p_env_decay": 0.1,
+  "p_env_decay": 0.2,
   "p_base_freq": -0.08982722812869581,
   "p_freq_limit": 0,
   "p_freq_ramp": 0.0000032748356018026195,
@@ -454,13 +454,13 @@
   "p_vib_strength": 0.4753747140984704,
   "p_vib_speed": -0.6534750915792924,
   "p_arp_mod": -0.18565827637697785,
-  "p_arp_speed": 0.061793513925731736,
+  "p_arp_speed": 0.61793513925731736,
   "p_duty": -0.5,
   "p_duty_ramp": -0.1602264979946932,
   "p_repeat_speed": -0.769251580475788,
   "p_pha_offset": -0.3082003471000922,
   "p_pha_ramp": -0.011727757326593587,
-  "p_lpf_freq": 0.7643303684412374,
+  "p_lpf_freq": 0.1643303684412374,
   "p_lpf_ramp": -0.0005906053230860064,
   "p_lpf_resonance": 1.0129702169444383,
   "p_hpf_freq": 7.620632389541082e-7,
@@ -470,8 +470,9 @@
   "sample_size": 16
 }
 
-                energyFx["p_base_freq"] = 0.1 + 0.3 * (screenHeight - y % (screenWidth / 2)) / screenHeight
+                energyFx["p_base_freq"] = 0.05 + 0.05 * (screenHeight - y % (screenWidth / 2)) / screenHeight
                 energyFx["sound_vol"] = (5 * energy ?? 0)
+
 
 
                 
