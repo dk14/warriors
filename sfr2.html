@@ -271,7 +271,7 @@
                 
 
                 if (alphabet[maxcursor] !== '_') {
-                    if (maxcursor - cursor > acceptanceThreshold) {
+                    if (maxcursor - cursor > acceptanceThreshold || (cursor === 0 && maxcursor !== 0)) {
                         executeCommand(state,  alphabet[maxcursor])
                         console.push(alphabet[maxcursor])
                         y = screenHeight
