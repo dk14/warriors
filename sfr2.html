@@ -139,7 +139,7 @@
                 line_thickness: 0, 
                 line_color: 0,
                 center: [screenWidth / 2, screenHeight / 2],
-                debug: ""
+                debug: {}
             }
 
             const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color"]
@@ -259,21 +259,29 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
-                const cursor = alphabet.length * (screenHeight - y) / screenHeight
+                const cursor = Math.round(alphabet.length * (screenHeight - y) / screenHeight)
 
                 if (cursor > maxcursor) {
                     maxcursor = Math.min(cursor, alphabet.length - 1)
                 }
 
-                //state.debug = alphabet[maxcursor]
+                state.debug.y = y
+                state.debug.cursor = cursor
+                state.debug.maxcursor = maxcursor
+                
 
                 if (alphabet[maxcursor] !== '_') {
                     if (maxcursor - cursor > acceptanceThreshold) {
                         executeCommand(state,  alphabet[maxcursor])
                         console.push(alphabet[maxcursor])
+                        y = screenHeight
                     } else {
                         previewCommand(state,  alphabet[maxcursor])
                     }
+                }
+
+                if (cursor === 0) {
+                    maxcursor = 0
                 }
                 
 
