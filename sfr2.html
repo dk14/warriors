@@ -112,12 +112,13 @@
             const previewContext = previewCanvas.getContext('2d');
 
             window.i = 0
+            window.y = 0
             const speed = 1.0
             var time = performance.now()
 
             const alphabet = ["_"].concat([]).concat(["_"])
             const console = []
-            var macursor = 0
+            var maxcursor = 0
 
             const acceptanceThreshold = 3
 
@@ -187,7 +188,7 @@
             }
 
             const executeCommand = (state, input) => {
-                updateState()
+                updateState(state, input)
                 //check if state has enough info to render a circle or a line
                 // render either a circle or a line on main canvas
                 if (state.command === 1) {
@@ -205,8 +206,8 @@
                 window.i += delta
                 time = performance.now()
 
-                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
@@ -224,7 +225,7 @@
                 }
                 if (maxcursor - cursor > acceptanceThreshold) {
                     executeCommand(state,  alphabet[maxcursor])
-                    console += alphabet[maxcursor]
+                    console.push(alphabet[maxcursor])
                 } else {
                     previewCommand(state,  alphabet[maxcursor])
                 }
