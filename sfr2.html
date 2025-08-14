@@ -4,7 +4,8 @@
     </head>
     <body bgcolor="black">
        <button style="border: 3px solid green; background-color: black; color: green; z-index: 100; font-size: 40px;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">GYRO</button>
-        
+      
+       <div id="debug"></div>
        <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index:-20">
        <canvas id="preview" style="position: absolute; top: 0; left: 0; z-index:-20">
 
@@ -102,6 +103,12 @@
         </script>
         <script>
 
+            window.$ = (el) => {
+                return document.getElementById(el)
+            }
+
+            
+
             const screenWidth = document.body.clientWidth - 20
             const screenHeight = document.body.clientHeight - 40
 
@@ -116,7 +123,8 @@
             const speed = 1.0
             var time = performance.now()
 
-            const alphabet = ["_"].concat([]).concat(["_"])
+            const numerals = [0,10,20,30,40,50,60,70]
+            const alphabet = ["_"].concat(numerals).concat(["_"])
             const console = []
             var maxcursor = 0
 
@@ -130,18 +138,49 @@
                 line_length: 0, 
                 line_thickness: 0, 
                 line_color: 0,
-                center: [screenWidth / 2, screenHeight / 2]
+                center: [screenWidth / 2, screenHeight / 2],
+                debug: ""
             }
 
             const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color"]
 
+            const getPolarGradient = (c, cx, cy, r, where) => {
+                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
+                gradient.addColorStop(0, `hsla(${c}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c}, 100%, 50%, 0)`);
+            }
 
             const drawCircle = (cx, cy, r, c, where) => {
+                context.beginPath();
+
+                //$('debug').innerHTML += "<font color='green'>" + r + "</font>"
+                
+                const radiusThreshold = 30
+                if (r > radiusThreshold) {
+                    
+                    where.globalCompositeOperation = "lighter";
+                    where.fillStyle = getPolarGradient(c, cx, cy, r - radiusThreshold, where);
+                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fill();
+
+                } else {
+                    where.globalCompositeOperation = "lighten";
+                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fill();
+
+                    where.globalCompositeOperation = "difference"
+                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fill();
+                }
+                
+
 
             }
 
             const drawLine = (cx, cy, x1, y1, thickness, c, where) => {
-
+                    
             }
 
             const updateState = (state, input) => {
@@ -164,23 +203,23 @@
             const previewCommand = (state, input) => {
                 actions = [
                     () => {
-                        drawCircle(state.center[0], state.center[1], input, previewCircleColor, previewCanvas)
+                        drawCircle(state.center[0], state.center[1], input, previewCircleColor, previewContext)
                     },
                     () => {
-                        drawCircle(state.center[0], state.center[1], state.radius, input, previewCanvas)
+                        drawCircle(state.center[0], state.center[1], state.circle_radius, input, previewContext)
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], previewLineLength * Math.sin(input), previewLineLength * Math.cos(input), previewLineThickness, previewLineColor, previewCanvas)
+                        drawLine(state.center[0], state.center[1], previewLineLength * Math.sin(input), previewLineLength * Math.cos(input), previewLineThickness, previewLineColor, previewContext)
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], input * Math.sin(state.line_angle), input * Math.cos(state.line_angle), previewLineThickness, previewLineColor, previewCanvas) 
+                        drawLine(state.center[0], state.center[1], input * Math.sin(state.line_angle), input * Math.cos(state.line_angle), previewLineThickness, previewLineColor, previewContext) 
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), input, previewLineColor, previewCanvas)
+                        drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), input, previewLineColor, previewContext)
 
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), state.line_thickness, input, previewCanvas)
+                        drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), state.line_thickness, input, previewContext)
                     },
                 ]
                 actions[state.command]()
@@ -188,19 +227,21 @@
             }
 
             const executeCommand = (state, input) => {
+                
                 updateState(state, input)
                 //check if state has enough info to render a circle or a line
                 // render either a circle or a line on main canvas
                 if (state.command === 1) {
-                    drawCircle(state.center[0], state.center[1], state.radius, input, canvas)
+                    drawCircle(state.center[0], state.center[1], state.circle_radius, input, context)
                 } else if (state.command === 5) {
-                    drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), state.line_thickness, input, canvas)
+                    drawLine(state.center[0], state.center[1], state.line_length * Math.sin(state.line_angle), state.line_length * Math.cos(state.line_angle), state.line_thickness, input, context)
                     previewContext.clearRect(0,0, screenWidth, screenHeight)
                 }
                 state.command = (state.command + 1) % commands.length
             }
 
             const loop = setInterval(() => {
+                $('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
 
                 const delta = Math.round((performance.now().toFixed() - time) / 10)
                 window.i += delta
@@ -221,14 +262,20 @@
                 const cursor = alphabet.length * (screenHeight - y) / screenHeight
 
                 if (cursor > maxcursor) {
-                    maxcursor = cursor
+                    maxcursor = Math.min(cursor, alphabet.length - 1)
                 }
-                if (maxcursor - cursor > acceptanceThreshold) {
-                    executeCommand(state,  alphabet[maxcursor])
-                    console.push(alphabet[maxcursor])
-                } else {
-                    previewCommand(state,  alphabet[maxcursor])
+
+                //state.debug = alphabet[maxcursor]
+
+                if (alphabet[maxcursor] !== '_') {
+                    if (maxcursor - cursor > acceptanceThreshold) {
+                        executeCommand(state,  alphabet[maxcursor])
+                        console.push(alphabet[maxcursor])
+                    } else {
+                        previewCommand(state,  alphabet[maxcursor])
+                    }
                 }
+                
 
                 //TODO revert state
 
