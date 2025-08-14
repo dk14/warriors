@@ -1,4 +1,11 @@
- name="mobile-web-app-status-bar-style" content="black-translucent">
+<html>
+    <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, minimal-ui, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="./favicon.png">
      <title>Sunspot</title>
     </head>
@@ -126,13 +133,16 @@
 
             window.i = 0
             window.y = 0
-            const speed = 1.0
+            const speed = 60.0
             var time = performance.now()
 
-            const numerals = [10,20,30,40,50,60,70]
+            const numerals = [100,200,300,400,500,600,700, 800, 900, 1000, 1100].map(x => x / 10)
             const alphabet = ["_"].concat(numerals).concat(["_"])
             const console = []
             var maxcursor = 0
+
+            const maxnum = Math.max(...numerals)
+            const maxangle = maxnum
 
             const acceptanceThreshold = 3
 
@@ -151,9 +161,16 @@
             const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color"]
 
             const getPolarGradient = (c, cx, cy, r, where) => {
-                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, 2 * r);
+                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
                 gradient.addColorStop(0, `hsla(${c}, 100%, 50%, 0.5)`);
-                gradient.addColorStop(1,  `hsla(${c}, 100%, 50%, 0)`);
+                gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
+                return gradient
+            }
+
+            const getLinearGradient = (c, x1, y1, x2, y2, where) => {
+                const gradient = where.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `hsla(${c}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
                 return gradient
             }
 
@@ -165,7 +182,7 @@
                 state.debug.cicrle.cy = cy
                 state.debug.cicrle.r = r
                 state.debug.cicrle.c = c
-                const radiusThreshold = 0
+                const radiusThreshold = 100
 
                 if (r > radiusThreshold) {
                     
@@ -189,21 +206,23 @@
             }
 
             const drawLine = (cx, cy, angle, length, thickness, c, where) => {
-                ctx.translate(x, y);
-                ctx.rotate(angle);
+                where.translate(cx, cy);
+                where.rotate(angle * 2 * Math.PI / maxangle);
+
+                const thicknessPx = 5 * thickness / maxnum
 
         
-                ctx.fillStyle = "red"; // Set the fill color
-                ctx.fillRect(-width / 2, -height / 2, width, height); // Draw the rectangle
+                where.fillStyle = getLinearGradient(c, -thicknessPx / 2, 0, thicknessPx, length, where)
+                where.fillRect(-thicknessPx / 2, 0, thicknessPx, length); // Draw the rectangle
 
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                where.setTransform(1, 0, 0, 1, 0, 0);
             }
 
             const updateState = (state, input) => {
                 actions = [
                     () => state.circle_radius = input,
-                    () => state.circle_color = input,
-                    () => state.line_angle = input,
+                    () => state.circle_color += input,
+                    () => state.line_angle += input,
                     () => state.line_length = input,
                     () => state.line_thickness = input,
                     () => state.line_color = input,
@@ -243,20 +262,33 @@
                 
             }
 
+            const sin = Math.sin
+            const cos = Math.cos
+
             const executeCommand = (state, input) => {
                 
                 updateState(state, input)
+
+                if (state.center[0] > screenWidth 
+                    || state.center[0] < 0
+                    || state.center[1] > screenHeight
+                    || state.center[1] < 0) {
+                    
+                    state.center = [screenWidth / 2, screenHeight / 2]
+                }
                 //check if state has enough info to render a circle or a line
                 // render either a circle or a line on main canvas
                 if (state.command === 1) {
                     drawCircle(state.center[0], state.center[1], state.circle_radius, input, context)
                 } else if (state.command === 5) {
                     drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, input, context)
+                    state.center = [state.center[0] + state.line_length * sin(state.line_angle * 2 * Math.PI / maxangle), state.center[0] + state.line_length * cos(state.line_angle * 2 * Math.PI / maxangle)]
                 }
                
                 state.command = (state.command + 1) % commands.length
             }
 
+           
             const loop = setInterval(() => {
                 $('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
 
@@ -264,16 +296,21 @@
                 window.i += delta
                 time = performance.now()
 
-                const gravity = ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
-                const shift = (y - (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
+                const gravity = speed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - (speed * energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
                 if (y1 < 30) {
                     y1 = screenHeight
                 }
+
                 if (y1 < y) {
                     y = y1 
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
+                }
+
+                if (y > screenHeight) {
+                    y = screenHeight
                 }
 
                 const cursor = Math.round(alphabet.length * (screenHeight - y) / screenHeight)
