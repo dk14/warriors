@@ -133,15 +133,20 @@
 
             window.i = 0
             window.y = 0
-            const speed = 60.0
+            const speed = 3.0
             var time = performance.now()
 
-            const numerals = [100,200,300,400,500,600,700, 800, 900, 1000, 1100].map(x => x / 10)
-            const alphabet = ["_"].concat(numerals).concat(["_"])
+            const numerals = []
+            for (let i = 0; i < 70; i++) {
+                numerals.push(i)
+            }
+
+            const alphabet = ["_"].concat(numerals)//.concat(["_"])
             const console = []
             var maxcursor = 0
 
             const maxnum = Math.max(...numerals)
+            const minnum = Math.min(...numerals)
             const maxangle = maxnum
 
             const acceptanceThreshold = 3
@@ -182,7 +187,9 @@
                 state.debug.cicrle.cy = cy
                 state.debug.cicrle.r = r
                 state.debug.cicrle.c = c
-                const radiusThreshold = 100
+                const radiusThreshold = 10
+
+
 
                 if (r > radiusThreshold) {
                     
@@ -197,65 +204,94 @@
                     where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
                     where.fill();
 
+                    where.beginPath();
                     where.globalCompositeOperation = "difference"
                     where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
                     where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
                     where.fill();
                 }
 
+                where.beginPath();
+                where.fillStyle = "red"
+                where.arc(cx, cy, 10, 0, 2 * Math.PI, true);
+                where.fill();
+
             }
 
             const drawLine = (cx, cy, angle, length, thickness, c, where) => {
+                const thicknessPx = 3 + 5 * thickness / maxnum
                 where.translate(cx, cy);
-                where.rotate(angle * 2 * Math.PI / maxangle);
+                where.rotate((angle / maxangle) * 2 * Math.PI );
 
-                const thicknessPx = 5 * thickness / maxnum
-
-        
-                where.fillStyle = getLinearGradient(c, -thicknessPx / 2, 0, thicknessPx, length, where)
+                where.fillStyle = "yellow" //getLinearGradient(c, -thicknessPx / 2, 0, thicknessPx, length, where)
                 where.fillRect(-thicknessPx / 2, 0, thicknessPx, length); // Draw the rectangle
 
                 where.setTransform(1, 0, 0, 1, 0, 0);
             }
 
+
+            const deriveRadius = (input) => {
+                return input
+            }
+
+            const deriveColor = (input) => {
+                return input
+            }
+
+            const deriveLength = (input) => {
+                return input
+            }
+
+            const deriveAngle = (input) => {
+                return input
+            }
+
+            const deriveThickness = (input) => {
+                return input
+            }
+
+            const derviceColor = (input) => {
+                return input
+            }
+
             const updateState = (state, input) => {
                 actions = [
-                    () => state.circle_radius = input,
-                    () => state.circle_color += input,
-                    () => state.line_angle += input,
-                    () => state.line_length = input,
-                    () => state.line_thickness = input,
-                    () => state.line_color = input,
+                    () => state.circle_radius = deriveRadius(input),
+                    () => state.circle_color += deriveColor(input),
+                    () => state.line_angle += deriveAngle(input),
+                    () => state.line_length = deriveLength(input),
+                    () => state.line_thickness = deriveThickness(input),
+                    () => state.line_color = derviceColor(input),
                 ]
                 actions[state.command]()
             }
 
             const previewCircleColor = 20
-            const previewLineLength = 10
-            const previewLineThickness = 2
+            const previewLineLength = minnum
+            const previewLineThickness = 10
             const previewLineColor = 20
 
             const previewCommand = (state, input) => {
                 previewContext.clearRect(0,0, screenWidth, screenHeight)
                 actions = [
                     () => {
-                        drawCircle(state.center[0], state.center[1], input, previewCircleColor, previewContext)
+                        drawCircle(state.center[0], state.center[1], deriveRadius(input), previewCircleColor, previewContext)
                     },
                     () => {
-                        drawCircle(state.center[0], state.center[1], state.circle_radius, input, previewContext)
+                        drawCircle(state.center[0], state.center[1], state.circle_radius, deriveColor(input), previewContext)
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], input, previewLineLength, previewLineThickness, previewLineColor, previewContext)
+                        drawLine(state.center[0], state.center[1], deriveAngle(input), previewLineLength, previewLineThickness, previewLineColor, previewContext)
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_angle, input, previewLineThickness, previewLineColor, previewContext) 
+                        drawLine(state.center[0], state.center[1], state.line_angle, deriveLength(input), previewLineThickness, previewLineColor, previewContext) 
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, input, previewLineColor, previewContext)
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, deriveThickness(input), previewLineColor, previewContext)
 
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, input, previewContext)
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, deriveColor(input), previewContext)
                     },
                 ]
                 actions[state.command]()
@@ -282,13 +318,13 @@
                     drawCircle(state.center[0], state.center[1], state.circle_radius, input, context)
                 } else if (state.command === 5) {
                     drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, input, context)
-                    state.center = [state.center[0] + state.line_length * sin(state.line_angle * 2 * Math.PI / maxangle), state.center[0] + state.line_length * cos(state.line_angle * 2 * Math.PI / maxangle)]
+                    state.center = [state.center[0] - state.line_length * cos(state.line_angle * 2 * Math.PI / maxangle), state.center[0] + state.line_length * sin(state.line_angle * 2 * Math.PI / maxangle)]
                 }
                
                 state.command = (state.command + 1) % commands.length
             }
 
-           
+        
             const loop = setInterval(() => {
                 $('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
 
@@ -299,9 +335,6 @@
                 const gravity = speed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
                 const shift = (y - (speed * energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
-                if (y1 < 30) {
-                    y1 = screenHeight
-                }
 
                 if (y1 < y) {
                     y = y1 
@@ -309,6 +342,10 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
+
+                if (y < 30) {
+                    y = 0
+                }
                 if (y > screenHeight) {
                     y = screenHeight
                 }
@@ -323,6 +360,8 @@
                 state.debug.cursor = cursor
                 state.debug.maxcursor = maxcursor
                 state.debug.current = alphabet[maxcursor]
+                //state.debug.console = console
+                
                 
 
                 if (alphabet[maxcursor] !== '_') {
@@ -331,12 +370,13 @@
                         console.push(alphabet[maxcursor])
                         y = screenHeight
                         
-                    } else {
-                        previewCommand(state,  alphabet[maxcursor])
-                    }
+                    } 
+                    previewCommand(state,  alphabet[maxcursor])
                 }
 
-                if (cursor === 0) {
+                
+
+                if (y === screenHeight) {
                     maxcursor = 0
                 }
                 
