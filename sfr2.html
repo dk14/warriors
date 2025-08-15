@@ -469,7 +469,8 @@
                 } else {
                     const prediction = infer(history) 
                     state.debug.prediction = prediction
-                    if (prediction > 0) {
+                    if (prediction > 0 && i % 1 === 0) {
+                        previewCommand(state,  alphabet[prediction])
                         executeCommand(state,  alphabet[prediction])
                         console.push(alphabet[prediction])
                         y = screenHeight    
