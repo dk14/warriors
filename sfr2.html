@@ -239,7 +239,7 @@
             }
 
             const deriveLength = (input) => {
-                return input * 5
+                return input
             }
 
             const deriveAngle = (input) => {
@@ -257,8 +257,8 @@
             const updateState = (state, input) => {
                 actions = [
                     () => state.circle_radius = deriveRadius(input),
-                    () => state.circle_color = deriveColor(input),
-                    () => state.line_angle = deriveAngle(input),
+                    () => state.circle_color += deriveColor(input),
+                    () => state.line_angle += deriveAngle(input),
                     () => state.line_length = deriveLength(input),
                     () => state.line_thickness = deriveThickness(input),
                     () => state.line_color = derviceColor(input),
@@ -267,8 +267,8 @@
             }
 
             const previewCircleColor = 20
-            const previewLineLength = minnum
-            const previewLineThickness = 10
+            const previewLineLength = 40
+            const previewLineThickness = 5
             const previewLineColor = 20
 
             const previewCommand = (state, input) => {
