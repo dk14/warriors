@@ -179,7 +179,7 @@
         </script>
         <script>
 
-            covertHistory = []
+            const history = []
 
             window.$ = (el) => {
                 return document.getElementById(el)
@@ -441,14 +441,6 @@
                     y = screenHeight
                 }
 
-                
-                if (y > 0.8 * screenHeight) {
-                    const prediction = infer(covertHistory) 
-                    state.debug.prediction = prediction
-                    y = prediction === 0 ? screenHeight : prediction
-                } else {
-                    observe(Math.round(y), covertHistory, 0)
-                }
 
                 const cursor = Math.round(alphabet.length * (screenHeight - y) / screenHeight)
 
@@ -464,14 +456,30 @@
                 
                 
 
+                                if (y > 0.8 * screenHeight) {
+                    
+                } else {
+                    
+                }
                 if (alphabet[maxcursor] !== '_') {
                     if (maxcursor - cursor > acceptanceThreshold || (cursor === 0 && maxcursor !== 0)) {
                         executeCommand(state,  alphabet[maxcursor])
                         console.push(alphabet[maxcursor])
                         y = screenHeight
+                        observe(Math.round(maxcursor), history, 0)
                         
                     } 
                     previewCommand(state,  alphabet[maxcursor])
+                } else {
+                    const prediction = infer(history) 
+                    state.debug.prediction = prediction
+                    if (prediction !== 0) {
+                        executeCommand(state,  alphabet[prediction])
+                        console.push(alphabet[prediction])
+                        y = screenHeight
+                        observe(Math.round(prediction), history, 0)
+                    }
+                    
                 }
 
                 
