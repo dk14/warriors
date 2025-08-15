@@ -111,6 +111,75 @@
             }, 300)
         </script>
         <script>
+            
+ //5
+        
+        function choice(arr, discriminateChoicefullnessBound){
+          
+          let unique = new Set(arr)
+          let counts = Array.from(unique).map(x => {
+            return [x, arr.filter(v => v===x).length]
+          }).sort((a, b) => b[1] - a[1])
+        
+          return counts
+            .slice(0, discriminateChoicefullnessBound)
+            .pop()[0]
+        
+        }
+        
+        let compare = (arr1, arr2) => {
+          for (const [i, x] in arr1.entries()) {
+            if (x !== arr2[i]) {
+              return false
+            }
+          }
+          
+          return true
+        }
+        
+        
+        
+        let predict = (pattern, history, discriminateChoicefullnessBound, indiscriminateChoicefullnessBound, minprefixboundary, lag) => {
+          if (pattern.length <= minprefixboundary) return 0
+          if (history.length < pattern.length + lag) return 0
+
+          const N = history.length - pattern.length - lag
+          
+          let candidates = []
+          for (let i = N-1; i >= 0; i--) {
+            let chunk = history.slice(i, i + pattern.length)
+            if (compare(chunk, pattern)) {
+              candidates.push(history[i + pattern.length])
+              if (candidates.length >= indiscriminateChoicefullnessBound) {
+                break;
+              }
+            }
+          }
+          
+          if (candidates.length == 0){
+            return predict(pattern.slice(2), history) 
+          }
+          
+          return choice(candidates.slice(0, indiscriminateChoicefullnessBound), discriminateChoicefullnessBound)
+          
+        }
+
+        window.infer = (history, n = 1000, m = 10000000, discriminateChoicefullnessBound = 1000, indiscriminateChoicefullnessBound = 9, minprefixboundary = 5, lag = 5) => {
+            
+            history.splice(0, history.length - m)
+            const pattern = history.slice(1).slice(-n)
+            const prediction = Number.parseFloat(predict(pattern, history, discriminateChoicefullnessBound, indiscriminateChoicefullnessBound, minprefixboundary, lag))
+            return prediction
+        }
+
+        window.observe = (symbol, history, precision = 0) => {
+            history.push(symbol.toFixed(precision))
+        }
+          
+        </script>
+        <script>
+
+            covertHistory = []
 
             window.$ = (el) => {
                 return document.getElementById(el)
@@ -133,7 +202,7 @@
 
             window.i = 0
             window.y = 0
-            const speed = 10.0
+            const speed = 60.0
             var time = performance.now()
 
             const numerals = []
@@ -205,7 +274,7 @@
                 if (r > radiusThreshold) {
                     
                     where.globalCompositeOperation = "lighter";
-                    where.fillStyle = getPolarGradient(c, cx, cy, r, where);
+                    where.fillStyle = getPolarGradient(c, cx, cy, r - radiusThreshold, where);
                     where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
 
@@ -369,6 +438,12 @@
                 }
                 if (y > screenHeight) {
                     y = screenHeight
+                }
+
+                observe(y, covertHistory, 1)
+
+                if (i % 100 === 0 && y > 0.8 * screenHeight) {
+                    y = infer(covertHistory) ?? screenHeight
                 }
 
                 const cursor = Math.round(alphabet.length * (screenHeight - y) / screenHeight)
