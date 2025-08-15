@@ -133,12 +133,12 @@
 
             window.i = 0
             window.y = 0
-            const speed = 60.0
+            const speed = 30.0
             var time = performance.now()
 
             const numerals = []
             for (let i = 0; i < 70; i++) {
-                numerals.push(i)
+                numerals.push(i * i / 90)
             }
 
             const alphabet = ["_"].concat(numerals)//.concat(["_"])
@@ -182,10 +182,13 @@
             const getLinearGradient = (c, x1, y1, x2, y2, where) => {
                 const gradient = where.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `hsla(${c}, 100%, 0%, 0.0)`);
-                gradient.addColorStop(0.5,  `hsla(${c}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(0.5,  `hsla(${c}, 50%, 50%, 0.5)`);
                 gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
                 return gradient
             }
+
+            const radiusFactor = 30
+            const lengthFactor = 3
 
             const drawCircle = (cx, cy, r, c, where) => {
                 where.beginPath();
@@ -195,27 +198,27 @@
                 state.debug.cicrle.cy = cy
                 state.debug.cicrle.r = r
                 state.debug.cicrle.c = c
-                const radiusThreshold = 300
+                const radiusThreshold = 5000 / radiusFactor
 
 
 
-                if (r < radiusThreshold) {
+                if (r > radiusThreshold) {
                     
                     where.globalCompositeOperation = "lighter";
-                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
-                    where.arc(cx, cy, radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient(c, cx, cy, r, where);
+                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
 
                 } else {
                     where.globalCompositeOperation = "lighten";
-                    where.fillStyle = getPolarGradient2(c, cx, cy, r - radiusThreshold, where);
-                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
                     where.fill();
 
                     where.beginPath();
                     where.globalCompositeOperation = "difference"
-                    where.fillStyle = getPolarGradient2(c, cx, cy, r - radiusThreshold, where);
-                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
                     where.fill();
                 }
 
@@ -238,7 +241,7 @@
 
 
             const deriveRadius = (input) => {
-                return input * 6
+                return input * radiusFactor
             }
 
             const deriveColor = (input) => {
@@ -246,7 +249,7 @@
             }
 
             const deriveLength = (input) => {
-                return input * 2
+                return input * lengthFactor
             }
 
             const deriveAngle = (input) => {
@@ -254,7 +257,7 @@
             }
 
             const deriveThickness = (input) => {
-                return 1 + input / 100
+                return 1 + input  / 5
             }
 
             const derviceColor = (input) => {
@@ -268,15 +271,15 @@
                     () => state.line_angle += deriveAngle(input),
                     () => state.line_length = deriveLength(input),
                     () => state.line_thickness = deriveThickness(input),
-                    () => state.line_color = derviceColor(input),
+                    () => state.line_color += derviceColor(input),
                 ]
                 actions[state.command]()
             }
 
             const previewCircleColor = 20
-            const previewLineLength = 40
+            const previewLineLength = 4000
             const previewLineThickness = 5
-            const previewLineColor = 20
+            const previewLineColor = 40
 
             const previewCommand = (state, input) => {
                 previewContext.clearRect(0,0, screenWidth, screenHeight)
@@ -287,10 +290,10 @@
                         drawCircle(state.center[0], state.center[1], deriveRadius(input), previewCircleColor, previewContext)
                     },
                     () => {
-                        drawCircle(state.center[0], state.center[1], state.circle_radius, deriveColor(input), previewContext)
+                        drawCircle(state.center[0], state.center[1], state.circle_radius, state.circle_color + deriveColor(input), previewContext)
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], deriveAngle(input), previewLineLength, previewLineThickness, previewLineColor, previewContext)
+                        drawLine(state.center[0], state.center[1], state.line_angle + deriveAngle(input), previewLineLength, previewLineThickness, previewLineColor, previewContext)
                     },
                     () => {
                         drawLine(state.center[0], state.center[1], state.line_angle, deriveLength(input), previewLineThickness, previewLineColor, previewContext) 
@@ -300,7 +303,7 @@
 
                     },
                     () => {
-                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, deriveColor(input), previewContext)
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, state.line_color + deriveColor(input), previewContext)
                     },
                 ]
                 actions[state.command]()
