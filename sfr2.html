@@ -490,5 +490,45 @@
 
             }, 10)
         </script>
+
+        <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+        <script>
+
+        try {
+            window.db = new Dexie("SfrMemDatabase");
+        
+            db.version(1).stores({
+                saves: "++id, data",
+            });
+        } catch {
+
+        }
+
+
+        const saveState = () => {
+          const encoded = JSON.stringify(history)
+          //localStorage.setItem('memory', encoded)
+          db.saves.put({id:0, data: encoded})
+          
+        }
+
+        const tryload = () => {
+          //const stored = localStorage.getItem('memory')
+          
+          
+          db.saves.toArray().then((sv) => {
+            const stored = sv[0].data ?? null
+          
+            if (stored !== null && stored !== "null") {
+    
+                history = JSON.parse(stored)
+
+            } 
+            
+          })
+        }
+        
+        setInterval(saveState, 5000)
+        </script>
     </body>
 </html>
