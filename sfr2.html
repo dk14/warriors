@@ -174,7 +174,8 @@
 
             const getLinearGradient = (c, x1, y1, x2, y2, where) => {
                 const gradient = where.createLinearGradient(x1, y1, x2, y2);
-                gradient.addColorStop(0, `hsla(${c}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(0, `hsla(${c}, 100%, 0%, 0.0)`);
+                gradient.addColorStop(0.5,  `hsla(${c}, 100%, 50%, 0.5)`);
                 gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
                 return gradient
             }
@@ -214,7 +215,7 @@
                 where.beginPath();
                 where.fillStyle = "red"
                 where.arc(cx, cy, 10, 0, 2 * Math.PI, true);
-                where.fill();
+                //where.fill();
 
             }
 
@@ -222,8 +223,8 @@
                 where.translate(cx, cy);
                 where.rotate(angle);
 
-                where.fillStyle = "yellow" //getLinearGradient(c, -thicknessPx / 2, 0, thicknessPx, length, where)
-                where.fillRect(-thickness / 2, 0, thickness, length); // Draw the rectangle
+                where.fillStyle = getLinearGradient(c, -thickness / 2, 0, thickness / 2, 0, where)
+                where.fillRect(-thickness, 0, 2 * thickness, length); // Draw the rectangle
 
                 where.setTransform(1, 0, 0, 1, 0, 0);
             }
@@ -246,7 +247,7 @@
             }
 
             const deriveThickness = (input) => {
-                return 3 + input / 100
+                return 1 + input / 100
             }
 
             const derviceColor = (input) => {
