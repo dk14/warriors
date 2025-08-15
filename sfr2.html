@@ -172,6 +172,13 @@
                 return gradient
             }
 
+            const getPolarGradient2 = (c, cx, cy, r, where) => {
+                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
+                gradient.addColorStop(0, `rgba(50, 50, 50, 1.0)`);
+                gradient.addColorStop(1,  `rgba(0, 0, 0, 1.0)`);
+                return gradient
+            }
+
             const getLinearGradient = (c, x1, y1, x2, y2, where) => {
                 const gradient = where.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, `hsla(${c}, 100%, 0%, 0.0)`);
@@ -188,27 +195,27 @@
                 state.debug.cicrle.cy = cy
                 state.debug.cicrle.r = r
                 state.debug.cicrle.c = c
-                const radiusThreshold = 10
+                const radiusThreshold = 300
 
 
 
-                if (r > radiusThreshold) {
+                if (r < radiusThreshold) {
                     
                     where.globalCompositeOperation = "lighter";
-                    where.fillStyle = getPolarGradient(c, cx, cy, r - radiusThreshold, where);
-                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
 
                 } else {
                     where.globalCompositeOperation = "lighten";
-                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
-                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient2(c, cx, cy, r - radiusThreshold, where);
+                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
 
                     where.beginPath();
                     where.globalCompositeOperation = "difference"
-                    where.fillStyle = getPolarGradient(c, cx, cy, radiusThreshold - r, where);
-                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fillStyle = getPolarGradient2(c, cx, cy, r - radiusThreshold, where);
+                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
                 }
 
@@ -231,7 +238,7 @@
 
 
             const deriveRadius = (input) => {
-                return input
+                return input * 6
             }
 
             const deriveColor = (input) => {
@@ -239,7 +246,7 @@
             }
 
             const deriveLength = (input) => {
-                return input
+                return input * 2
             }
 
             const deriveAngle = (input) => {
@@ -273,6 +280,8 @@
 
             const previewCommand = (state, input) => {
                 previewContext.clearRect(0,0, screenWidth, screenHeight)
+                const bg = context.getImageData(0, 0, screenWidth, screenHeight);
+                previewContext.putImageData(bg, 0, 0)
                 actions = [
                     () => {
                         drawCircle(state.center[0], state.center[1], deriveRadius(input), previewCircleColor, previewContext)
@@ -331,9 +340,11 @@
                 state.command = (state.command + 1) % commands.length
             }
 
+            context.fillStyle = "black"
+            context.fillRect(0,0,screenWidth,screenHeight)
         
             const loop = setInterval(() => {
-                $('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
+                //$('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
 
                 const delta = Math.round((performance.now().toFixed() - time) / 10)
                 window.i += delta
