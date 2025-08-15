@@ -219,12 +219,11 @@
             }
 
             const drawLine = (cx, cy, angle, length, thickness, c, where) => {
-                const thicknessPx = 3 + 5 * thickness / maxnum
                 where.translate(cx, cy);
-                where.rotate((angle / maxangle) * 2 * Math.PI );
+                where.rotate(angle);
 
                 where.fillStyle = "yellow" //getLinearGradient(c, -thicknessPx / 2, 0, thicknessPx, length, where)
-                where.fillRect(-thicknessPx / 2, 0, thicknessPx, length); // Draw the rectangle
+                where.fillRect(-thickness / 2, 0, thickness, length); // Draw the rectangle
 
                 where.setTransform(1, 0, 0, 1, 0, 0);
             }
@@ -239,15 +238,15 @@
             }
 
             const deriveLength = (input) => {
-                return input
+                return input * 5
             }
 
             const deriveAngle = (input) => {
-                return input
+                return input * 2 * Math.PI / maxangle
             }
 
             const deriveThickness = (input) => {
-                return input
+                return 3 + input / 100
             }
 
             const derviceColor = (input) => {
@@ -257,8 +256,8 @@
             const updateState = (state, input) => {
                 actions = [
                     () => state.circle_radius = deriveRadius(input),
-                    () => state.circle_color += deriveColor(input),
-                    () => state.line_angle += deriveAngle(input),
+                    () => state.circle_color = deriveColor(input),
+                    () => state.line_angle = deriveAngle(input),
                     () => state.line_length = deriveLength(input),
                     () => state.line_thickness = deriveThickness(input),
                     () => state.line_color = derviceColor(input),
@@ -305,20 +304,27 @@
                 
                 updateState(state, input)
 
-                if (state.center[0] > screenWidth 
-                    || state.center[0] < 0
-                    || state.center[1] > screenHeight
-                    || state.center[1] < 0) {
-                    
-                    state.center = [screenWidth / 2, screenHeight / 2]
-                }
+ 
                 //check if state has enough info to render a circle or a line
                 // render either a circle or a line on main canvas
                 if (state.command === 1) {
                     drawCircle(state.center[0], state.center[1], state.circle_radius, input, context)
                 } else if (state.command === 5) {
                     drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, input, context)
-                    state.center = [state.center[0] - state.line_length * cos(state.line_angle * 2 * Math.PI / maxangle), state.center[0] + state.line_length * sin(state.line_angle * 2 * Math.PI / maxangle)]
+                    
+                    const dx = - state.line_length * sin(state.line_angle)
+                    const dy = state.line_length * cos(state.line_angle)
+                    state.debug.dx = dx
+                    state.debug.dy = dy
+                    state.center = [state.center[0] + dx, state.center[1] + dy]
+                }
+
+                if (state.center[0] > screenWidth 
+                    || state.center[0] < 0
+                    || state.center[1] > screenHeight
+                    || state.center[1] < 0) {
+                    
+                    //state.center = [screenWidth / 2, screenHeight / 2]
                 }
                
                 state.command = (state.command + 1) % commands.length
