@@ -466,18 +466,19 @@
                         executeCommand(state,  alphabet[maxcursor])
                         console.push(alphabet[maxcursor])
                         y = screenHeight
-                        observe(Math.round(maxcursor), history, 0)
+                        observe(Math.round(maxcursor / 70) * 70, history, 0)
                         
                     } 
                     previewCommand(state,  alphabet[maxcursor])
+                    observe(Math.round(0), history, 0)
                 } else {
                     const prediction = infer(history) 
                     state.debug.prediction = prediction
-                    if (prediction !== 0) {
+                    if (prediction > 0) {
                         executeCommand(state,  alphabet[prediction])
                         console.push(alphabet[prediction])
                         y = screenHeight
-                        observe(Math.round(prediction), history, 0)
+                        observe(Math.round(prediction / 70) * 70, history, 0)
                     }
                     
                 }
