@@ -269,7 +269,7 @@
                 state.debug.cicrle.r = r
                 state.debug.cicrle.c = c
                 */
-                const radiusThreshold = 40000 / radiusFactor
+                const radiusThreshold = 35000 / radiusFactor
 
 
 
@@ -454,19 +454,14 @@
                 state.debug.current = alphabet[maxcursor]
                 //state.debug.hist = covertHistory
                 
-                
-
-                                if (y > 0.8 * screenHeight) {
-                    
-                } else {
-                    
-                }
+            
+                const quantize = 10
                 if (alphabet[maxcursor] !== '_') {
                     if (maxcursor - cursor > acceptanceThreshold || (cursor === 0 && maxcursor !== 0)) {
                         executeCommand(state,  alphabet[maxcursor])
                         console.push(alphabet[maxcursor])
                         y = screenHeight
-                        observe(Math.round(maxcursor / 70) * 70, history, 0)
+                        observe(Math.round(maxcursor / quantize) * quantize, history, 0)
                         
                     } 
                     previewCommand(state,  alphabet[maxcursor])
@@ -477,9 +472,9 @@
                     if (prediction > 0) {
                         executeCommand(state,  alphabet[prediction])
                         console.push(alphabet[prediction])
-                        y = screenHeight
-                        observe(Math.round(prediction / 70) * 70, history, 0)
+                        y = screenHeight    
                     }
+                    observe(Math.round(prediction / quantize) * quantize, history, 0)
                     
                 }
 
