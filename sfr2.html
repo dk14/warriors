@@ -133,7 +133,7 @@
 
             window.i = 0
             window.y = 0
-            const speed = 3.0
+            const speed = 60.0
             var time = performance.now()
 
             const numerals = []
@@ -324,7 +324,7 @@
                     || state.center[1] > screenHeight
                     || state.center[1] < 0) {
                     
-                    //state.center = [screenWidth / 2, screenHeight / 2]
+                    state.center = [screenWidth / 2, screenHeight / 2]
                 }
                
                 state.command = (state.command + 1) % commands.length
