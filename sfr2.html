@@ -206,8 +206,8 @@
             var time = performance.now()
 
             const numerals = []
-            for (let i = 0; i < 70; i++) {
-                numerals.push(i * i / 90)
+            for (let i = 0; i < 100; i++) {
+                numerals.push(i * i / 200)
             }
 
             const alphabet = ["_"].concat(numerals)//.concat(["_"])
@@ -228,11 +228,12 @@
                 line_length: 0, 
                 line_thickness: 0, 
                 line_color: 0,
+                freq: 0,
                 center: [screenWidth / 2, screenHeight / 2],
                 debug: {}
             }
 
-            const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color"]
+            const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color", "freq"]
 
             const getPolarGradient = (c, cx, cy, r, where) => {
                 const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
@@ -271,6 +272,8 @@
                 */
                 const radiusThreshold = 35000 / radiusFactor
 
+                const convolveThreshold = 10000 / radiusFactor
+
 
 
                 if (r > radiusThreshold) {
@@ -280,7 +283,7 @@
                     where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
                     where.fill();
 
-                } else {
+                } else  if (r > convolveThreshold) {
                     where.globalCompositeOperation = "lighten";
                     where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
                     where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
@@ -290,6 +293,12 @@
                     where.globalCompositeOperation = "difference"
                     where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
                     where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fill();
+                } else {
+                    where.beginPath();
+                    where.globalCompositeOperation = "multiply"
+                    where.fillStyle = getPolarGradient(c, cx, cy, 4 * (convolveThreshold - r), where);
+                    where.arc(cx, cy, 4 * (convolveThreshold - r), 0, 2 * Math.PI, true);
                     where.fill();
                 }
 
@@ -310,6 +319,10 @@
                 where.setTransform(1, 0, 0, 1, 0, 0);
             }
 
+            const playFreq = (freq) => {
+
+            }
+
 
             const deriveRadius = (input) => {
                 return input * radiusFactor
@@ -328,10 +341,14 @@
             }
 
             const deriveThickness = (input) => {
-                return 1 + input  / 5
+                return input / 10 - 1
             }
 
             const derviceColor = (input) => {
+                return input
+            }
+
+            const deriveFreq = (input) => {
                 return input
             }
 
@@ -343,6 +360,7 @@
                     () => state.line_length = deriveLength(input),
                     () => state.line_thickness = deriveThickness(input),
                     () => state.line_color += derviceColor(input),
+                    () => state.freq += deriveFreq(input)
                 ]
                 actions[state.command]()
             }
@@ -376,6 +394,9 @@
                     () => {
                         drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, state.line_color + deriveColor(input), previewContext)
                     },
+                    () => {
+                        playFreq(deriveFreq(input))
+                    }
                 ]
                 actions[state.command]()
                 
