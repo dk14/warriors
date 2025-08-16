@@ -628,34 +628,68 @@
             const audioCtx = new AudioContext()
             const oscillator = audioCtx.createOscillator()
             oscillator.type = 'square';
-            oscillator.frequency.value = 40; // value in hertz
+            oscillator.frequency.value = 20; // value in hertz
 
 
 
             const modulator = audioCtx.createOscillator()
             modulator.type = 'sine'
-            modulator.frequency.value = 2
+            modulator.frequency.value = 7000
 
             const fmGain = audioCtx.createGain()
             fmGain.gain.value = 10
 
+            const amGain = audioCtx.createGain()
+            amGain.gain.value = 1
+            oscillator.connect(amGain)
+            
+
             modulator.connect(fmGain)
             fmGain.connect(oscillator.frequency)
+            
 
-            oscillator.connect(audioCtx.destination);
-            //oscillator.start();
-            //modulator.start();
+            const filter = audioCtx.createBiquadFilter();
+        
+            filter.type = "highpass"
+            filter.frequency.setTargetAtTime(5000, audioCtx.currentTime, 0);
+            
+            const filter2 = audioCtx.createBiquadFilter();
+        
+            filter2.type = "lowpass"
+            filter2.frequency.setTargetAtTime(7000, audioCtx.currentTime, 0);
+            
+            
+            
+            const compressor = audioCtx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
+            compressor.knee.setValueAtTime(40, audioCtx.currentTime);
+            compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+            compressor.attack.setValueAtTime(0, audioCtx.currentTime);
+            compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
+            
+
+            //oscillator.connect(audioCtx.destination);
+            amGain.connect(filter)
+
+            filter.connect(filter2)
+            filter2.connect(compressor)
+            compressor.connect(audioCtx.destination)
+            oscillator.start();
+            modulator.start();
 
 
 
             const audioloop = setInterval(() => {
-                fmGain.gain.value =  1 + 100 * energy
+                fmGain.gain.linearRampToValueAtTime(
+                    1000 + 100 * energy + 1000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.2)
+                amGain.gain.linearRampToValueAtTime(
+                    1 + 1000 * energy, audioCtx.currentTime + 0.2) //
 
                 //oscillator.frequency.linearRampToValueAtTime(
                     //40, 
                     //audioCtx.currentTime + 10)
                 
-            }, 100)
+            }, 200)
          }
          document.addEventListener("touchend", (ev) => {
 
