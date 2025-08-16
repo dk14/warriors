@@ -556,7 +556,7 @@
                 const x = touch.clientX; // X coordinate
                 const y = touch.clientY; // Y coordinate
 
-                if (y < 100) {
+                if (y < 100 && x < 100) {
                     const settings = document.getElementById("settings")
                     settings.style.display = settings.style.display === 'block' ? 'none' : 'block'
                 }
