@@ -13,9 +13,9 @@
        <button  id ="start" style="font-family:'Crafty Girls'; border: 0px solid green; background-color: rgba(0,0,0,0); color: pink; z-index: 100; font-size: 40px;"  onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">START</button>
       
        <div style = "display: none; text-align: center;" id="settings">
-        <font style="color: hsla(120, 100%, 25%, 1)">ball speed: </font><input type="number" min="1" max="1000" value="1000" id="speed" style = "color:green; border: 1px solid  green; background-color: black;"> <br><br>
-        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity: </font><input type="number" min="1" max="1000" value="1000" id="gravity" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
-        <font style="color: hsla(120, 100%, 25%, 1)">refresh cycle: </font><input type="number" min="1" max="1000" value="50" id="refresh" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)">ball speed: </font><input type="number" min="1" max="1000" value="800" id="speed" style = "color:green; border: 1px solid  green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity: </font><input type="number" min="1" max="1000" value="700" id="gravity" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)">refresh cycle: </font><input type="number" min="1" max="1000" value="10" id="refresh" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
         <font style="color: hsla(120, 100%, 25%, 1)"><pre id="fps"></pre></font>
 
        </div>
@@ -475,9 +475,9 @@
                 }
             }, 100)
 
-            window.gravityFactor = 1000
-            window.speedFactor = 1000
-            window.refresh = 50
+            window.gravityFactor = 800
+            window.speedFactor = 700
+            window.refresh = 10
             window.redraw = true
             
             const loop = () => setTimeout(() => {
