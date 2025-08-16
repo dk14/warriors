@@ -368,7 +368,6 @@
         
         draw()
 
-         
         const start = () => {
             fullscreen.style.display = 'none'
             play = true
@@ -424,12 +423,13 @@
 
             const rects = []
 
+
             const random1 = () => {
-                return Math.abs(Math.sin(i * y + 1093 * energy + y))
+                return Math.abs(Math.sin(i * y + 109309 * energy * y + y))
             }
 
             const random2 = () => {
-                return Math.abs(Math.cos(i * y + 6040 * energy + y))
+                return Math.abs(Math.cos(i * y + 604089 * energy + y))
             }
 
             const createRect = (x, y, id) => {
