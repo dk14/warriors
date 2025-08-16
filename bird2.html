@@ -429,6 +429,7 @@
             window.y = inity
             drawings.length = 0
             window.i = 0
+            window.i_precise = 0
 
             window.rects = []
             window.seed = performance.now() % 300
@@ -529,8 +530,9 @@
 
                 window.redraw = true
 
-                const delta = Math.round((performance.now().toFixed() - time) / 10)
-                window.i += delta
+                const delta = (performance.now().toFixed() - time) / 10
+                window.i_precise += delta
+                window.i = Math.round(i_precise)
                 time = performance.now()
                 
 
