@@ -416,7 +416,7 @@
 
         }
 
-        
+        window.speed = 1.0
 
         const start = () => {
             if (window.fpsprecise < 20) {
@@ -510,7 +510,7 @@
 
 
             window.i = 0
-            const speed = 1.0
+            
             var time = performance.now()
 
             window.speedFactor = document.getElementById("speed").value
@@ -584,6 +584,7 @@
                     }
 
                     const rectEdge = rcx
+                    speed += 0.0000001
                     
                     if (x > rectEdge + 30 && r["counted"] !== true) {
                         r["counted"] = true
@@ -591,7 +592,7 @@
                     }
 
                     const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
-                    if (lost) {
+                    if (lost && false) {
                         rects.length = 0
                         play = false
                         if (score > highscore) {
