@@ -300,18 +300,39 @@
                 context.beginPath();
                 context.rect(0, 0, screenWidth, screenHeight);
                 context.fill()
+                for (let j = 0; j < 30; j++) {
+                    var seed = window.seed
+                    context.beginPath();
+                    context.fillStyle = "white"
+                    const x = Math.random()
+                    const y = Math.random()
+                    context.arc(x * screenWidth, y * screenHeight, 2, 0, 2 * Math.PI, true);
+                    
+                    context.fill();
+
+                    context.fillStyle = "hsla(60, 10%, 5%, 0.01)"
+                    context.rect(0, 0, screenWidth, screenHeight);
+                    
+                    context.fill();
+                }
+
+                if (score % 150 > -1) {
+                   context.fillStyle = `hsla(60, 10%, 5%, ${Math.random()})`
+                   context.rect(0, screenHeight / 2, screenWidth, screenHeight);
+                    
+                   context.fill();
+                    
+                } else {
+                    
+                }
+
             } else {
                 drawVingette()
             }
 
            
 
-            if (score % 150 > 60) {
-                //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
-                //drawCircle(0.5, 0.5 * ((100 * y / screenHeight) % 30) / 100, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 30) / 100., 0.8)
-            } else {
-                
-            }
+            
             
             drawings.forEach(d => {
                 context.globalCompositeOperation = d.blend ?? "source-over"
@@ -426,7 +447,8 @@
             const rects = []
 
 
-            var seed = performance.now() % 300
+            window.seed = performance.now() % 300
+
             const random1 = () => {
                 return Math.abs(Math.sin(seed * 6599 + i * y + 109309 * energy * y + y + Math.sin(y)))
             }
