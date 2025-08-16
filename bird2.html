@@ -13,10 +13,10 @@
        <button style="border: 3px solid green; background-color: black; color: green; z-index: 100; font-size: 40px;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">START</button>
       
        <div style = "display: none; text-align: center;" id="settings">
-        <font style="color: hsla(120, 100%, 25%, 1)">ball speed:</font><input type="number" min="1" max="1000" value="1000" id="speed" style = "color:green; border: 1px solid  green; background-color: black;"> <br><br>
-        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity:</font><input type="number" min="1" max="1000" value="1000" id="gravity" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
-        <font style="color: hsla(120, 100%, 25%, 1)">refresh:</font><input type="number" min="1" max="1000" value="50" id="refresh" style = "color:green; border: 1px solid green; background-color: black;">
-
+        <font style="color: hsla(120, 100%, 25%, 1)">ball speed: </font><input type="number" min="1" max="1000" value="1000" id="speed" style = "color:green; border: 1px solid  green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)">ball gravity: </font><input type="number" min="1" max="1000" value="1000" id="gravity" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)">refresh cycle: </font><input type="number" min="1" max="1000" value="50" id="refresh" style = "color:green; border: 1px solid green; background-color: black;"> <br><br>
+        <font style="color: hsla(120, 100%, 25%, 1)"><pre id="fps"></pre></font>
 
        </div>
        <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index:-20">
@@ -65,6 +65,7 @@
                             window.fps=60;
                         }
 
+                        document.getElementById("fps").innerText = fpsprecise + " fps"
                         //window.fps = 10 * Math.round(100/(now-before));
                     }
                     
