@@ -592,7 +592,7 @@
                     }
 
                     const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
-                    if (lost && false) {
+                    if (lost) {
                         rects.length = 0
                         play = false
                         if (score > highscore) {
