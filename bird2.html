@@ -53,7 +53,7 @@
                     fpshist.splice(0, fpshist.length - 10)
 
                     if (fpshist.length > 3) {
-                        const fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
+                        window.fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
 
                         if (fpsprecise < 5) {
                             window.fps=3;
@@ -419,6 +419,9 @@
         
 
         const start = () => {
+            if (window.fpsprecise < 20) {
+                location.reload()
+            }
             fullscreen.style.display = 'none'
             play = true
             score = 0
