@@ -628,7 +628,7 @@
             const audioCtx = new AudioContext()
             const oscillator = audioCtx.createOscillator()
             oscillator.type = 'square';
-            oscillator.frequency.value = 20; // value in hertz
+            oscillator.frequency.value = 20; // or 2
 
 
 
@@ -651,20 +651,20 @@
             const filter = audioCtx.createBiquadFilter();
         
             filter.type = "highpass"
-            filter.frequency.setTargetAtTime(5000, audioCtx.currentTime, 0);
+            filter.frequency.setTargetAtTime(13000, audioCtx.currentTime, 0);
             
             const filter2 = audioCtx.createBiquadFilter();
         
             filter2.type = "lowpass"
-            filter2.frequency.setTargetAtTime(7000, audioCtx.currentTime, 0);
+            filter2.frequency.setTargetAtTime(3000, audioCtx.currentTime, 0);
             
             
             
             const compressor = audioCtx.createDynamicsCompressor();
-            compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
-            compressor.knee.setValueAtTime(40, audioCtx.currentTime);
+            compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
+            compressor.knee.setValueAtTime(80, audioCtx.currentTime);
             compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-            compressor.attack.setValueAtTime(0, audioCtx.currentTime);
+            compressor.attack.setValueAtTime(1.0, audioCtx.currentTime);
             compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
             
 
@@ -681,9 +681,9 @@
 
             const audioloop = setInterval(() => {
                 fmGain.gain.linearRampToValueAtTime(
-                    1000 + 100 * energy + 1000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.2)
+                    1000 + 10 * energy + 2000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.2)
                 amGain.gain.linearRampToValueAtTime(
-                    1 + 1000 * energy, audioCtx.currentTime + 0.2) //
+                    0.5 + 10 * energy, audioCtx.currentTime + 0.2) //
 
                 //oscillator.frequency.linearRampToValueAtTime(
                     //40, 
