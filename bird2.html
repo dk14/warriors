@@ -84,12 +84,8 @@
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
-            const canvasStream = canvas.captureStream()
-      
-      
-      
             const videoElem = document.createElement("video");
-            videoElem.srcObject = canvasStream
+            
             
             videoElem.autoplay = true
             videoElem.controls = true
@@ -107,6 +103,8 @@
                fullscreen.onclick()
             });
             fullscreen.onclick = () => {
+                const canvasStream = canvas.captureStream()
+                videoElem.srcObject = canvasStream
                 if (videoElem.style.display === 'none') {
                     videoElem.style.display = "block"
                     videoElem.play()
@@ -391,12 +389,46 @@
         
         draw()
 
+        const initx = screenWidth / 3
+        const inity = 300  * screenHeight / 755
+        const radius = 30 * screenHeight / 755
+
+        const createCircle = () => {
+
+            const circle = {
+                type: 'circle'
+            }
+
+            circle.cx = x
+            circle.cy = y
+            circle.dcx = 0
+            circle.dcy = 0
+            circle.r = radius * 1.3 * 755 / screenHeight;
+        
+            circle.opacity = 0.5
+
+            circle.blend = "lighter";
+            
+            circle.fill = "gradient"
+
+            drawings.push(circle)
+            return circle
+
+        }
+
+        
+
         const start = () => {
             fullscreen.style.display = 'none'
             play = true
-
+            score = 0
+            window.x = initx
+            window.y = inity
             drawings.length = 0
-            
+
+            window.rects = []
+            window.seed = performance.now() % 300
+
             while (container.firstChild) {
                 container.removeChild(container.lastChild);
             }
@@ -405,50 +437,20 @@
                 container.appendChild(scoreText);
                 container.removeChild(retryText);
             } catch {}
-            
-            score = 0
-            const initx = screenWidth / 3
-            const inity = 300  * screenHeight / 755
-            const radius = 30 * screenHeight / 755
-            var x = initx
-            var y = inity
 
-            const createCircle = () => {
-
-                const circle = {
-                    type: 'circle'
-                }
-
-                circle.cx = x
-                circle.cy = y
-                circle.dcx = 0
-                circle.dcy = 0
-                circle.r = radius * 1.3 * 755 / screenHeight;
-            
-                circle.opacity = 0.5
-
-                circle.blend = "lighter";
-                
-                circle.fill = "gradient"
-
-                drawings.push(circle)
-                return circle
-
-            }
-
-            const circle = createCircle()
-
-            const circles = []
+            window.circle = createCircle()
+            window.circles = []
 
             for (let ii = 0; ii < 10; ii++) {
                 circles.push(createCircle())
             }
 
-            const rects = []
+        }
 
+        const init = () => {
 
-            window.seed = performance.now() % 300
-
+            start()
+           
             const random1 = () => {
                 return Math.abs(Math.sin(seed * 6599 + i * y + 109309 * energy * y + y + Math.sin(y)))
             }
@@ -514,6 +516,11 @@
             window.redraw = true
             
             const loop = () => setTimeout(() => {
+
+                if (!play) {
+                    loop()
+                    return
+                }
 
                 window.redraw = true
 
@@ -581,7 +588,6 @@
 
                     const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
                     if (lost) {
-                        clearInterval(loop)
                         rects.length = 0
                         play = false
                         if (score > highscore) {
@@ -600,14 +606,13 @@
                     }
 
                 })
-                if (play) {
-                    loop()
-                }
+                
+                loop()
                 
             }, refresh)
             loop()
          }
-         start()
+         init()
 
          var audioActive = false
          const audio = () => {
