@@ -365,8 +365,9 @@
             requestAnimationFrame(draw)
 
         }
-            
+        
         draw()
+
          
         const start = () => {
             fullscreen.style.display = 'none'
@@ -473,12 +474,6 @@
             const speed = 1.0
             var time = performance.now()
 
-            const audioloop = setInterval(() => {
-                if (energy > 0.05) {
-                 
-                }
-            }, 100)
-
             window.gravityFactor = 800
             window.speedFactor = 700
             window.refresh = 10
@@ -579,6 +574,42 @@
             loop()
          }
          start()
+
+         var audioActive = false
+         const audio = () => {
+            audioActive = true
+            const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator()
+            oscillator.type = 'square';
+            oscillator.frequency.value = 40; // value in hertz
+
+
+
+            const modulator = audioCtx.createOscillator()
+            modulator.type = 'sine'
+            modulator.frequency.value = 2
+
+            const fmGain = audioCtx.createGain()
+            fmGain.gain.value = 10
+
+            modulator.connect(fmGain)
+            fmGain.connect(oscillator.frequency)
+
+            oscillator.connect(audioCtx.destination);
+            //oscillator.start();
+            //modulator.start();
+
+
+
+            const audioloop = setInterval(() => {
+                fmGain.gain.value =  1 + 100 * energy
+
+                //oscillator.frequency.linearRampToValueAtTime(
+                    //40, 
+                    //audioCtx.currentTime + 10)
+                
+            }, 100)
+         }
          document.addEventListener("touchend", (ev) => {
 
             try {
@@ -597,10 +628,16 @@
             if (!play) {
                start()
             }
+            if (!audioActive) {
+                audio()
+            }
          });
          window.onclick = () => {
             if (!play) {
                start()
+            }
+            if (!audioActive) {
+                audio()
             }
          }
 
