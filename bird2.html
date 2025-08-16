@@ -424,11 +424,19 @@
 
             const rects = []
 
+            const random1 = () => {
+                ((energy * 10010) % 400) / 400
+            }
+
+            const random2 = () => {
+                ((energy * 300230) % 530) / 530
+            }
+
             const createRect = (x, y, id) => {
 
                 const bias = screenHeight * 0.1
-                const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
-                const h = (screenHeight - gate)  * Math.random()
+                const gate =  Math.max(200, 400 * random()) * screenHeight / 755
+                const h = (screenHeight - gate)  * random2()
 
                 const rect = {
                     type: 'rect'
