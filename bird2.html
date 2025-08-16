@@ -681,15 +681,15 @@
 
             const audioloop = setInterval(() => {
                 fmGain.gain.linearRampToValueAtTime(
-                    1000 + 10 * energy + 2000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.2)
+                    1000 + 10 * energy + 2000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                 amGain.gain.linearRampToValueAtTime(
-                    0.5 + 10 * energy, audioCtx.currentTime + 0.2) //
+                    0.5 + 10 * energy, audioCtx.currentTime + 0.1) //
 
                 //oscillator.frequency.linearRampToValueAtTime(
                     //40, 
                     //audioCtx.currentTime + 10)
                 
-            }, 200)
+            }, 100)
          }
          document.addEventListener("touchend", (ev) => {
 
