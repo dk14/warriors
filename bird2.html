@@ -425,17 +425,18 @@
             const rects = []
 
             const random1 = () => {
-                ((energy * 10010) % 400) / 400
+                return Math.abs(Math.sin(i * y + 1093 * energy + y))
             }
 
             const random2 = () => {
-                ((energy * 300230) % 530) / 530
+                return Math.abs(Math.cos(i * y + 6040 * energy + y))
             }
 
             const createRect = (x, y, id) => {
 
+                
                 const bias = screenHeight * 0.1
-                const gate =  Math.max(200, 400 * random()) * screenHeight / 755
+                const gate =  Math.max(200, 400 * random1()) * screenHeight / 755
                 const h = (screenHeight - gate)  * random2()
 
                 const rect = {
@@ -586,7 +587,7 @@
          var audioActive = false
          const audio = () => {
             audioActive = true
-            const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            const audioCtx = new AudioContext()
             const oscillator = audioCtx.createOscillator()
             oscillator.type = 'square';
             oscillator.frequency.value = 40; // value in hertz
