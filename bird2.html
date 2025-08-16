@@ -300,9 +300,11 @@
                 context.beginPath();
                 context.rect(0, 0, screenWidth, screenHeight);
                 context.fill()
+            } else {
+                drawVingette()
             }
 
-            drawVingette()
+           
 
             if (score % 150 > 60) {
                 //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
