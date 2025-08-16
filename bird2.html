@@ -127,25 +127,37 @@
 
 
 
+            let vingetteBuffer = null
             const drawVingette = () => {
-                context.beginPath();
+                if (!vingetteBuffer) {
+                    vingetteBuffer = document.createElement("canvas")
+                    vingetteBuffer.width = canvas.width
+                    vingetteBuffer.height = canvas.height
+                    const context = vingetteBuffer.getContext("2d", { willReadFrequently: true });
+                    context.beginPath();
                 
                 
-                const gradient = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width , canvas.width / 2, canvas.height / 2, 0);
-                gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
-                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.17)`);
+                    const gradient = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width , canvas.width / 2, canvas.height / 2, 0);
+                    gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
+                    gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.17)`);
 
-                context.fillStyle = gradient
-                context.arc(canvas.width / 2, canvas.height / 2, canvas.width * 2, 0, 2 * Math.PI, true);
-                context.fill();
+                    context.fillStyle = gradient
+                    context.arc(canvas.width / 2, canvas.height / 2, canvas.width * 2, 0, 2 * Math.PI, true);
+                    context.fill();
 
-                context.globalCompositeOperation = "lighter";
-                const gradient2 = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width * 2 , canvas.width / 2, canvas.height / 2, 0);
-                gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
-                gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.1)`);
-                context.fillStyle = gradient2
-                context.arc(canvas.width / 2, canvas.height / 2, 0, 0, 2 * Math.PI, true);
-                context.fill();
+                    context.globalCompositeOperation = "lighter";
+                    const gradient2 = context.createRadialGradient(canvas.width / 2,  canvas.height / 2, canvas.width * 2 , canvas.width / 2, canvas.height / 2, 0);
+                    gradient.addColorStop(0, `hsla(200, 100%, 50%, 0.0)`);
+                    gradient.addColorStop(1,  `hsla(200, 100%, 50%, 0.1)`);
+                    context.fillStyle = gradient2
+                    context.arc(canvas.width / 2, canvas.height / 2, 0, 0, 2 * Math.PI, true);
+                    context.fill();
+                } else {
+                    const ctx = vingetteBuffer.getContext("2d", { willReadFrequently: true });
+                    const buffer = ctx.getImageData(0,0,canvas.width, canvas.height)
+                    context.putImageData(buffer, 0,0 )
+                }
+                
             }
 
 
@@ -162,7 +174,7 @@
                 context.fill();
 
                 context.globalCompositeOperation = "darken";
-                 context.fillStyle = `hsla(0, 0%, 0%, ${1 - op})`
+                context.fillStyle = `hsla(0, 0%, 0%, ${1 - op})`
                 context.arc(x * canvas.width, y * canvas.height, r * 2 * canvas.height, 0, 2 * Math.PI, true);
                 context.fill();
             }
@@ -269,10 +281,94 @@
             retryText.setAttributeNS(null, 'x', screenWidth / 2 - retryText.getBoundingClientRect().width / 2);
             retryText.setAttributeNS(null, 'y', screenHeight / 2);
          }, 200)
+
+
+         const drawings = []
+
+         const draw = () => {
+            if (!window.redraw) {
+                requestAnimationFrame(draw)
+                return
+            }
+            window.redraw = false
+            context.clearRect(0, 0, screenWidth, screenHeight)
+            
+            if (videoElem.style.display === 'block') {
+                context.fillStyle = `black`
+                context.beginPath();
+                context.rect(0, 0, screenWidth, screenHeight);
+                context.fill()
+            }
+
+            drawVingette()
+            if (score % 150 > 60) {
+                //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
+                //drawCircle(0.5, 0.5 * ((100 * y / screenHeight) % 30) / 100, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 30) / 100., 0.8)
+            } else {
+                
+            }
+            
+            drawings.forEach(d => {
+                context.globalCompositeOperation = d.blend ?? "source-over"
+                if (d.opacity !== undefined) {
+                    if (d.stroke) {
+                        d.stroke[3] = d.opacity
+                    }
+                    if (d.fill !== "gradient") {
+                        d.fill[3] = d.opacity
+                    }
+                    
+                }
+                
+                if (d.type === 'rect') {
+                    context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                    
+
+                    context.lineWidth = d.strokeWidth ?? 0;
+                    context.beginPath();
+                    context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
+                    
+                    context.fill();
+                    if (d.strokeWidth) {
+                        context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                        context.stroke();
+                    }
+                    
+                } else if (d.type === 'circle') {
+                    if (d.fill === 'gradient') {
+                        const gradient = context.createRadialGradient(d.cx + (d.dcx ?? 0),  d.cy + (d.dcy ?? 0), 0, d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r);
+                        gradient.addColorStop(0, `rgba(228,228,0,${1.0 * d.opacity})`);
+                        gradient.addColorStop(0.95,  `rgba(0,30,0,${0.05 * d.opacity})`);
+                        gradient.addColorStop(1,  `rgba(220,220,0,0`);
+                        context.fillStyle = gradient
+                    } else {
+                        context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
+                    }
+                    
+                    
+                    context.lineWidth = d.strokeWidth ?? 0;
+                    context.beginPath();
+                    context.arc(d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r * 2, 0, 2 * Math.PI, true);
+                    
+                    context.fill();
+
+                    if (d.strokeWidth) {
+                        context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
+                        context.stroke();
+                    }
+                }
+            })
+            requestAnimationFrame(draw)
+
+        }
+            
+        draw()
          
-         const start = () => {
+        const start = () => {
             fullscreen.style.display = 'none'
             play = true
+
+            drawings.length = 0
             
             while (container.firstChild) {
                 container.removeChild(container.lastChild);
@@ -289,8 +385,6 @@
             const radius = 30 * screenHeight / 755
             var x = initx
             var y = inity
-
-            const drawings = []
 
             const createCircle = () => {
 
@@ -324,81 +418,6 @@
             }
 
             const rects = []
-
-            const draw = () => {
-                context.clearRect(0, 0, screenWidth, screenHeight)
-                
-                if (videoElem.style.display === 'block') {
-                    context.fillStyle = `black`
-                    context.beginPath();
-                    context.rect(0, 0, screenWidth, screenHeight);
-                    context.fill()
-                }
-
-                drawVingette()
-                if (score % 150 > 60) {
-                   //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
-                    //drawCircle(0.5, 0.5 * ((100 * y / screenHeight) % 30) / 100, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 30) / 100., 0.8)
-                } else {
-                    
-                }
-                
-                drawings.forEach(d => {
-                    context.globalCompositeOperation = d.blend ?? "source-over"
-                    if (d.opacity !== undefined) {
-                        if (d.stroke) {
-                            d.stroke[3] = d.opacity
-                        }
-                        if (d.fill !== "gradient") {
-                            d.fill[3] = d.opacity
-                        }
-                        
-                    }
-                   
-                    if (d.type === 'rect') {
-                        context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
-                        
-
-                        context.lineWidth = d.strokeWidth ?? 0;
-                        context.beginPath();
-                        context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
-                        
-                        context.fill();
-                        if (d.strokeWidth) {
-                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
-                            context.stroke();
-                        }
-                        
-                    } else if (d.type === 'circle') {
-                        if (d.fill === 'gradient') {
-                            const gradient = context.createRadialGradient(d.cx + (d.dcx ?? 0),  d.cy + (d.dcy ?? 0), 0, d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r);
-                            gradient.addColorStop(0, `rgba(228,228,0,${1.0 * d.opacity})`);
-                            gradient.addColorStop(0.95,  `rgba(0,30,0,${0.05 * d.opacity})`);
-                            gradient.addColorStop(1,  `rgba(220,220,0,0`);
-                            context.fillStyle = gradient
-                        } else {
-                            context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
-                        }
-                        
-                        
-                        context.lineWidth = d.strokeWidth ?? 0;
-                        context.beginPath();
-                        context.arc(d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r * 2, 0, 2 * Math.PI, true);
-                        
-                        context.fill();
-
-                        if (d.strokeWidth) {
-                            context.strokeStyle = `rgba(${d.stroke[0]}, ${d.stroke[1]}, ${d.stroke[2]}, ${d.stroke[3]})`
-                            context.stroke();
-                        }
-                    }
-                })
-                requestAnimationFrame(draw)
-
-            }
-            draw()
-
-
 
             const createRect = (x, y, id) => {
 
@@ -459,8 +478,11 @@
             window.gravityFactor = 1000
             window.speedFactor = 1000
             window.refresh = 50
+            window.redraw = true
             
             const loop = () => setTimeout(() => {
+
+                window.redraw = true
 
                 const delta = Math.round((performance.now().toFixed() - time) / 10)
                 window.i += delta
