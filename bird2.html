@@ -34,6 +34,8 @@
 
             try {
                navigator.wakeLock.request();
+               screen.orientation.lock("portrait")
+
             } catch {
 
             }
@@ -301,6 +303,7 @@
             }
 
             drawVingette()
+
             if (score % 150 > 60) {
                 //drawCircle(0.5, 0.5, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 10) / 100., 0.8)
                 //drawCircle(0.5, 0.5 * ((100 * y / screenHeight) % 30) / 100, 1.0, 0.2 + 0.5 * ((100 * y / screenHeight) % 30) / 100., 0.8)
@@ -357,6 +360,7 @@
                         context.stroke();
                     }
                 }
+
             })
             requestAnimationFrame(draw)
 
