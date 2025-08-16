@@ -419,7 +419,7 @@
         window.speed = 1.0
 
         const start = () => {
-            if (window.fpsprecise < 20) {
+            if (window.fpsprecise < 29) {
                 location.reload()
             }
             fullscreen.style.display = 'none'
@@ -428,6 +428,7 @@
             window.x = initx
             window.y = inity
             drawings.length = 0
+            window.i = 0
 
             window.rects = []
             window.seed = performance.now() % 300
