@@ -424,12 +424,13 @@
             const rects = []
 
 
+            var seed = performance.now() % 300
             const random1 = () => {
-                return Math.abs(Math.sin(i * y + 109309 * energy * y + y))
+                return Math.abs(Math.sin(seed * 6599 + i * y + 109309 * energy * y + y + Math.sin(y)))
             }
 
             const random2 = () => {
-                return Math.abs(Math.cos(i * y + 604089 * energy + y))
+                return Math.abs(Math.cos(seed * 6599 + i * y + 604089 * energy + y - 10))
             }
 
             const createRect = (x, y, id) => {
