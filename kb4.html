@@ -9,10 +9,11 @@
     
     </head>
     <body bgcolor="black" style="overflow-x: hidden; overflow-y: hidden">
-    
+   
 
     <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">gyro</button>
-        <script>
+    <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px; margin:0; padding:0; line-height: 45px"></pre>
+    <script>
 
             var prevX = 0
             var prevY = 0
@@ -63,6 +64,76 @@
             setInterval(() => {
                 energy = 0
             }, 300)
+        </script>
+        <script>
+            let energyy = 0
+            let maxenergyy = 0
+            let energyyy = 0
+
+            const data = []
+
+            let point = undefined
+            let stream = []
+
+            let polarity = 1
+
+            setInterval(() => {
+                if (energy > 0.00001) {
+                    energyy++
+                    if (energyy > maxenergyy) {
+                        maxenergyy = energyy
+                    }
+                } else {
+                    energyy--
+                    if (((maxenergyy - energyy) > 5)) {
+ 
+                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -20)
+                        energyy = 0
+                        maxenergyy = 0
+
+                        if (energyyy < 0) {
+                            energyyy = 0
+                        }
+
+                    }
+                }
+            }, 1)
+
+
+ 
+
+            setInterval(() => {
+
+                if (energyy > -1) {
+                    data.push(Math.round(energyy / 10))
+                    const movingWindow = 2
+                    data.splice(0, data.length - movingWindow)
+                    if (data.length > 0) {
+                       point = Math.round(data.reduce((a, b) => a + b) / data.length)
+                    }
+                } else {
+                    if (point && point > 5 && false) {
+                        stream.push(point)
+                        point = undefined
+                        data.length = 0
+                    }
+                    
+                }
+                
+                
+                 const style = 
+                    `color: hsla(${40}, ${95}%, ${100}%, 1); 
+                        font-size: ${40 }px; 
+                        line-height: 1em;`
+
+
+
+                document.getElementById("output").innerHTML =
+                     "> " 
+                     + (stream.length === 0 ? "" : stream.reduce((a,b) => a + " " + b)) 
+                     + " " 
+                     + `<font style="${style}">${(Math.round((energyyy + maxenergyy) / 20)) % 40} </font>`
+            }, 60)
         </script>
         </body>
 </html>
