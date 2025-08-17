@@ -79,7 +79,7 @@
 
             setInterval(() => {
                 if (energy > 0.00001) {
-                    energyy += (energy - 0.03) / 0.01
+                    energyy += (energy - 0.03) / 0.01 //0.01
                     if (energyy > maxenergyy) {
                         maxenergyy = energyy
                     }
@@ -110,14 +110,22 @@
 
                 const cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
 
+                const counterThreshold = 100
+
                 if (cursor === candidate) {
                     counter ++
+                    if (energy > 0.01) {
+                        counter -= energy * 5000
+                        if (counter < 0) {
+                            counter = 0
+                        }
+                    }
                 } else {
                     counter = 0
                 }
                 candidate = cursor
 
-                if (counter > 200 && candidate != 0) {
+                if (counter > counterThreshold && candidate != 0) {
                     if (alphabet[cursor] === " _") {
                         stream.push(" ")
                     } else if (alphabet[cursor] === "↵") {
@@ -130,10 +138,15 @@
                     
                     candidate = undefined
                     energyyy = 0
+                    
+                }
+
+                if (counter > counterThreshold && candidate == 0) {
+                    counter = 0
                 }
                 
                 const style = 
-                    `color: hsla(${40}, ${95}%, ${100}%, 1); 
+                    `color: hsla(${80}, ${95}%, ${20 + counter * 20 / counterThreshold}%, 1); 
                         font-size: ${40 }px; 
                         line-height: 1em;`
 
