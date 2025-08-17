@@ -87,7 +87,7 @@
                     energyy--
                     if (((maxenergyy - energyy) > 5)) {
  
-                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -20)
+                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -10)
                         energyy = 0
                         maxenergyy = 0
 
@@ -101,27 +101,38 @@
 
 
  
+            let candidate = undefined
+            let counter = 0
+
+            alphabet = ["_", " _", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
 
             setInterval(() => {
 
-                if (energyy > -1) {
-                    data.push(Math.round(energyy / 10))
-                    const movingWindow = 2
-                    data.splice(0, data.length - movingWindow)
-                    if (data.length > 0) {
-                       point = Math.round(data.reduce((a, b) => a + b) / data.length)
-                    }
+                const cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
+
+                if (cursor === candidate) {
+                    counter ++
                 } else {
-                    if (point && point > 5 && false) {
-                        stream.push(point)
-                        point = undefined
-                        data.length = 0
+                    counter = 0
+                }
+                candidate = cursor
+
+                if (counter > 200 && candidate != 0) {
+                    if (alphabet[cursor] === " _") {
+                        stream.push(" ")
+                    } else if (alphabet[cursor] === "↵") {
+                        stream.push("\n")
+                    } else if (alphabet[cursor] === "<") {
+                        stream.pop()
+                    } else {
+                        stream.push(alphabet[cursor])
                     }
                     
+                    candidate = undefined
+                    energyyy = 0
                 }
                 
-                
-                 const style = 
+                const style = 
                     `color: hsla(${40}, ${95}%, ${100}%, 1); 
                         font-size: ${40 }px; 
                         line-height: 1em;`
@@ -130,10 +141,10 @@
 
                 document.getElementById("output").innerHTML =
                      "> " 
-                     + (stream.length === 0 ? "" : stream.reduce((a,b) => a + " " + b)) 
-                     + " " 
-                     + `<font style="${style}">${(Math.round((energyyy + maxenergyy) / 20)) % 40} </font>`
-            }, 60)
+                     + (stream.length === 0 ? "" : stream.reduce((a,b) => a + b)) 
+                     + "" 
+                     + `<font style="${style}">${alphabet[cursor]} </font>`
+            }, 10)
         </script>
         </body>
 </html>
