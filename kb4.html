@@ -104,7 +104,7 @@
             let candidate = undefined
             let counter = 0
 
-            alphabet = ["_", " _", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
+            alphabet = ["_", "□", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
 
             setInterval(() => {
 
@@ -126,7 +126,7 @@
                 candidate = cursor
 
                 if (counter > counterThreshold && candidate != 0) {
-                    if (alphabet[cursor] === " _") {
+                    if (alphabet[cursor] === "□") {
                         stream.push(" ")
                     } else if (alphabet[cursor] === "↵") {
                         stream.push("\n")
