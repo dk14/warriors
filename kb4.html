@@ -85,7 +85,7 @@
                     }
                 } else {
                     energyy--
-                    if (((maxenergyy - energyy) > 2)) {
+                    if (((maxenergyy - energyy) > 1 || maxenergyy > 20)) {
  
                         energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -7)
                         energyy = 0
