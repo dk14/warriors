@@ -79,7 +79,7 @@
 
             setInterval(() => {
                 if (energy > 0.00001) {
-                    energyy++
+                    energyy += (energy - 0.03) / 0.01
                     if (energyy > maxenergyy) {
                         maxenergyy = energyy
                     }
