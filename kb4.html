@@ -27,8 +27,8 @@
                 ev.acceleration = {}
                 const x = event.clientX / 1000
                 const y = event.clientY / 1000
-                ev.acceleration.x = (event.clientX - prevX) / 2
-                ev.acceleration.y = (event.clientY - prevY) / 2
+                ev.acceleration.x = (event.clientX - prevX) / 4
+                ev.acceleration.y = (event.clientY - prevY) / 4
                 ev.acceleration.z = 0
                 prevX = x
                 prevY = y
