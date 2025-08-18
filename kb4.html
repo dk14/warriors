@@ -12,7 +12,7 @@
    
 
     <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">gyro</button>
-    <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-family: monospace Lucida Console; font-size:40px; margin:0; padding:0; line-height: 45px"></pre>
+    <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-family: monospace Lucida Console; font-size:80px; margin:30; padding:0; line-height: 85px"></pre>
     <canvas id="preview" style="position: absolute; top: 0; z-index: -1"></canvas>
     <script>
 
@@ -85,10 +85,11 @@
                         maxenergyy = energyy
                     }
                 } else {
+                    energyy = Math.min(10, energyy)
                     energyy--
-                    if (((maxenergyy - energyy) > 1 || maxenergyy > 20)) {
+                    if (((maxenergyy - energyy) > 1 || maxenergyy > 10)) {
  
-                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -7)
+                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -9)
                         energyy = 0
                         maxenergyy = 0
 
@@ -104,7 +105,7 @@
  
             let candidate = undefined
             window.counter = 0
-            window.counterThreshold = 100
+            window.counterThreshold = 33
             window.position = 0
 
             window.alphabet = ["_", "□", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
@@ -112,19 +113,19 @@
             setInterval(() => {
 
                 position = (energyyy + maxenergyy) % 800
-                const cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
+                let cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
 
                 
 
                 if (cursor === candidate) {
                     counter ++
-                    if (energy > 0.01) {
-                        counter -= energy * 5000
-                        if (counter < 0) {
-                            counter = 0
-                        }
+                    if (energy < 0.01) {
+                        counter += 0.1
                     }
                 } else {
+                    if (candidate && cursor > candidate) {
+                        cursor = Math.min(alphabet.length + 1, candidate + 1)
+                    }
                     counter = 0
                 }
                 candidate = cursor
@@ -151,7 +152,7 @@
                 
                 const style = 
                     `color: hsla(${80}, ${95}%, ${20 + counter * 20 / counterThreshold}%, 1); 
-                        font-size: ${40 }px; 
+                        font-size: ${80 }px; 
                         line-height: 1em;`
 
 
@@ -161,7 +162,7 @@
                      + (stream.length === 0 ? "" : stream.reduce((a,b) => a + b)) 
                      + "" 
                      //+ `<font style="${style}">${alphabet[cursor]} </font>`
-            }, 10)
+            }, 30)
         </script>
         <script>
             const canvas = document.getElementById("preview")
@@ -173,12 +174,12 @@
             const animate = () => {
                 const out = document.getElementById("output")
                 const shiftconsole = out.getBoundingClientRect().top
-                const cy = shiftconsole + (stream.join("").split("\n").length - 1) * (40 + 5) + 35
-                const cx = (stream.join("").substring(stream.join("").lastIndexOf("\n") + 1).length) * 24 + 5
+                const cy = shiftconsole + (stream.join("").split("\n").length - 1) * (80 + 5) + 45 + 25
+                const cx = (stream.join("").substring(stream.join("").lastIndexOf("\n") + 1).length) * 48 + 5 + 30
 
 
                 ctx.clearRect(0,0, 300, 300)
-                ctx.font = "40px Lucida Console";
+                ctx.font = "80px 'Lucida Console', monospace";
                 const maxdistance = 800
                 
 
