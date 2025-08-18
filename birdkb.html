@@ -171,13 +171,18 @@
             let counter = 0
             let candidate = undefined
 
-            const counterThreshold = 600
+            const counterThreshold = 100
 
             const cancel2 = setInterval(() => {
                 if (energy < 0.01) {
                     i++
+                } else {
+                    i-= 0.2
                 }
 
+                if (counter < 0) {
+                    counter = 0
+                }
 
                 const cursor = Math.round((screenHeight - y) / 20)
 
@@ -186,19 +191,23 @@
                 
                 if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
                     counter++
+                } 
+                
+                if (candidate && candidate !== cursor) {
+                    counter = 0
                 }
                 
                 candidate = cursor
 
 
-                if (i % k === 0 || counter > counterThreshold) {
+                if (i % k > 200 && counter > counterThreshold) {
                     if (alphabet[cursor % alphabet.length] === "□") {
                         stream.push(" ")
                     } else if (alphabet[cursor % alphabet.length] === "↵") {
                         stream.push("\n")
                     } else if (alphabet[cursor % alphabet.length] === "<") {
                         stream.pop()
-                    } else {
+                    } else if (alphabet[cursor % alphabet.length] !== '_') {
                         stream.push(alphabet[cursor % alphabet.length])
                     }
                     i = 1
@@ -207,7 +216,7 @@
                     y = screenHeight
                 }
                 
-                const ballspeed = Math.max(0.05, 1 - 0.0025 * (i % k))
+                const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
                 const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
