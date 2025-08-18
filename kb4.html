@@ -193,8 +193,8 @@
                     ctx.fillRect(0, 0, 3000, 3000)
 
                     if (i === candidate) {
-                        const distance = (candidate * 20 - position) / 40
-                        ctx.fillStyle = `rgba(0,0,0,${0.4 + distance})`
+                        const distance = (position - candidate * 20) / 20
+                        ctx.fillStyle = `rgba(0,0,0,${0.5 - distance})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
