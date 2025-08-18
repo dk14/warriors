@@ -193,15 +193,15 @@
 
                     if (i === candidate) {
                         
-                        ctx.fillStyle = `rgba(0,0,0,${0.7 - 0.3 * distance })`
+                        ctx.fillStyle = `rgba(0,0,0,${1.0 - 0.7 * distance})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     } else {
 
-                        ctx.fillStyle = `rgba(0,0,0,${0.5})`
+                        ctx.fillStyle = `rgba(0,0,0,${0.4})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
-                    ctx.fillStyle = `hsla(${(i === candidate + 1) ? (140 + distance) : 120}, ${i === candidate ? 100 : 80}%, ${30 + 10 + (i === candidate ? counter * 20 / counterThreshold : 0)}%, ${1.0 + counter / counterThreshold})`;
+                    ctx.fillStyle = `hsla(${120}, ${80}%, ${40}%, ${1.0 + counter / counterThreshold})`;
                     
                     const shifts = {
                         'l': 5,
