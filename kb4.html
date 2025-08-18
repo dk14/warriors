@@ -13,6 +13,7 @@
 
     <button style="border: 1px solid green; background-color: black; color: green; z-index: 100;"  id="gyro" onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">gyro</button>
     <pre id="output" style="color: hsla(120, 100%, 25%, 1); font-size: 40px; margin:0; padding:0; line-height: 45px"></pre>
+    <canvas id="preview" style="position: absolute; top: 0; z-index: -1"></canvas>
     <script>
 
             var prevX = 0
@@ -73,7 +74,7 @@
             const data = []
 
             let point = undefined
-            let stream = []
+            window.stream = []
 
             let polarity = 1
 
@@ -102,15 +103,18 @@
 
  
             let candidate = undefined
-            let counter = 0
+            window.counter = 0
+            window.counterThreshold = 100
+            window.position = 0
 
-            alphabet = ["_", "□", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
+            window.alphabet = ["_", "□", "↵", "<"].concat("01234567890abcdefghijklmnopqrstuvwxyz!".split(""))
 
             setInterval(() => {
 
+                position = (energyyy + maxenergyy) % 800
                 const cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
 
-                const counterThreshold = 100
+                
 
                 if (cursor === candidate) {
                     counter ++
@@ -153,11 +157,60 @@
 
 
                 document.getElementById("output").innerHTML =
-                     "> " 
+                     "" 
                      + (stream.length === 0 ? "" : stream.reduce((a,b) => a + b)) 
                      + "" 
-                     + `<font style="${style}">${alphabet[cursor]} </font>`
+                     //+ `<font style="${style}">${alphabet[cursor]} </font>`
             }, 10)
+        </script>
+        <script>
+            const canvas = document.getElementById("preview")
+            canvas.width = document.body.clientWidth - 20
+            canvas.height = document.body.clientHeight - 40
+            const ctx = canvas.getContext("2d")
+            
+
+            const animate = () => {
+                const out = document.getElementById("output")
+                const shiftconsole = out.getBoundingClientRect().top
+                const cy = shiftconsole + (stream.join("").split("\n").length - 1) * (40 + 5) + 35
+                const cx = (stream.join("").substring(stream.join("").lastIndexOf("\n") + 1).length) * 24 + 5
+
+
+                ctx.clearRect(0,0, 300, 300)
+                ctx.font = "40px Lucida Console";
+                const maxdistance = 800
+                
+
+                
+                for (let i = alphabet.length - 1; i >= candidate ; i--) {
+
+                    
+
+                    ctx.fillStyle = `rgba(0,0,0,${0.2})`
+                    ctx.fillRect(0, 0, 3000, 3000)
+
+                    if (i === candidate) {
+                        const distance = (candidate * 20 - position) / 40
+                        ctx.fillStyle = `rgba(0,0,0,${0.6 + distance})`
+                        ctx.fillRect(0, 0, 3000, 3000)
+                    }
+
+                    //ctx.fillStyle = `hsla(${120 + (50 * ((candidate + i) % 5))}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
+                    ctx.fillStyle = `hsla(${120}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
+                    ctx.fillText(alphabet[i], alphabet[i] === 'l' ? (cx + 5) : cx, cy)
+                    
+                }
+
+                
+                 
+                
+
+                requestAnimationFrame(animate)
+            }
+            animate()
+            
+
         </script>
         </body>
 </html>
