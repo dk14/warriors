@@ -1,0 +1,255 @@
+<html>
+    <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    
+    </head>
+    <body bgcolor="black">
+        <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
+        <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
+      fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   
+        </svg>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            setInterval(() => {
+                //energy = 0
+            }, 100)
+
+            onmousemove = (event) => {                
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.05
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event) => {
+                setInterval(() => {
+                    document.getElementById("gyro").style.display = 'none'
+                }, 100)
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
+                }
+                
+            
+            }
+
+            setInterval(() => {
+                energy = 0
+            }, 300)
+        </script>
+        <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
+        <script>
+        var screenWidth = document.body.clientWidth - 20
+        var screenHeight = document.body.clientHeight - 40
+
+        const rate = 10
+
+         var play = false
+         var score = 0
+         var highscore = 0
+         highscore = localStorage.getItem('highscore') ?? 0
+         
+         const svgns = "http://www.w3.org/2000/svg"
+         const container = document.getElementById( 'cont' );
+         container.setAttributeNS(null, "width", screenWidth)
+         container.setAttributeNS(null, "height", screenHeight)
+
+         const scoreText = document.createElementNS(svgns, "text");
+         scoreText.setAttributeNS(null, 'y', 50);
+         scoreText.textContent = "00"
+
+         const retryText = document.createElementNS(svgns, "text");
+         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
+         retryText.setAttributeNS(null, 'y', screenHeight / 2);
+         retryText.setAttributeNS(null, 'style', "fill: pink");
+         
+     
+         setInterval(() => {
+            scoreText.textContent = score
+            retryText.textContent = "HIGH SCORE: " + highscore
+         }, 200)
+         
+         const start = () => {
+            play = true
+            
+            container.innerHTML = ""
+            container.appendChild(scoreText);
+            try {
+                container.removeChild(retryText);
+            } catch {}
+            
+
+            score = 0
+            
+            
+            const initx = 200
+            const inity = 300
+            const radius = 30 * screenHeight / 755
+            var x = initx
+            var y = inity
+            
+
+            const circle = document.createElementNS(svgns, 'circle');
+            circle.setAttributeNS(null, 'cx', x);
+            circle.setAttributeNS(null, 'cy', y);
+            circle.setAttributeNS(null, 'r', radius);
+            circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
+            container.appendChild(circle);
+
+            const rects = []
+
+            const createRect = (x, y) => {
+                const rect = document.createElementNS(svgns, 'rect');
+                const bias = screenHeight * 0.1
+                const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
+                const h = (screenHeight - gate)  * Math.random()
+
+                rect.setAttributeNS(null, 'x', x);
+                rect.setAttributeNS(null, 'y', (screenHeight - h));
+                rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
+                rect.setAttributeNS(null, 'height', h);
+                rect.setAttributeNS(null, 'style', 'fill: yellow; stroke: red; stroke-width: 1px; ' );
+                container.appendChild(rect);
+                rects.push(rect)
+
+                const rect2 = document.createElementNS(svgns, 'rect');
+                rect2.setAttributeNS(null, 'x', x);
+                rect2.setAttributeNS(null, 'y', 0);
+                rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
+                rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
+                rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
+                container.appendChild(rect2);
+                rects.push(rect2)
+
+                container.removeChild(scoreText);
+                container.appendChild(scoreText);
+            }
+
+            cancel1 = setInterval(() => {
+                //createRect(screenWidth, screenHeight - 200 + 30)
+
+            }, 2000 * screenHeight / 755)
+
+            var boost = 0
+
+
+            y = screenHeight
+            var acc = 0
+            const alphabet = " _01".split("")
+            let candidate = 0
+            let stream = ""
+
+            const cancel2 = setInterval(() => {
+
+                const cursor = Math.min(3, Math.round((screenHeight - y) / 200))
+                candidate = Math.max(candidate, cursor)
+                candidate = Math.round(candidate)
+
+                score = stream.replaceAll("_", "") + "" + alphabet[candidate]
+                acc += energy
+
+                if (cursor === 0 && candidate !== 0) {
+                    y = screenHeight
+                    acc = 0 
+
+                    stream += ("" + alphabet[candidate])
+                    candidate = 0
+                }
+
+                if (cursor === 0) {
+                    candidate = 0
+                }
+                
+                const ballspeed = 1
+                const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
+                const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
+                if (y1 < 30) {
+                    y1 = screenHeight
+                }
+                if (y1 < y) {
+                    y = y1 
+                } else {
+                    y = y1 + gravity * (0.3 * 1000 / shift)
+                }
+                circle.setAttributeNS(null, 'cx', x);
+                circle.setAttributeNS(null, 'cy', y); 
+               
+                const speed = 10 / rate
+                rects.forEach(r => {
+                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
+                    if (parseInt(r.getAttributeNS(null, 'x')) < - 50 * screenHeight / 755) {
+                        container.removeChild(r)
+                        rects.splice(rects.findIndex(x => x === r), 1)
+                    }
+                })
+
+                rects.forEach(r => {
+                   const rectEdge = parseInt(r.getAttributeNS(null, 'x'))
+                   
+                   if (x > rectEdge + 30 && r["counted"] !== true) {
+                     r["counted"] = true
+                     score += 5
+                   }
+
+                   if (x < rectEdge && x > rectEdge - 200 && parseInt(r.getAttributeNS(null, 'y') > screenHeight / 2)) {
+                        boost = (parseInt((r.getAttributeNS(null, 'y'))) - y) / screenHeight
+                   }
+                  
+                   const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
+                    if (lost && false) {
+                        clearInterval(cancel1)
+                        clearInterval(cancel2)
+                        play = false
+                        if (score > highscore) {
+                           highscore = score
+                           localStorage.setItem('highscore', highscore)
+                        }
+                        container.appendChild(retryText);
+                    }
+
+                })
+            }, 100 / rate)
+         }
+         start()
+         document.addEventListener("touchend", () => {
+            if (!play) {
+               start()
+            }
+         });
+         window.onclick = () => {
+            if (!play) {
+               start()
+            }
+         }
+
+
+        </script>
+    </body>
+</html>
