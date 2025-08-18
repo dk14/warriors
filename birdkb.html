@@ -80,8 +80,11 @@
          container.setAttributeNS(null, "width", screenWidth)
          container.setAttributeNS(null, "height", screenHeight)
 
-         const scoreText = document.createElementNS(svgns, "text");
-         scoreText.setAttributeNS(null, 'y', 50);
+         const scoreText = document.createElement("pre");
+         scoreText.style = "font-family:'Crafty Girls'; font-size:50px;color:yellow;"
+         scoreText.style.position = "fixed"
+         scoreText.style.top = 0
+         scoreText.style.left = 20
          scoreText.textContent = "00"
 
          const retryText = document.createElementNS(svgns, "text");
@@ -99,7 +102,7 @@
             play = true
             
             container.innerHTML = ""
-            container.appendChild(scoreText);
+            document.body.appendChild(scoreText);
             try {
                 container.removeChild(retryText);
             } catch {}
@@ -147,8 +150,6 @@
                 container.appendChild(rect2);
                 rects.push(rect2)
 
-                container.removeChild(scoreText);
-                container.appendChild(scoreText);
             }
 
             cancel1 = setInterval(() => {
