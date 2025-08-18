@@ -182,7 +182,7 @@
                 ctx.clearRect(0,0, 300, 300)
                 ctx.font = "80px 'Lucida Console', monospace";
                 
-                for (let i = (candidate + 4) % alphabet.length; i >= candidate ; i--) {
+                for (let i = (candidate + 4); i >= candidate ; i--) {
 
                     
 
@@ -204,8 +204,8 @@
                         '<': 5
                     }
                     
-                    const shiftx = shifts[alphabet[i]] ?? 0
-                    ctx.fillText(alphabet[i], cx + shiftx, cy)
+                    const shiftx = shifts[alphabet[i % alphabet.length]] ?? 0
+                    ctx.fillText(alphabet[i % alphabet.length], cx + shiftx, cy)
 
 
                     
