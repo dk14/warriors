@@ -176,9 +176,7 @@
                 acc += energy
 
 
-                if (i % 10 === 0) {
-                    candidate = Math.round((cursor + 12 * candidate) / 13)
-                }
+
 
                 if (false) {
                     y = screenHeight
@@ -196,11 +194,17 @@
                 if (y1 < 30) {
                     y1 = screenHeight
                 }
+
+                if (i % 1000 === 0) {
+                   y1 = screenHeight
+                }
                 if (y1 < y) {
                     y = y1 
                 } else {
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
+
+  
                 
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
