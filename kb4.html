@@ -90,7 +90,7 @@
                     maxenergyy = Math.min(20, maxenergyy)
                     if (((maxenergyy - energyy) > 1 || maxenergyy > 10)) {
  
-                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -1)
+                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -6)
                         energyy = 0
                         maxenergyy = 0
 
@@ -182,18 +182,18 @@
                 ctx.clearRect(0,0, 300, 300)
                 ctx.font = "80px 'Lucida Console', monospace";
                 
-                for (let i = (candidate + 2) % alphabet.length; i >= candidate ; i--) {
+                for (let i = (candidate + 4) % alphabet.length; i >= candidate ; i--) {
 
                     
 
 
                     if (i === candidate) {
                         
-                        ctx.fillStyle = `rgba(0,0,0,${0.7 })`
+                        ctx.fillStyle = `rgba(0,0,0,${0.5 })`
                         ctx.fillRect(0, 0, 3000, 3000)
                     } else {
 
-                        ctx.fillStyle = `rgba(0,0,0,${0.6})`
+                        ctx.fillStyle = `rgba(0,0,0,${0.3})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
