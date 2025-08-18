@@ -161,32 +161,44 @@
 
             y = 0
             var acc = 0
-            const alphabet = " _01".split("")
-            let candidate = 400
+            const alphabet = "______abcdefghijklmnopqrstuvwxyz".split("")
             let stream = ""
 
             let i = 0
+            const k = 1000
+
+            let counter = 0
+            let candidate = undefined
+
+            const counterThreshold = 600
+
             const cancel2 = setInterval(() => {
-                i++
+                if (energy < 0.01) {
+                    i++
+                }
+
 
                 const cursor = Math.round((screenHeight - y) / 20)
-                candidate = Math.min(candidate, cursor)
-
-                score = cursor
-                acc += energy
 
 
-
-
-                if (false) {
-                    y = screenHeight
-                    acc = 0 
-
-                    stream += ("" + alphabet[candidate])
-                    candidate = 0
+                score = stream + alphabet[cursor % alphabet.length]
+                
+                if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
+                    counter++
                 }
                 
-                const ballspeed = Math.max(0.05, 1 - 0.002 * (i % 1000))
+                candidate = cursor
+
+
+                if (i % k === 0 || counter > counterThreshold) {
+                    stream += ("" + alphabet[cursor % alphabet.length])
+                    i = 1
+                    candidate = undefined
+                    counter = 0
+                    y = screenHeight
+                }
+                
+                const ballspeed = Math.max(0.05, 1 - 0.0025 * (i % k))
                 const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
@@ -195,7 +207,7 @@
                     y1 = screenHeight
                 }
 
-                if (i % 1000 === 0) {
+                if (i % k === 0) {
                    y1 = screenHeight
                 }
                 if (y1 < y) {
@@ -205,7 +217,7 @@
                 }
 
                 if (y > screenHeight - 20) {
-                    i = 0
+                    i = 1
                 }
 
   
