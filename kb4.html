@@ -192,13 +192,20 @@
 
                     if (i === candidate) {
                         const distance = (candidate * 20 - position) / 40
-                        ctx.fillStyle = `rgba(0,0,0,${0.6 + distance})`
+                        ctx.fillStyle = `rgba(0,0,0,${0.4 + distance})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
                     //ctx.fillStyle = `hsla(${120 + (50 * ((candidate + i) % 5))}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
-                    ctx.fillStyle = `hsla(${120}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
-                    ctx.fillText(alphabet[i], alphabet[i] === 'l' ? (cx + 5) : cx, cy)
+                    ctx.fillStyle = `hsla(${120}, ${i === candidate ? 100 : 80}%, ${40 + 10 + counter * 20 / counterThreshold}%, ${1.0})`;
+                    
+                    const shifts = {
+                        'l': 5,
+                        '<': 5
+                    }
+                    
+                    const shiftx = shifts[alphabet[i]] ?? 0
+                    ctx.fillText(alphabet[i], cx + shiftx, cy)
                     
                 }
 
