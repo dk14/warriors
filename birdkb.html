@@ -204,6 +204,10 @@
                     y = y1 + gravity * (0.3 * 1000 / shift)
                 }
 
+                if (y > screenHeight - 20) {
+                    i = 0
+                }
+
   
                 
                 circle.setAttributeNS(null, 'cx', x);
