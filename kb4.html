@@ -87,9 +87,10 @@
                 } else {
                     energyy = Math.min(10, energyy)
                     energyy--
+                    maxenergyy = Math.min(20, maxenergyy)
                     if (((maxenergyy - energyy) > 1 || maxenergyy > 10)) {
  
-                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -9)
+                        energyyy = energyyy + maxenergyy + ((maxenergyy === 0)? 0 : -1)
                         energyy = 0
                         maxenergyy = 0
 
@@ -113,7 +114,7 @@
             setInterval(() => {
 
                 position = (energyyy + maxenergyy) % 800
-                let cursor = (Math.round((energyyy + maxenergyy) / 20)) % 40
+                let cursor = (Math.floor((energyyy + maxenergyy) / 20)) % 40
 
                 
 
@@ -197,8 +198,11 @@
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
+                    const dist = (position - candidate * 20) / 20
+
                     //ctx.fillStyle = `hsla(${120 + (50 * ((candidate + i) % 5))}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
-                    ctx.fillStyle = `hsla(${120}, ${i === candidate ? 100 : 80}%, ${40 + 10 + counter * 20 / counterThreshold}%, ${1.0})`;
+                   
+                    ctx.fillStyle = `hsla(${120}, ${i === candidate ? 100 : 80}%, ${40 + 10 + counter * 20 / counterThreshold}%, ${1.0 - dist / 2})`;
                     
                     const shifts = {
                         'l': 5,
