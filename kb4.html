@@ -113,8 +113,8 @@
 
             setInterval(() => {
 
-                position = (energyyy + maxenergyy) % 800
-                let cursor = (Math.floor((energyyy + maxenergyy) / 20)) % 40
+                position = (energyyy + maxenergyy) % (alphabet.length * 20)
+                let cursor = (Math.floor((energyyy + maxenergyy) / 20)) % alphabet.length
 
                 
 
@@ -184,25 +184,24 @@
                 const maxdistance = 800
                 
 
+                const distance = (position % 400 - (candidate % 20) * 20) / 20
                 
-                for (let i = alphabet.length - 1; i >= candidate ; i--) {
+                for (let i = (candidate + 4) % alphabet.length; i >= candidate ; i--) {
 
                     
 
-                    ctx.fillStyle = `rgba(0,0,0,${0.2})`
-                    ctx.fillRect(0, 0, 3000, 3000)
 
                     if (i === candidate) {
-                        const distance = (position - candidate * 20) / 20
-                        ctx.fillStyle = `rgba(0,0,0,${0.9 - distance})`
+                        
+                        ctx.fillStyle = `rgba(0,0,0,${0.7 - 0.3 * distance })`
+                        ctx.fillRect(0, 0, 3000, 3000)
+                    } else {
+
+                        ctx.fillStyle = `rgba(0,0,0,${0.5})`
                         ctx.fillRect(0, 0, 3000, 3000)
                     }
 
-                    const dist = (position - candidate * 20) / 20
-
-                    //ctx.fillStyle = `hsla(${120 + (50 * ((candidate + i) % 5))}, ${100}%, ${40 + counter * 20 / counterThreshold}%, ${1.0})`;
-                   
-                    ctx.fillStyle = `hsla(${(i === candidate - 1) ? 10 : 120}, ${i === candidate ? 100 : 80}%, ${30 + 10 + (i === candidate ? counter * 20 / counterThreshold : 0)}%, ${1.0 - dist / 10 + counter / counterThreshold})`;
+                    ctx.fillStyle = `hsla(${(i === candidate + 1) ? (140 + distance) : 120}, ${i === candidate ? 100 : 80}%, ${30 + 10 + (i === candidate ? counter * 20 / counterThreshold : 0)}%, ${1.0 + counter / counterThreshold})`;
                     
                     const shifts = {
                         'l': 5,
@@ -211,8 +210,13 @@
                     
                     const shiftx = shifts[alphabet[i]] ?? 0
                     ctx.fillText(alphabet[i], cx + shiftx, cy)
+
+
                     
                 }
+
+                
+                
 
                 
                  
