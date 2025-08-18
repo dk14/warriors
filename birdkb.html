@@ -161,8 +161,8 @@
 
             y = 0
             var acc = 0
-            const alphabet = "______abcdefghijklmnopqrstuvwxyz".split("")
-            let stream = ""
+            const alphabet = "______□↵<abcdefghijklmnopqrstuvwxyz".split("")
+            let stream = []
 
             let i = 0
             const k = 1000
@@ -181,7 +181,7 @@
                 const cursor = Math.round((screenHeight - y) / 20)
 
 
-                score = stream + alphabet[cursor % alphabet.length]
+                score = stream.join("") + alphabet[cursor % alphabet.length]
                 
                 if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
                     counter++
@@ -191,7 +191,15 @@
 
 
                 if (i % k === 0 || counter > counterThreshold) {
-                    stream += ("" + alphabet[cursor % alphabet.length])
+                    if (alphabet[cursor % alphabet.length] === "□") {
+                        stream.push(" ")
+                    } else if (alphabet[cursor % alphabet.length] === "↵") {
+                        stream.push("\n")
+                    } else if (alphabet[cursor % alphabet.length] === "<") {
+                        stream.pop()
+                    } else {
+                        stream.push(alphabet[cursor % alphabet.length])
+                    }
                     i = 1
                     candidate = undefined
                     counter = 0
