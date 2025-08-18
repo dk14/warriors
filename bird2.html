@@ -232,9 +232,12 @@
                 energy = 0
             }, 300)
         </script>
-        <script src="https://sfxr.me/riffwave.js"></script>
-        <script src="https://sfxr.me/sfxr.js"></script>
-        <script src="http://unpkg.com/tone"></script>
+        
+        <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
+        <script type="text/javascript" src="https://unpkg.com/butterchurn-presets"></script>
+        <script type="text/javascript" src="https://unpkg.com/butterchurn-presets/lib/butterchurnPresetsExtra.min.js"></script>
+  
+
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
         var screenWidth = document.body.clientWidth - 20
@@ -690,6 +693,37 @@
                     //audioCtx.currentTime + 10)
                 
             }, 100)
+
+            const initWinampViz = (canvas) => {
+                try {
+                visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
+                    width: 1000,
+                    height: 1000
+                });
+                
+                // get audioNode from audio source or microphone
+                
+                
+                const mediaSource = audioCtx.createMediaStreamSource(compressor.stream)
+                visualizer.connectAudio(mediaSource);
+                
+                // load a preset
+                
+                window.presets = butterchurnPresets.getPresets();
+                const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
+                
+                window.presetKeys = Array.from(Object.keys(presets))
+                
+                //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+                
+                
+                
+                visualizer.render();
+                
+                } catch (error) {
+                print(error)
+                }
+            }
          }
          document.addEventListener("touchend", (ev) => {
 
