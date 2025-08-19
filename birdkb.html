@@ -258,6 +258,9 @@
                         stream.push("\n")
                     } else if (alphabet[cursor % alphabet.length] === "<") {
                         stream.pop()
+                        window.cpm = 0
+                        timestamps.length = 0
+
                     } else if (alphabet[cursor % alphabet.length] !== '_' && alphabet[cursor % alphabet.length] !== ' ') {
                         stream.push(alphabet[cursor % alphabet.length])
                     }
@@ -275,6 +278,11 @@
 
                     }
                     timer = performance.now()
+                    if (alphabet[cursor % alphabet.length] === "<") {
+                        window.cpm = 0
+                        timestamps.length = 0
+
+                    }
                 }
                 
                 const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
