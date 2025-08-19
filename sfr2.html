@@ -111,9 +111,7 @@
             }, 300)
         </script>
         <script>
-            
- //5
-        
+             
         function choice(arr, discriminateChoicefullnessBound){
           
           let unique = new Set(arr)
@@ -136,9 +134,7 @@
           
           return true
         }
-        
-        
-        
+           
         let predict = (pattern, history, discriminateChoicefullnessBound, indiscriminateChoicefullnessBound, minprefixboundary, lag) => {
           if (pattern.length <= minprefixboundary) return 0
           if (history.length < pattern.length + lag) return 0
