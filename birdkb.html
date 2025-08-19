@@ -170,6 +170,7 @@
 
             let counter = 0
             let candidate = undefined
+            let lastposition = undefined
 
             const counterThreshold = 100
 
@@ -187,11 +188,14 @@
                     i -= 0.4 * energy / 0.05
                     //i += 0.1 * position
                     i -= 0.1 * localHeight
+                    i += (Math.abs(position - lastposition))
                 }
 
                 if (counter < 0) {
                     counter = 0
                 }
+
+                lastposition = position
 
  
                 
