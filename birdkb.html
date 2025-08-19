@@ -94,7 +94,7 @@
          
      
          setInterval(() => {
-            scoreText.textContent = score
+            scoreText.innerHTML = score
             retryText.textContent = "HIGH SCORE: " + highscore
          }, 200)
          
@@ -174,20 +174,37 @@
             const counterThreshold = 100
 
             const cancel2 = setInterval(() => {
+
+                const quantisation = 20
+                const position = (screenHeight - y + 3) / quantisation
+                const cursor = Math.floor(position)
+                const distance = Math.abs(position - cursor - 0.5)
+                const localHeight = position - cursor
+
                 if (energy < 0.01) {
                     i++
                 } else {
-                    i-= 0.4 * energy / 0.05
+                    i -= 0.6 * energy / 0.05
+                    //i += 0.1 * position
+                    i -= 0.1 * localHeight
                 }
 
                 if (counter < 0) {
                     counter = 0
                 }
 
-                const cursor = Math.round((screenHeight - y) / 20)
+ 
+                
 
+                
+                scoreText.style.color = `hsla(100, 100%, 50%, 0.5)`
+    
 
-                score = stream.join("") + alphabet[cursor % alphabet.length]
+                const underCursor = alphabet[cursor % alphabet.length]
+                const underCursorColor = 
+                    `hsla(100, 100%, 50%, ${0.3 + 0.5 * distance})`;
+                const underCursorFormatted = `<font color = ${underCursorColor}>${underCursor}</font>`
+                score = stream.join("") + underCursorFormatted
                 
                 if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
                     counter++
@@ -198,6 +215,8 @@
                 }
                 
                 candidate = cursor
+
+                            
 
 
                 if (i % k > 200 && counter > counterThreshold) {
@@ -217,6 +236,8 @@
                 }
                 
                 const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
+                
+                
                 const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
                 const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
