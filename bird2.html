@@ -125,6 +125,21 @@
             document.body.appendChild(videoElem)
             document.body.appendChild(fullscreen)
 
+            const winampActivate = document.createElement("button");
+      
+            winampActivate.style = "border: none;opacity: 0.2; position: fixed; right: 20px; top: 5px; background-color: black; color: cyan; z-index: 200; font-size:70px;"
+            
+            winampActivate.innerText = "⏿"
+
+            winampActivate.addEventListener("touchend", () => {
+               winampActivate.onclick()
+            });
+
+            winampActivate.onclick = () => {
+                window.winamp = !window.winamp
+            }
+            
+            document.body.appendChild(winampActivate)
 
 
             let vingetteBuffer = null
@@ -426,6 +441,7 @@
                 location.reload()
             }
             fullscreen.style.display = 'none'
+            winampActivate.style.display = 'none'
             play = true
             score = 0
             window.x = initx
@@ -609,6 +625,8 @@
                         container.appendChild(retryRect);
                         container.appendChild(retryText);
                         fullscreen.style.display = 'block'
+                        winampActivate.style.display = 'block'
+
                         setTimeout(() => {
                             if (!play && videoElem.style.display === 'block') {
                                 start()
@@ -747,6 +765,7 @@
             } catch {
 
             }
+            
             if (!play) {
                start()
             }
