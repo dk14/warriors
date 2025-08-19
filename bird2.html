@@ -8,6 +8,27 @@
     <meta name="mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="./favicon.png">
      <title>Sunspot</title>
+     <style>
+        @media (max-height: 480px) and (min-width: 480px) and (max-width: 600px) { 
+    html{
+        -webkit-transform: rotate(-90deg);
+           -moz-transform: rotate(-90deg);
+            -ms-transform: rotate(-90deg);
+             -o-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+        -webkit-transform-origin: left top;
+           -moz-transform-origin: left top;
+            -ms-transform-origin: left top;
+             -o-transform-origin: left top;
+                transform-origin: left top;
+        width: 320px; /*this is the iPhone screen width.*/
+        position: absolute;
+        top: 100%;
+            left: 0
+    }
+}
+
+     </style>
     </head>
     <body bgcolor="black">
        <button  id ="start" style="font-family:'Crafty Girls'; border: 0px solid green; background-color: rgba(0,0,0,0); color: pink; z-index: 100; font-size: 40px;"  onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">START</button>
@@ -34,12 +55,10 @@
 
             try {
                navigator.wakeLock.request();
-               screen.orientation.lock("portrait")
 
             } catch {
 
             }
-            
 
             var before,now;
             before=Date.now();
@@ -127,9 +146,9 @@
 
             const winampActivate = document.createElement("button");
       
-            winampActivate.style = "border: none;opacity: 0.2; position: fixed; right: 20px; top: 5px; background-color: black; color: cyan; z-index: 200; font-size:70px;"
+            winampActivate.style = "border: none;opacity: 0.12; position: fixed; right: 20px; top: 0px; background-color: black; color: cyan; z-index: 200; font-size:70px;"
             
-            winampActivate.innerText = "⏿"
+            winampActivate.innerText = "⎚"//"🦙"
 
             winampActivate.addEventListener("touchend", () => {
                winampActivate.onclick()
