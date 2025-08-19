@@ -808,6 +808,12 @@
             }
         }
 
+        const portrait = window.matchMedia("(orientation: portrait)");
+
+        portrait.addEventListener("change", (e) => {
+            location.reload()
+        });
+
 
         </script>
     </body>
