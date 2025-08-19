@@ -208,7 +208,7 @@
                 const quantisation = alphabet.length
                 const position = (screenHeight - y + 3) / ((screenHeight - 30) / quantisation)
                 const cursor = Math.floor(position)
-                const distance = Math.abs(position - cursor - 0.5)
+                const distance = (candidate === cursor) ? (1 - 2 * Math.abs(position - cursor - 0.5)) : 0
                 const localHeight = position - cursor
 
                 const chdist = Math.abs(candidate - cursor)
@@ -216,10 +216,7 @@
                 if (energy < 0.01) {
                     i++
                 } else {
-                    i -= 0.4 * energy / 0.05
-                    //i += 0.1 * position
-                    i -= 0.1 * localHeight
-                    i += (Math.abs(position - lastposition))
+                    i = i * (1 - 0.005 * energy)
                 }
 
                 if (counter < 0) {
@@ -237,8 +234,8 @@
 
                 const underCursor = alphabet[cursor % alphabet.length] ?? '_'
                 const underCursorColor = 
-                    `hsla(100, 100%, 50%, ${0.3 + 0.5 * distance})`;
-                const underCursorFormatted = `<font color = ${underCursorColor}>${underCursor}</font>`
+                    `hsla(100, 100%, 50%, ${0.3 + i / iThreshold })`;
+                const underCursorFormatted = `<font style = 'color: ${underCursorColor}''>${underCursor}</font>`
                 score = stream.join("") + underCursorFormatted
                 
                 if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
@@ -246,10 +243,10 @@
                 }
                 
                 if (candidate && candidate !== cursor) {
-                    i -= counter / 4
+                    i = 0.95 * i 
                     counter = 0
                     //i-=2
-                    //i -= 0.001 * energy / 0.05
+                    
                 }
                 
                 candidate = cursor
