@@ -174,7 +174,7 @@
 
             y = 0
             var acc = 0
-            const alphabet = "______□↵<abcdefghijklmnopqrstuvwxyz".split("")
+            const alphabet = "______□↵<abcdefghijklmnopqrstuvwxyz0123456789___".split("")
             let stream = []
 
             let i = 0
@@ -188,8 +188,8 @@
 
            setInterval(() => {
 
-                const quantisation = 20
-                const position = (screenHeight - y + 3) / quantisation
+                const quantisation = alphabet.length
+                const position = (screenHeight - y + 3) / ((screenHeight - 30) / quantisation)
                 const cursor = Math.floor(position)
                 const distance = Math.abs(position - cursor - 0.5)
                 const localHeight = position - cursor
