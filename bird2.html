@@ -680,6 +680,8 @@
             oscillator.start();
             modulator.start();
 
+            const streamNode = audioCtx.createMediaStreamDestination();
+            compressor.connect(streamNode)
 
 
             const audioloop = setInterval(() => {
@@ -694,20 +696,17 @@
                 
             }, 100)
 
+            window.winamp = false
             const initWinampViz = (canvas) => {
-                try {
+
                 visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
                     width: 1000,
                     height: 1000
                 });
                 
-                // get audioNode from audio source or microphone
-                
-                
-                const mediaSource = audioCtx.createMediaStreamSource(compressor.stream)
+                const mediaSource = audioCtx.createMediaStreamSource(streamNode.stream)
                 visualizer.connectAudio(mediaSource);
                 
-                // load a preset
                 
                 window.presets = butterchurnPresets.getPresets();
                 const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
@@ -715,16 +714,24 @@
                 window.presetKeys = Array.from(Object.keys(presets))
                 
                 //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
-                
-                
-                
-                visualizer.render();
-                
-                } catch (error) {
-                print(error)
+        
+                const renderer = () => {
+                    if (window.winamp) {
+                        visualizer.render();
+                    }
+                    requestAnimationFrame(renderer)
                 }
+                renderer()
+
+                return visualizer
+                
             }
+            window.winampCanvas = document.createElement("canvas")
+            window.winampViz = initWinampViz(winampCanvas)
          }
+
+         
+
          document.addEventListener("touchend", (ev) => {
 
             try {
