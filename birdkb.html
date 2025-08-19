@@ -234,7 +234,8 @@
 
                 const underCursor = alphabet[cursor % alphabet.length] ?? '_'
                 const underCursorColor = 
-                    `hsla(100, 100%, 50%, ${0.3 + i / iThreshold })`;
+                    //`hsla(100, 100%, 50%, ${0.3 + i / iThreshold })`;
+                    `hsla(100, 100%, 50%, ${1.0 })`;
                 const underCursorFormatted = `<font style = 'color: ${underCursorColor}''>${underCursor}</font>`
                 score = stream.join("") + underCursorFormatted
                 
