@@ -146,13 +146,22 @@
          scoreText.style.left = 20
          scoreText.textContent = "00"
 
+        const cpmText = document.createElement("pre");
+         cpmText.style = "font-family:'Crafty Girls'; font-size:50px;color:yellow;"
+         cpmText.style.position = "fixed"
+         cpmText.style.bottom = 30
+         cpmText.style.right = 20
+         cpmText.textContent = "0 cpm"
+
          setInterval(() => {
             scoreText.innerHTML = score
+            cpmText.textContent = (window.cpm ?? 0) + " cpm"
          }, 200)
          
          const start = () => {
             container.innerHTML = ""
             document.body.appendChild(scoreText);
+            document.body.appendChild(cpmText);
 
             score = 0
             
@@ -187,6 +196,10 @@
 
             const counterThreshold = 10
             const iThreshold = 150
+
+            let timer = undefined
+            const timestamps = []
+            window.cpm = 0
 
            setInterval(() => {
 
@@ -251,6 +264,16 @@
                     candidate = undefined
                     counter = 0
                     y = screenHeight
+
+                    if (timer) {
+                        const time = performance.now() - timer
+                        timestamps.push(time)
+                        timestamps.splice(0, timestamps.length - 10)
+                        const avg = timestamps.reduce((a,b)=>a+b, 0) / timestamps.length
+                        window.cpm = Math.floor((60000 / avg) ?? 0)
+
+                    }
+                    timer = performance.now()
                 }
                 
                 const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
