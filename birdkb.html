@@ -11,7 +11,7 @@
     <body bgcolor="black">
         <button id="gyro" onclick="DeviceMotionEvent.requestPermission()">gyro</button>
         <svg id="cont" style="font-family:'Crafty Girls'; font-size:50px;
-      fill:yellow;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      fill:yellow;position: fixed; top:0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    
         </svg>
         <script>
@@ -142,7 +142,7 @@
          const scoreText = document.createElement("pre");
          scoreText.style = "font-family:'Crafty Girls'; font-size:200px;color:yellow;"
          scoreText.style.position = "fixed"
-         scoreText.style.top = 0
+         scoreText.style.top = -200
          scoreText.style.left = 20
          scoreText.textContent = "00"
 
@@ -174,7 +174,8 @@
 
             y = 0
             var acc = 0
-            const alphabet = "_ _ _ _ _<<<□↵abcdefghijklmnopqrstuvwxyz0123456789!?.,:[]{}_ _ _".split("")
+            const alphabet = "_ _ _ _ _<<<□↵abcdefghijklmnopqrstuvwxyz0123456789!?.,:[]{}_ _ _"
+                .split("").concat(["lol"]).concat("_ _ _")
             let stream = []
 
             let i = 0
