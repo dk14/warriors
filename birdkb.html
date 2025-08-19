@@ -195,8 +195,9 @@
             let candidate = undefined
             let lastposition = undefined
 
-            const counterThreshold = 10
-            const iThreshold = 150
+            window.counterThreshold = 10
+            window.iThreshold = 150
+            window.speedFactor = 1
 
             let timer = undefined
             const timestamps = []
@@ -285,7 +286,7 @@
                     }
                 }
                 
-                const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
+                const ballspeed = speedFactor * Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
                 
                 
                 const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
