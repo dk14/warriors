@@ -216,7 +216,7 @@
                 scoreText.style.color = `hsla(100, 100%, 50%, 0.5)`
     
 
-                const underCursor = alphabet[cursor % alphabet.length] ?? 0
+                const underCursor = alphabet[cursor % alphabet.length] ?? '_'
                 const underCursorColor = 
                     `hsla(100, 100%, 50%, ${0.3 + 0.5 * distance})`;
                 const underCursorFormatted = `<font color = ${underCursorColor}>${underCursor}</font>`
