@@ -8,27 +8,6 @@
     <meta name="mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="./favicon.png">
      <title>Sunspot</title>
-     <style>
-        @media (max-height: 480px) and (min-width: 480px) and (max-width: 600px) { 
-    html{
-        -webkit-transform: rotate(-90deg);
-           -moz-transform: rotate(-90deg);
-            -ms-transform: rotate(-90deg);
-             -o-transform: rotate(-90deg);
-                transform: rotate(-90deg);
-        -webkit-transform-origin: left top;
-           -moz-transform-origin: left top;
-            -ms-transform-origin: left top;
-             -o-transform-origin: left top;
-                transform-origin: left top;
-        width: 320px; /*this is the iPhone screen width.*/
-        position: absolute;
-        top: 100%;
-            left: 0
-    }
-}
-
-     </style>
     </head>
     <body bgcolor="black">
        <button  id ="start" style="font-family:'Crafty Girls'; border: 0px solid green; background-color: rgba(0,0,0,0); color: pink; z-index: 100; font-size: 40px;"  onclick="console.log('hello'); DeviceMotionEvent.requestPermission()">START</button>
@@ -274,8 +253,8 @@
 
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
         <script>
-        var screenWidth = document.body.clientWidth - 20
-        var screenHeight = document.body.clientHeight - 40
+        var screenWidth = document.body.clientWidth
+        var screenHeight = document.body.clientHeight
 
         document.getElementById("start").style.position = "absolute"
         document.getElementById("start").style.top = screenHeight / 2
@@ -811,6 +790,23 @@
             }
 
         }, 1000)
+
+        window.onresize = function() {
+            location.reload()
+        };
+
+        if (document.addEventListener) {
+            document.addEventListener('fullscreenchange', exitHandler, false);
+            document.addEventListener('mozfullscreenchange', exitHandler, false);
+            document.addEventListener('MSFullscreenChange', exitHandler, false);
+            document.addEventListener('webkitfullscreenchange', exitHandler, false);
+        }
+
+        function exitHandler(){
+            if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement){
+                location.reload()
+            }
+        }
 
 
         </script>
