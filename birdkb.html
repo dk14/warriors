@@ -174,7 +174,7 @@
 
             y = 0
             var acc = 0
-            const alphabet = "_________□↵<abcdefghijklmnopqrstuvwxyz0123456789!?.,:[]{}___".split("")
+            const alphabet = "_ _ _ _ _□↵<abcdefghijklmnopqrstuvwxyz0123456789!?.,:[]{}_ _ _".split("")
             let stream = []
 
             let i = 0
@@ -242,7 +242,7 @@
                         stream.push("\n")
                     } else if (alphabet[cursor % alphabet.length] === "<") {
                         stream.pop()
-                    } else if (alphabet[cursor % alphabet.length] !== '_') {
+                    } else if (alphabet[cursor % alphabet.length] !== '_' && alphabet[cursor % alphabet.length] !== ' ') {
                         stream.push(alphabet[cursor % alphabet.length])
                     }
                     i = 1
