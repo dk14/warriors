@@ -130,9 +130,6 @@
         var screenWidth = document.body.clientWidth - 20
         var screenHeight = document.body.clientHeight - 40
 
-        const rate = 10
-
-         var play = false
          var score = 0
          var highscore = 0
          highscore = localStorage.getItem('highscore') ?? 0
@@ -154,8 +151,6 @@
          }, 200)
          
          const start = () => {
-            play = true
-            
             container.innerHTML = ""
             document.body.appendChild(scoreText);
 
