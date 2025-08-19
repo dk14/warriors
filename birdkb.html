@@ -87,15 +87,8 @@
          scoreText.style.left = 20
          scoreText.textContent = "00"
 
-         const retryText = document.createElementNS(svgns, "text");
-         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
-         retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: pink");
-         
-     
          setInterval(() => {
             scoreText.innerHTML = score
-            retryText.textContent = "HIGH SCORE: " + highscore
          }, 200)
          
          const start = () => {
@@ -103,10 +96,6 @@
             
             container.innerHTML = ""
             document.body.appendChild(scoreText);
-            try {
-                container.removeChild(retryText);
-            } catch {}
-            
 
             score = 0
             
@@ -125,40 +114,6 @@
             circle.setAttributeNS(null, 'style', 'fill: blue; stroke: blue; stroke-width: 1px;' );
             container.appendChild(circle);
 
-            const rects = []
-
-            const createRect = (x, y) => {
-                const rect = document.createElementNS(svgns, 'rect');
-                const bias = screenHeight * 0.1
-                const gate =  Math.max(200, 400 * Math.random()) * screenHeight / 755
-                const h = (screenHeight - gate)  * Math.random()
-
-                rect.setAttributeNS(null, 'x', x);
-                rect.setAttributeNS(null, 'y', (screenHeight - h));
-                rect.setAttributeNS(null, 'width', 50 * screenHeight / 755);
-                rect.setAttributeNS(null, 'height', h);
-                rect.setAttributeNS(null, 'style', 'fill: yellow; stroke: red; stroke-width: 1px; ' );
-                container.appendChild(rect);
-                rects.push(rect)
-
-                const rect2 = document.createElementNS(svgns, 'rect');
-                rect2.setAttributeNS(null, 'x', x);
-                rect2.setAttributeNS(null, 'y', 0);
-                rect2.setAttributeNS(null, 'width', 50 * screenHeight / 755);
-                rect2.setAttributeNS(null, 'height', ((screenHeight - h) - gate));
-                rect2.setAttributeNS(null, 'style', 'fill: red; stroke: red; stroke-width: 1px;' );
-                container.appendChild(rect2);
-                rects.push(rect2)
-
-            }
-
-            cancel1 = setInterval(() => {
-                //createRect(screenWidth, screenHeight - 200 + 30)
-
-            }, 2000 * screenHeight / 755)
-
-            var boost = 0
-
 
             y = 0
             var acc = 0
@@ -174,7 +129,7 @@
 
             const counterThreshold = 100
 
-            const cancel2 = setInterval(() => {
+           setInterval(() => {
 
                 const quantisation = 20
                 const position = (screenHeight - y + 3) / quantisation
@@ -242,8 +197,8 @@
                 const ballspeed = Math.max(0.05, 1 - 0.0001 * (i % k) * (i % k))
                 
                 
-                const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / rate
-                const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / rate)
+                const gravity = ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
                 y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
 
                 if (y1 < 30) {
@@ -267,54 +222,10 @@
                 
                 circle.setAttributeNS(null, 'cx', x);
                 circle.setAttributeNS(null, 'cy', y); 
-               
-                const speed = 10 / rate
-                rects.forEach(r => {
-                    r.setAttributeNS(null, 'x', parseInt(r.getAttributeNS(null, 'x')) - speed);
-                    if (parseInt(r.getAttributeNS(null, 'x')) < - 50 * screenHeight / 755) {
-                        container.removeChild(r)
-                        rects.splice(rects.findIndex(x => x === r), 1)
-                    }
-                })
-
-                rects.forEach(r => {
-                   const rectEdge = parseInt(r.getAttributeNS(null, 'x'))
-                   
-                   if (x > rectEdge + 30 && r["counted"] !== true) {
-                     r["counted"] = true
-                     score += 5
-                   }
-
-                   if (x < rectEdge && x > rectEdge - 200 && parseInt(r.getAttributeNS(null, 'y') > screenHeight / 2)) {
-                        boost = (parseInt((r.getAttributeNS(null, 'y'))) - y) / screenHeight
-                   }
-                  
-                   const lost = Intersects.circleBox(x, y, radius, parseInt(r.getAttributeNS(null, 'x')), parseInt(r.getAttributeNS(null, 'y')), parseInt(r.getAttributeNS(null, 'width')), parseInt(r.getAttributeNS(null, 'height')))
-                    if (lost && false) {
-                        clearInterval(cancel1)
-                        clearInterval(cancel2)
-                        play = false
-                        if (score > highscore) {
-                           highscore = score
-                           localStorage.setItem('highscore', highscore)
-                        }
-                        container.appendChild(retryText);
-                    }
-
-                })
-            }, 100 / rate)
+            
+            }, 10)
          }
          start()
-         document.addEventListener("touchend", () => {
-            if (!play) {
-               start()
-            }
-         });
-         window.onclick = () => {
-            if (!play) {
-               start()
-            }
-         }
 
 
         </script>
