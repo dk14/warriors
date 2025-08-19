@@ -137,7 +137,7 @@
                 window.winamp = !window.winamp
             }
             
-            document.body.appendChild(winampActivate)
+            //document.body.appendChild(winampActivate)
 
 
             let vingetteBuffer = null
@@ -255,6 +255,11 @@
         <script>
         var screenWidth = document.body.clientWidth
         var screenHeight = document.body.clientHeight
+
+        if (screenHeight < 600) {
+            window.winamp = true
+        }
+
 
         document.getElementById("start").style.position = "absolute"
         document.getElementById("start").style.top = screenHeight / 2
