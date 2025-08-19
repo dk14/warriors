@@ -185,7 +185,8 @@
             let candidate = undefined
             let lastposition = undefined
 
-            const counterThreshold = 50
+            const counterThreshold = 10
+            const iThreshold = 150
 
            setInterval(() => {
 
@@ -236,7 +237,7 @@
                             
 
 
-                if (i % k > 200 && counter > counterThreshold) {
+                if (i % k > iThreshold && counter > counterThreshold) {
                     if (alphabet[cursor % alphabet.length] === "□") {
                         stream.push(" ")
                     } else if (alphabet[cursor % alphabet.length] === "↵") {
