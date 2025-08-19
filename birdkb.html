@@ -152,6 +152,7 @@
          cpmText.style.bottom = 30
          cpmText.style.right = 20
          cpmText.textContent = "0 cpm"
+         cpmText.style.display = "none"
 
          setInterval(() => {
             scoreText.innerHTML = score
@@ -309,6 +310,15 @@
             }, 10)
          }
          start()
+
+         document.addEventListener("touchend", (ev) => {
+            cpmText.style.display = cpmText.style.display === 'block' ? 'none' : 'block'
+         })
+
+         window.onclick = () => {
+            cpmText.style.display = cpmText.style.display === 'block' ? 'none' : 'block'
+         }
+
 
 
         </script>
