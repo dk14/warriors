@@ -813,6 +813,7 @@
                     const settings = document.getElementById("settings")
                     settings.style.display = settings.style.display === 'block' ? 'none' : 'block'
                 }
+                navigator.wakeLock.request() 
 
             } catch {
 
@@ -832,6 +833,7 @@
             if (!audioActive) {
                 audio()
             }
+            navigator.wakeLock.request() 
          }
 
         setInterval(() => {  
