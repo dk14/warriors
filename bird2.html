@@ -646,8 +646,10 @@
                         } else {
                             try {
 
+                                
                                 const npresets = window.presetKeys.length
-                                const presetn = (score + Math.abs(((10 * y / screenHeight) % 10))) % npresets
+                                const presetn = Math.floor((score + Math.abs(((10 * y / screenHeight) % 10)))) % npresets
+                                
                                 const name = window.presetKeys[presetn]
                                 winampViz.loadPreset(window.presets[name], 1.0)
 
