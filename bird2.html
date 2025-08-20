@@ -728,59 +728,70 @@
          const audio = () => {
             audioActive = true
             const audioCtx = new AudioContext()
-            const oscillator = audioCtx.createOscillator()
-            oscillator.type = 'square';
-            oscillator.frequency.value = 20; // or 2
-
-
-
-            const modulator = audioCtx.createOscillator()
-            modulator.type = 'sine'
-            modulator.frequency.value = 7000
-
-            const fmGain = audioCtx.createGain()
-            fmGain.gain.value = 10
-
-            const amGain = audioCtx.createGain()
-            amGain.gain.value = 1
-            oscillator.connect(amGain)
-            
-
-            modulator.connect(fmGain)
-            fmGain.connect(oscillator.frequency)
-            
-
-            const filter = audioCtx.createBiquadFilter();
-        
-            filter.type = "highpass"
-            filter.frequency.setTargetAtTime(13000, audioCtx.currentTime, 0);
-            
-            const filter2 = audioCtx.createBiquadFilter();
-        
-            filter2.type = "lowpass"
-            filter2.frequency.setTargetAtTime(3000, audioCtx.currentTime, 0);
-            
-            
-            
-            const compressor = audioCtx.createDynamicsCompressor();
-            compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
-            compressor.knee.setValueAtTime(80, audioCtx.currentTime);
-            compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-            compressor.attack.setValueAtTime(1.0, audioCtx.currentTime);
-            compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
-            
-
-            //oscillator.connect(audioCtx.destination);
-            amGain.connect(filter)
-
-            filter.connect(filter2)
-            filter2.connect(compressor)
-            compressor.connect(audioCtx.destination)
-            oscillator.start();
-            modulator.start();
-
             const streamNode = audioCtx.createMediaStreamDestination();
-            compressor.connect(streamNode)
+            
+
+            const amFm = (f1, f2, high, low) => {
+
+                
+                const oscillator = audioCtx.createOscillator()
+                oscillator.type = 'square';
+                oscillator.frequency.value = f1; // or 2
+
+
+
+                const modulator = audioCtx.createOscillator()
+                modulator.type = 'sine'
+                modulator.frequency.value = f2
+
+                const fmGain = audioCtx.createGain()
+                fmGain.gain.value = 10
+
+                const amGain = audioCtx.createGain()
+                amGain.gain.value = 1
+                oscillator.connect(amGain)
+                
+
+                modulator.connect(fmGain)
+                fmGain.connect(oscillator.frequency)
+                
+
+                const filter = audioCtx.createBiquadFilter();
+            
+                filter.type = "highpass"
+                filter.frequency.setTargetAtTime(high, audioCtx.currentTime, 0);
+                
+                const filter2 = audioCtx.createBiquadFilter();
+            
+                filter2.type = "lowpass"
+                filter2.frequency.setTargetAtTime(low, audioCtx.currentTime, 0);
+                
+                
+                
+                const compressor = audioCtx.createDynamicsCompressor();
+                compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
+                compressor.knee.setValueAtTime(80, audioCtx.currentTime);
+                compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+                compressor.attack.setValueAtTime(1.0, audioCtx.currentTime);
+                compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
+                
+
+                //oscillator.connect(audioCtx.destination);
+                amGain.connect(filter)
+
+                filter.connect(filter2)
+                filter2.connect(compressor)
+                compressor.connect(audioCtx.destination)
+                compressor.connect(streamNode)
+                
+                oscillator.start();
+                modulator.start();
+                return [amGain, fmGain]
+            }
+
+            const [amGain, fmGain] = amFm(20, 7000, 13000, 3000)
+
+           
 
 
             const audioloop = setInterval(() => {
