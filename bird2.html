@@ -635,8 +635,11 @@
                         
                         container.appendChild(retryRect);
                         container.appendChild(retryText);
-                        fullscreen.style.display = 'block'
-                        winampActivate.style.display = 'block'
+                        if (!window.winamp) {
+                            fullscreen.style.display = 'block'
+                        }
+                        
+                        //winampActivate.style.display = 'block'
                         //window.winamp = false
 
                         setTimeout(() => {
