@@ -640,7 +640,7 @@
                         //window.winamp = false
 
                         setTimeout(() => {
-                            if (!play && videoElem.style.display === 'block') {
+                            if (!play && (videoElem.style.display === 'block' || window.winamp)) {
                                 start()
                             }
                         }, 1000)
