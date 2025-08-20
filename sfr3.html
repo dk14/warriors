@@ -1,0 +1,577 @@
+<html>
+    <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, minimal-ui, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="./favicon.png">
+     <title>Sunspot</title>
+    </head>
+    <body bgcolor="black">
+       <button style="border: 3px solid green; background-color: black; color: green; z-index: 100; font-size: 40px;"  id="gyro" onclick="DeviceMotionEvent.requestPermission()">GYRO</button>
+      
+       <div id="debug"></div>
+        
+       <canvas id="canvas" style="display:block; position: fixed; top: 0; left: 0; z-index:-30"></canvas>
+        <canvas id="preview" style="display:block; position: fixed; top: 0; left: 0; z-index:-20"></canvas>
+      
+
+
+       </canvas>
+
+        <script>
+            try {
+               navigator.wakeLock.request();
+            } catch {
+
+            }
+            
+            var before,now;
+            before=Date.now();
+            const fpshist = []
+            window.fps=60;
+            requestAnimationFrame(
+                function loop(){
+                    now=Date.now();
+
+                    fpshist.push(Math.round(1000/(now-before)))
+                    fpshist.splice(0, fpshist.length - 10)
+
+                    if (fpshist.length > 8) {
+                        const fpsprecise=fpshist.reduce((a, b) => a + b) / fpshist.length
+
+                        if (fpsprecise < 5) {
+                            window.fps=3;
+                        } else if (fpsprecise < 10) {
+                            window.fps=7;
+                        } else if (fpsprecise < 20) {
+                            window.fps=15;
+                        } else if (fpsprecise < 50) {
+                            window.fps=30;
+                        } else {
+                            window.fps=60;
+                        }
+                    }
+                    
+                    before = now;
+                    requestAnimationFrame(loop);
+                }
+            );
+
+        </script>
+        <script>
+
+            var prevX = 0
+            var prevY = 0
+
+            onmousemove = (event) => {                
+                ev = {}
+                ev.acceleration = {}
+                const x = event.clientX / 1000
+                const y = event.clientY / 1000
+                ev.acceleration.x = event.clientX - prevX
+                ev.acceleration.y = event.clientY - prevY
+                ev.acceleration.z = 0
+                prevX = x
+                prevY = y
+                ondevicemotion(ev, true)
+            }
+
+            var prev = [0,0,0]
+            var energy = 0.001
+            
+            var energyThreshold = 0.06
+            var minEnergy = 0.0
+            var energyScale = 1.0
+            
+            ondevicemotion = (event, mouse = false) => {
+                setInterval(() => {
+                    document.getElementById("gyro").style.display = 'none'
+                }, 100)
+                var [x, y, z] = [event.acceleration.x, event.acceleration.y, event.acceleration.z]
+                var [dx, dy, dz] = [x - prev[0], y - prev[1], z - prev[2]]
+                prev = [x, y, z]
+                var [x, y, z] = [dx, dy, dz]
+                energy = energyScale * (dx * dx + dy * dy + dz * dz)
+                if (energy > energyThreshold) {
+                    energy = energyThreshold
+                }
+
+                if (mouse !== true) {
+                    energy *= 1.3
+                }
+                
+            
+            }
+
+            setInterval(() => {
+                energy = 0
+            }, 300)
+        </script>
+        <script>
+             
+        function choice(arr, discriminateChoicefullnessBound){
+          
+          let unique = new Set(arr)
+          let counts = Array.from(unique).map(x => {
+            return [x, arr.filter(v => v===x).length]
+          }).sort((a, b) => b[1] - a[1])
+        
+          return counts
+            .slice(0, discriminateChoicefullnessBound)
+            .pop()[0]
+        
+        }
+        
+        let compare = (arr1, arr2) => {
+          for (const [i, x] in arr1.entries()) {
+            if (x !== arr2[i]) {
+              return false
+            }
+          }
+          
+          return true
+        }
+           
+        let predict = (pattern, history, discriminateChoicefullnessBound, indiscriminateChoicefullnessBound, minprefixboundary, lag) => {
+          if (pattern.length <= minprefixboundary) return 0
+          if (history.length < pattern.length + lag) return 0
+
+          const N = history.length - pattern.length - lag
+          
+          let candidates = []
+          for (let i = N-1; i >= 0; i--) {
+            let chunk = history.slice(i, i + pattern.length)
+            if (compare(chunk, pattern)) {
+              candidates.push(history[i + pattern.length])
+              if (candidates.length >= indiscriminateChoicefullnessBound) {
+                break;
+              }
+            }
+          }
+          
+          if (candidates.length == 0){
+            try {
+                return predict(pattern.slice(2), history) 
+            } catch {
+                return 0
+            }
+            
+          }
+          
+          return choice(candidates.slice(0, indiscriminateChoicefullnessBound), discriminateChoicefullnessBound)
+          
+        }
+
+        window.infer = (history, n = 1000, m = 10000000, discriminateChoicefullnessBound = 1000, indiscriminateChoicefullnessBound = 9, minprefixboundary = 5, lag = 5) => {
+            
+            history.splice(0, history.length - m)
+            const pattern = history.slice(1).slice(-n)
+            const prediction = Number.parseFloat(predict(pattern, history, discriminateChoicefullnessBound, indiscriminateChoicefullnessBound, minprefixboundary, lag))
+            return prediction
+        }
+
+        window.observe = (symbol, history, precision = 0) => {
+            history.push(symbol.toFixed(precision))
+        }
+          
+        </script>
+        <script>
+
+            const history = []
+
+            window.$ = (el) => {
+                return document.getElementById(el)
+            }
+
+            
+
+            const screenWidth = document.body.clientWidth - 20
+            const screenHeight = document.body.clientHeight - 40
+
+            window.canvas = document.getElementById("canvas")
+            const context = canvas.getContext('2d');
+            canvas.width = document.body.clientWidth - 20
+            canvas.height = document.body.clientHeight - 40
+
+            window.previewCanvas = document.getElementById("preview")
+            const previewContext = previewCanvas.getContext('2d');
+            previewCanvas.width = document.body.clientWidth - 20
+            previewCanvas.height = document.body.clientHeight - 40
+
+            window.i = 0
+            window.y = 0
+            const speed = 60.0
+            var time = performance.now()
+
+            const numerals = []
+            for (let i = 0; i < 1000; i++) {
+                numerals.push(i)
+            }
+
+            const alphabet = ["_"].concat(numerals)//.concat(["_"])
+            const console = []
+            var maxcursor = 0
+
+            const maxnum = Math.max(...numerals)
+            const minnum = Math.min(...numerals)
+            const maxangle = maxnum
+
+            const acceptanceThreshold = 3
+
+            const state = {
+                command: 0,
+                circle_radius: 0,
+                circle_color: 0,
+                line_angle: 0, 
+                line_length: 0, 
+                line_thickness: 0, 
+                line_color: 0,
+                center: [screenWidth / 2, screenHeight / 2],
+                debug: {}
+            }
+
+            const commands = ["circle_radius", "circle_color", "line_angle", "line_length", "line_thickness", "line_color"]
+
+            const getPolarGradient = (c, cx, cy, r, where) => {
+                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
+                gradient.addColorStop(0, `hsla(${c}, 100%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
+                return gradient
+            }
+
+            const getPolarGradient2 = (c, cx, cy, r, where) => {
+                const gradient = where.createRadialGradient(cx,  cy, 0, cx, cy, r);
+                gradient.addColorStop(0, `rgba(50, 50, 50, 1.0)`);
+                gradient.addColorStop(1,  `rgba(0, 0, 0, 1.0)`);
+                return gradient
+            }
+
+            const getLinearGradient = (c, x1, y1, x2, y2, where) => {
+                const gradient = where.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `hsla(${c}, 100%, 0%, 0.0)`);
+                gradient.addColorStop(0.5,  `hsla(${c}, 50%, 50%, 0.5)`);
+                gradient.addColorStop(1,  `hsla(${c}, 100%, 0%, 0.0)`);
+                return gradient
+            }
+
+            const radiusFactor = 30
+            const lengthFactor = 3
+
+            const drawCircle = (cx, cy, r, c, where) => {
+                where.beginPath();
+
+                /**
+                state.debug.cicrle = {}
+                state.debug.cicrle.cx = cx
+                state.debug.cicrle.cy = cy
+                state.debug.cicrle.r = r
+                state.debug.cicrle.c = c
+                */
+                const radiusThreshold = 0
+
+                const convolveThreshold = screenHeight
+
+
+
+                if (r > radiusThreshold) {
+                    
+                    where.globalCompositeOperation = "lighter";
+                    where.fillStyle = getPolarGradient(c, cx, cy, r - radiusThreshold, where);
+                    where.arc(cx, cy, r - radiusThreshold, 0, 2 * Math.PI, true);
+                    where.fill();
+
+                } else  if (r > convolveThreshold) {
+                    where.globalCompositeOperation = "lighten";
+                    where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fill();
+
+                    where.beginPath();
+                    where.globalCompositeOperation = "difference"
+                    where.fillStyle = getPolarGradient2(c, cx, cy, radiusThreshold - r, where);
+                    where.arc(cx, cy, radiusThreshold - r, 0, 2 * Math.PI, true);
+                    where.fill();
+                } else {
+                    where.beginPath();
+                    where.globalCompositeOperation = "multiply"
+                    where.fillStyle = getPolarGradient(c, cx, cy, 4 * (convolveThreshold - r), where);
+                    where.arc(cx, cy, 4 * (convolveThreshold - r), 0, 2 * Math.PI, true);
+                    where.fill();
+                }
+
+                where.beginPath();
+                where.fillStyle = "red"
+                where.arc(cx, cy, 10, 0, 2 * Math.PI, true);
+                //where.fill();
+
+            }
+
+            const drawLine = (cx, cy, angle, length, thickness, c, where) => {
+                where.translate(cx, cy);
+                where.rotate(angle);
+
+                where.fillStyle = getLinearGradient(c, -thickness / 2, 0, thickness / 2, 0, where)
+                where.fillRect(-thickness, 0, 2 * thickness, length); // Draw the rectangle
+
+                where.setTransform(1, 0, 0, 1, 0, 0);
+            }
+
+            const maxLength = 2 * screenHeight
+
+            const deriveRadius = (input) => {
+                return (input / maxnum) * maxLength - (maxLength / 2)
+            }
+
+            const deriveColor = (input) => {
+                return 360 * (input / maxnum)
+            }
+
+            const deriveLength = (input) => {
+                return (input / maxnum) * maxLength - (maxLength / 2)
+            }
+
+            const deriveAngle = (input) => {
+                return input * 2 * Math.PI / maxangle
+            }
+
+            const deriveThickness = (input) => {
+                return 0.01 * ((input / maxnum) * maxLength - (maxLength / 2))
+            }
+
+            const updateState = (state, input) => {
+                actions = [
+                    () => state.circle_radius = deriveRadius(input),
+                    () => state.circle_color += deriveColor(input),
+                    () => state.line_angle += deriveAngle(input),
+                    () => state.line_length += deriveLength(input),
+                    () => state.line_thickness += deriveThickness(input),
+                    () => state.line_color += deriveColor(input),
+                ]
+                actions[state.command]()
+            }
+
+            const previewCircleColor = 20
+            const previewLineLength = 4000
+            const previewLineThickness = 5
+            const previewLineColor = 40
+
+            const previewCommand = (state, input) => {
+                previewContext.clearRect(0,0, screenWidth, screenHeight)
+                const bg = context.getImageData(0, 0, screenWidth, screenHeight);
+                previewContext.putImageData(bg, 0, 0)
+                actions = [
+                    () => {
+                        drawCircle(state.center[0], state.center[1], state.circle_radius + deriveRadius(input), previewCircleColor, previewContext)
+                    },
+                    () => {
+                        drawCircle(state.center[0], state.center[1], state.circle_radius, state.circle_color + deriveColor(input), previewContext)
+                    },
+                    () => {
+                        drawLine(state.center[0], state.center[1], state.line_angle + deriveAngle(input), previewLineLength, previewLineThickness, previewLineColor, previewContext)
+                    },
+                    () => {
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length + deriveLength(input), previewLineThickness, previewLineColor, previewContext) 
+                    },
+                    () => {
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness + deriveThickness(input), previewLineColor, previewContext)
+
+                    },
+                    () => {
+                        drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, state.line_color + deriveColor(input), previewContext)
+                    }
+                ]
+                actions[state.command]()
+                
+            }
+
+            const sin = Math.sin
+            const cos = Math.cos
+
+            const executeCommand = (state, input) => {
+                
+                updateState(state, input)
+
+ 
+                //check if state has enough info to render a circle or a line
+                // render either a circle or a line on main canvas
+                if (state.command === 1) {
+                    drawCircle(state.center[0], state.center[1], state.circle_radius, input, context)
+                } else if (state.command === 5) {
+                    drawLine(state.center[0], state.center[1], state.line_angle, state.line_length, state.line_thickness, input, context)
+                    
+                    const dx = - state.line_length * sin(state.line_angle)
+                    const dy = state.line_length * cos(state.line_angle)
+
+                    state.center = [state.center[0] + dx, state.center[1] + dy]
+                }
+
+                if (state.center[0] > screenWidth 
+                    || state.center[0] < 0
+                    || state.center[1] > screenHeight
+                    || state.center[1] < 0) {
+                    
+                    state.center = [screenWidth / 2, screenHeight / 2]
+                }
+               
+                state.command = (state.command + 1) % commands.length
+            }
+
+            context.fillStyle = "black"
+            context.fillRect(0,0,screenWidth,screenHeight)
+
+            let i = 0
+            const k = 10000
+
+            let counter = 0
+            let candidate = 0
+
+            window.counterThreshold = 10
+            window.iThreshold = 150
+            window.speedFactor = 10
+        
+            const loop = setInterval(() => {
+                $('debug').innerHTML = `<pre><font color='green'>state: ${JSON.stringify(state, null, 2)}</font></pre>`
+
+                const delta = Math.round((performance.now().toFixed() - time) / 10)
+                time = performance.now()
+
+
+                const quantisation = alphabet.length
+                const position = (screenHeight - y) / ((screenHeight - 30) / quantisation)
+                const cursor = Math.floor(position) % alphabet.length
+                const distance = (candidate === cursor) ? (1 - 2 * Math.abs(position - cursor - 0.5)) : 0
+                const localHeight = position - cursor
+
+                if (energy < 0.01) {
+                    i++
+                } else {
+                    i = i * (1 - 0.01 * energy)
+                }
+
+                if (counter < 0) {
+                    counter = 0
+                }
+
+                if (candidate && candidate !== 0 && candidate === cursor && energy < 0.01) {
+                    counter++
+                }
+
+                candidate = cursor
+
+                state.debug.i = (i % k) / iThreshold
+                state.debug.counter = counter
+                state.debug.y = y
+                state.debug.cursor = cursor
+                state.debug.current = alphabet[cursor]
+                state.debug.energy = energy
+            
+                const quantize = 10
+
+                if (speedFactor * i % k > iThreshold && speedFactor * counter > counterThreshold) {
+                    if (cursor > 0) {
+                        executeCommand(state,  alphabet[cursor])
+                    }
+                    console.push(alphabet[cursor])
+                    i = 1
+                    candidate = 0
+                    counter = 0
+                    y = screenHeight
+                    observe(Math.round(cursor / quantize) * quantize, history, 0)
+                    
+                } else if (false) {
+                    const prediction = infer(history) 
+                    state.debug.prediction = prediction
+                    if (prediction > 0 && i % 1 === 0) {
+                        previewCommand(state,  alphabet[prediction])
+                        executeCommand(state,  alphabet[prediction])
+                        console.push(alphabet[prediction])
+                        y = screenHeight    
+                    }
+                    observe(Math.round(prediction / quantize) * quantize, history, 0)
+                    
+                }
+
+                if (cursor > 0) {
+                    previewCommand(state,  alphabet[cursor])
+                    observe(Math.round(0), history, 0)
+                }
+
+          
+                
+
+               const ballspeed = speedFactor * Math.max(0.03, 1 - 0.001 * speedFactor *  speedFactor * (i % k) * (i % k))
+                
+                
+                const gravity =  ballspeed * ((6 + 5 * y / screenHeight) * screenHeight / 755) / 10
+                const shift = (y - ballspeed * (energy * energy * 15000 * (screenHeight / 755) * (screenHeight / 755)) / 10)
+                y1 = Math.max(0, Math.min(screenHeight, (shift + gravity)))
+
+                if (y1 < 30) {
+                    y1 = screenHeight
+                    energy = 0
+                }
+
+                if (i % k === 0) {
+                    y1 = screenHeight
+                }
+                if (y1 < y) {
+                    y = y1 
+                } else {
+                    y = y1 + gravity * (0.3 * 1000 / shift)
+                }
+
+                if (y > screenHeight - 20) {
+                    i = 1
+                }
+
+                
+
+                //TODO revert state
+
+            }, 10)
+        </script>
+
+        <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+        <script>
+
+        try {
+            window.db = new Dexie("SfrMemDatabase");
+        
+            db.version(1).stores({
+                saves: "++id, data",
+            });
+        } catch {
+
+        }
+
+
+        const saveState = () => {
+          const encoded = JSON.stringify(history)
+          //localStorage.setItem('memory', encoded)
+          db.saves.put({id:0, data: encoded})
+          
+        }
+
+        const tryload = () => {
+          //const stored = localStorage.getItem('memory')
+          
+          
+          db.saves.toArray().then((sv) => {
+            const stored = sv[0].data ?? null
+          
+            if (stored !== null && stored !== "null") {
+    
+                history = JSON.parse(stored)
+
+            } 
+            
+          })
+        }
+        
+        setInterval(saveState, 5000)
+        </script>
+    </body>
+</html>
