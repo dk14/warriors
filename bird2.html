@@ -791,15 +791,42 @@
 
             const [amGain, fmGain] = amFm(20, 7000, 13000, 3000)
 
-           
+           // const [amGain2, fmGain2] = amFm(2, 200, 13000, 1000)
 
+            //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
+
+            const [amGain2, fmGain2] = amFm(1, 10, 13000, 500)
+
+            amGain2.gain.value = 0
+            //const [amGain3, fmGain3] = amFm(1, 200, 13000, 400)
+
+            //amGain3.gain.value = 30
 
             const audioloop = setInterval(() => {
+
+                
+
                 fmGain.gain.linearRampToValueAtTime(
                     1000 + 10 * energy + 2000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                 amGain.gain.linearRampToValueAtTime(
                     0.5 + 10 * energy, audioCtx.currentTime + 0.1) //
 
+
+                if (window.winamp && !window.black) {
+
+                    fmGain2.gain.linearRampToValueAtTime(
+                    10 + 40 * energy + 10 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    
+                    amGain2.gain.linearRampToValueAtTime(
+                     10 + 100 * energy, audioCtx.currentTime + 0.1) //
+
+                } else {
+                    amGain2.gain.value = 0
+                }
+
+               
+
+            
                 //oscillator.frequency.linearRampToValueAtTime(
                     //40, 
                     //audioCtx.currentTime + 10)
