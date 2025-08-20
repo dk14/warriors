@@ -256,10 +256,6 @@
         var screenWidth = document.body.clientWidth
         var screenHeight = document.body.clientHeight
 
-        if (screenHeight < 600) {
-            window.winamp = true
-        }
-
 
         document.getElementById("start").style.position = "absolute"
         document.getElementById("start").style.top = screenHeight / 2
@@ -314,40 +310,47 @@
             window.redraw = false
             context.clearRect(0, 0, screenWidth, screenHeight)
             
-            if (videoElem.style.display === 'block') {
-                context.fillStyle = `black`
-                context.beginPath();
-                context.rect(0, 0, screenWidth, screenHeight);
-                context.fill()
-                for (let j = 0; j < 30; j++) {
-                    var seed = window.seed
+            if (!window.winamp) {
+                if (videoElem.style.display === 'block') {
+                    context.fillStyle = `black`
                     context.beginPath();
-                    context.fillStyle = "white"
-                    const x = Math.random()
-                    const y = Math.random()
-                    context.arc(x * screenWidth, y * screenHeight, 2, 0, 2 * Math.PI, true);
-                    
-                    context.fill();
-
-                    context.fillStyle = "hsla(60, 10%, 5%, 0.01)"
                     context.rect(0, 0, screenWidth, screenHeight);
-                    
-                    context.fill();
-                }
+                    context.fill()
+                    for (let j = 0; j < 30; j++) {
+                        var seed = window.seed
+                        context.beginPath();
+                        context.fillStyle = "white"
+                        const x = Math.random()
+                        const y = Math.random()
+                        context.arc(x * screenWidth, y * screenHeight, 2, 0, 2 * Math.PI, true);
+                        
+                        context.fill();
 
-                if (score % 150 > -1) {
-                   context.fillStyle = `hsla(60, 10%, 5%, ${Math.random()})`
-                   context.rect(0, screenHeight / 2, screenWidth, screenHeight);
-                    
-                   context.fill();
-                    
+                        context.fillStyle = "hsla(60, 10%, 5%, 0.01)"
+                        context.rect(0, 0, screenWidth, screenHeight);
+                        
+                        context.fill();
+                    }
+
+                    if (score % 150 > -1) {
+                    context.fillStyle = `hsla(60, 10%, 5%, ${Math.random()})`
+                    context.rect(0, screenHeight / 2, screenWidth, screenHeight);
+                        
+                    context.fill();
+                        
+                    } else {
+                        
+                    }
+
                 } else {
-                    
+                    drawVingette()
                 }
 
             } else {
-                drawVingette()
+                context.fillStyle = `rgba(0,0,0,0.1)`
+                context.rect(0, 0, screenWidth, screenHeight)
             }
+            
 
            
 
@@ -550,6 +553,10 @@
                     return
                 }
 
+                if (screenHeight < 600) {
+                    window.winamp = true
+                }
+
                 window.redraw = true
 
                 const delta = (performance.now().toFixed() - time) / 10
@@ -614,6 +621,7 @@
                     if (x > rectEdge + 30 && r["counted"] !== true) {
                         r["counted"] = true
                         score += 5
+                        
                     }
 
                     const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
@@ -629,7 +637,7 @@
                         container.appendChild(retryText);
                         fullscreen.style.display = 'block'
                         winampActivate.style.display = 'block'
-                        window.winamp = false
+                        //window.winamp = false
 
                         setTimeout(() => {
                             if (!play && videoElem.style.display === 'block') {
@@ -735,7 +743,7 @@
                 
                 window.presetKeys = Array.from(Object.keys(presets))
                 
-                //visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
+                visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
         
                 const renderer = () => {
                     if (window.winamp) {
@@ -749,6 +757,11 @@
                 
             }
             window.winampCanvas = document.createElement("canvas")
+            winampCanvas.width = canvas.width
+            winampCanvas.height = canvas.height
+            winampCanvas.style = "position: fixed; top:0; left:0; z-index:-300"
+            document.body.appendChild(winampCanvas)
+
             window.winampViz = initWinampViz(winampCanvas)
          }
 
