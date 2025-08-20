@@ -475,6 +475,16 @@
                 circles.push(createCircle())
             }
 
+            if (screenHeight < 600) {
+                window.winamp = true
+            }
+
+            
+            if (window.winamp) {
+                window.awarenessCircle = createCircle();
+                awarenessCircle.r *= 4
+            }
+
         }
 
         const init = () => {
@@ -590,6 +600,11 @@
                 }
                 circle.cx = x;
                 circle.cy = y;
+
+                if (window.winamp) {
+                    window.awarenessCircle.cx = x
+                    window.awarenessCircle.cy = y
+                }
 
                 circles.forEach((c, ii) => {
                      const cx = c.cx
