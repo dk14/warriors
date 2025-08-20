@@ -811,8 +811,14 @@
         
                 const renderer = () => {
                     if (window.winamp) {
-                        visualizer.render();
+                        if (!window.black) {
+                            visualizer.render();
+                        } else {
+                            const gl = canvas.getContext("webgl2")
+                            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+                        }
                     }
+                   
                     requestAnimationFrame(renderer)
                 }
                 renderer()
@@ -831,6 +837,7 @@
 
          
 
+         window.black = false
          document.addEventListener("touchend", (ev) => {
 
             try {
@@ -851,17 +858,31 @@
             if (!play) {
                start()
             }
+
+            if (play && window.winamp && audioActive) {
+                window.black = !window.black
+            }
+
             if (!audioActive) {
                 audio()
             }
+
+            
          });
+
          window.onclick = () => {
             if (!play) {
                start()
             }
+
+            if (play && window.winamp && audioActive) {
+                window.black = !window.black
+            }
+
             if (!audioActive) {
                 audio()
             }
+
             navigator.wakeLock.request() 
          }
 
