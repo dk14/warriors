@@ -385,9 +385,16 @@
                 } else if (d.type === 'circle') {
                     if (d.fill === 'gradient') {
                         const gradient = context.createRadialGradient(d.cx + (d.dcx ?? 0),  d.cy + (d.dcy ?? 0), 0, d.cx + (d.dcx ?? 0), d.cy + (d.dcy ?? 0), d.r);
-                        gradient.addColorStop(0, `rgba(228,228,0,${1.0 * d.opacity})`);
-                        gradient.addColorStop(0.95,  `rgba(0,30,0,${0.05 * d.opacity})`);
-                        gradient.addColorStop(1,  `rgba(220,220,0,0`);
+                        if (d.simplegrad) {
+                            gradient.addColorStop(0, `rgba(228,228,0,${1.0 * d.opacity})`);
+                            gradient.addColorStop(1,  `rgba(220,220,0,0`);
+
+                        } else {
+                            gradient.addColorStop(0, `rgba(228,228,0,${1.0 * d.opacity})`);
+                            gradient.addColorStop(0.95,  `rgba(0,30,0,${0.05 * d.opacity})`);
+                            gradient.addColorStop(1,  `rgba(220,220,0,0`);
+                        }
+                        
                         context.fillStyle = gradient
                     } else {
                         context.fillStyle = `rgba(${d.fill[0]}, ${d.fill[1]}, ${d.fill[2]}, ${d.fill[3]})`
@@ -483,6 +490,8 @@
             if (window.winamp) {
                 window.awarenessCircle = createCircle();
                 awarenessCircle.r *= 4
+                awarenessCircle.opacity = 0.2
+                awarenessCircle.simplegrad = true
             }
 
         }
@@ -789,10 +798,15 @@
                 
                 
                 window.presets = butterchurnPresets.getPresets();
-                const preset = presets['Flexi, martin + geiss - dedicated to the sherwin maxawow'];
-                
                 window.presetKeys = Array.from(Object.keys(presets))
                 
+                const preseti = Math.floor((highscore / 10)) % presetKeys.length
+                const name = presetKeys[preseti]
+                const preset = presets[name];
+                
+               
+                
+
                 visualizer.loadPreset(preset, 0.0); // 2nd argument is the number of seconds to blend presets
         
                 const renderer = () => {
