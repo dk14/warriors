@@ -531,7 +531,7 @@
                 rects.push(rect2)
                 drawings.push(rect2)
 
-                if (winamp) {
+                if (window.winamp) {
                     rect.opacity += 0.4
                     rect.stroke[0] -= 200
                     rect.stroke[1] -= 200
@@ -620,7 +620,7 @@
                     const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + (r.dy ?? 0)
                     r.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
-                    if (winamp) {
+                    if (window.winamp) {
                         r.opacity += 0.4
                         r.stroke[0] -= 5
                         r.stroke[1] -= 5
