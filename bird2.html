@@ -531,6 +531,18 @@
                 rects.push(rect2)
                 drawings.push(rect2)
 
+                if (winamp) {
+                    rect.opacity += 0.4
+                    rect.stroke[0] -= 200
+                    rect.stroke[1] -= 200
+                    rect.stroke[2] -= 200
+
+                    rect2.opacity += 0.4
+                    rect2.stroke[0] -= 200
+                    rect2.stroke[1] -= 200
+                    rect2.stroke[2] -= 200
+                }
+
                 container.removeChild(scoreText);
                 container.appendChild(scoreText);
             }
