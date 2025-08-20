@@ -637,6 +637,10 @@
                         container.appendChild(retryText);
                         if (!window.winamp) {
                             fullscreen.style.display = 'block'
+                        } else {
+                            const npresets = window.presetKeys.length
+                            const presetn = (score + Math.abs(((10 * y / screenHeight) % 10))) % npresets
+                            winampViz.loadPreset(window.presets[window.presetKeys[presetn]], 1.0)
                         }
                         
                         //winampActivate.style.display = 'block'
