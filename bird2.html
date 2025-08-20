@@ -730,8 +730,8 @@
             const initWinampViz = (canvas) => {
 
                 visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
-                    width: 1000,
-                    height: 1000
+                    width: canvas.width,
+                    height: canvas.height
                 });
                 
                 const mediaSource = audioCtx.createMediaStreamSource(streamNode.stream)
