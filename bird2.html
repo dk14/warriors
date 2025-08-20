@@ -489,7 +489,7 @@
             
             if (window.winamp) {
                 window.awarenessCircle = createCircle();
-                awarenessCircle.r *= 4
+                awarenessCircle.r = 4 * radius * 1.3 * 755 / screenHeight
                 awarenessCircle.opacity = 0.2
                 awarenessCircle.simplegrad = true
             }
@@ -861,6 +861,11 @@
 
             if (play && window.winamp && audioActive) {
                 window.black = !window.black
+                if (window.black) {
+                    window.awarenessCircle.r = 5 * radius * 1.3 * 755 / screenHeight
+                } else {
+                    window.aawarenessCircle.r = 4 * radius * 1.3 * 755 / screenHeight
+                }
             }
 
             if (!audioActive) {
@@ -877,6 +882,11 @@
 
             if (play && window.winamp && audioActive) {
                 window.black = !window.black
+                if (window.black) {
+                    window.awarenessCircle.r = 5 * radius * 1.3 * 755 / screenHeight
+                } else {
+                    window.aawarenessCircle.r = 4 * radius * 1.3 * 755 / screenHeight
+                }
             }
 
             if (!audioActive) {
