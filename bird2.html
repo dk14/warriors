@@ -802,7 +802,7 @@
                     return impulse;
                 }
                 convolver.normalize = false
-                convolver.buffer = impulseResponse(0.01, 0.1, false)
+                convolver.buffer = impulseResponse(0.015, 20.0, true)
                 compressor.connect(audioCtx.destination)
                 compressor.connect(streamNode)
                 
@@ -811,16 +811,19 @@
                 return [amGain, fmGain]
             }
 
-            const [amGain, fmGain] = amFm(20, 7000, 14000, 500, 'square')
+            const [amGain, fmGain] = amFm(20, 7000, 14000, 300, 'square')
 
            // const [amGain2, fmGain2] = amFm(2, 200, 13000, 1000)
 
             //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
 
-            const [amGain2, fmGain2] = amFm(1, 10, 12000, 200, 'square')
+            const [amGain2, fmGain2] = amFm(5, 93, 15000, 200, 'square')
+
+            const [amGain3, fmGain3] = amFm(5, 20, 15000, 100, 'square')
+
 
             amGain2.gain.value = 0
-            //const [amGain3, fmGain3] = amFm(1, 200, 13000, 400)
+            //onst [amGain3, fmGain3] = amFm(1, 200, 13000, 400, )
 
             //amGain3.gain.value = 30
 
@@ -835,17 +838,24 @@
 
                     
 
+                const base = (200 + screenHeight - y) / screenHeight
                 if (window.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
-                    10 + 40 * energy + 12 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    20 + 40 * energy + 20 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                     
                     amGain2.gain.linearRampToValueAtTime(
-                     10 + 100 * energy, audioCtx.currentTime + 0.) //
+                     100 + 100 * energy, audioCtx.currentTime + 0.) //
 
+                    
                 } else {
                     amGain2.gain.value = 0
                 }
+
+                 //amGain3.gain.value = 0 + 200 * energy
+                    //fmGain3.gain.value = 100 + 800 * (0.5 + base)
+
+                 
 
                
 
