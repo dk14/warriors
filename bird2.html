@@ -731,11 +731,11 @@
             const streamNode = audioCtx.createMediaStreamDestination();
             
 
-            const amFm = (f1, f2, high, low) => {
+            const amFm = (f1, f2, high, low, type = 'saw') => {
 
                 
                 const oscillator = audioCtx.createOscillator()
-                oscillator.type = 'square';
+                oscillator.type = type;
                 oscillator.frequency.value = f1; // or 2
 
 
@@ -776,11 +776,33 @@
                 compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
                 
 
+                const convolver = audioCtx.createConvolver()
+
                 //oscillator.connect(audioCtx.destination);
-                amGain.connect(filter)
+                amGain.connect(convolver)
 
                 filter.connect(filter2)
                 filter2.connect(compressor)
+                convolver.connect(filter)
+
+                function impulseResponse( duration, decay, reverse ) {
+                    var sampleRate = audioCtx.sampleRate;
+                    var length = sampleRate * duration;
+                    var impulse = audioCtx.createBuffer(2, length, sampleRate);
+                    var impulseL = impulse.getChannelData(0);
+                    var impulseR = impulse.getChannelData(1);
+
+                    if (!decay)
+                        decay = 2.0;
+                    for (var i = 0; i < length; i++){
+                    var n = reverse ? length - i : i;
+                    impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+                    impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+                    }
+                    return impulse;
+                }
+                convolver.normalize = false
+                convolver.buffer = impulseResponse(0.02, 0.01, false)
                 compressor.connect(audioCtx.destination)
                 compressor.connect(streamNode)
                 
@@ -789,13 +811,13 @@
                 return [amGain, fmGain]
             }
 
-            const [amGain, fmGain] = amFm(20, 7000, 13000, 3000)
+            const [amGain, fmGain] = amFm(20, 7000, 14000, 500)
 
            // const [amGain2, fmGain2] = amFm(2, 200, 13000, 1000)
 
             //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
 
-            const [amGain2, fmGain2] = amFm(1, 10, 13000, 500)
+            const [amGain2, fmGain2] = amFm(2, 3, 13000, 1000, 'square')
 
             amGain2.gain.value = 0
             //const [amGain3, fmGain3] = amFm(1, 200, 13000, 400)
@@ -805,17 +827,18 @@
             const audioloop = setInterval(() => {
 
                 
-
+                
                 fmGain.gain.linearRampToValueAtTime(
-                    1000 + 10 * energy + 2000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    1000 + 10 * energy + 1000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                 amGain.gain.linearRampToValueAtTime(
-                    0.5 + 10 * energy, audioCtx.currentTime + 0.1) //
+                    3.0 + 100 * energy, audioCtx.currentTime + 0.2) //
 
+                    
 
-                if (window.winamp && !window.black) {
+                if (twindow.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
-                    10 + 40 * energy + 10 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    10 + 40 * energy + 12 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                     
                     amGain2.gain.linearRampToValueAtTime(
                      10 + 100 * energy, audioCtx.currentTime + 0.1) //
@@ -831,7 +854,7 @@
                     //40, 
                     //audioCtx.currentTime + 10)
                 
-            }, 100)
+            }, 150)
 
             window.winamp = false
             const initWinampViz = (canvas) => {
