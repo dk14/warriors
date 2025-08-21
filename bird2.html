@@ -842,10 +842,10 @@
                 if (window.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
-                    20 + 40 * energy + 20 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    20 + 100 * energy + 30 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                     
                     amGain2.gain.linearRampToValueAtTime(
-                     100 + 500 * energy, audioCtx.currentTime + 0.) //
+                     40 + 200 * energy, audioCtx.currentTime + 0.) //
 
                     
                 } else {
