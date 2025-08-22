@@ -731,7 +731,7 @@
             const streamNode = audioCtx.createMediaStreamDestination();
             
 
-            const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0) => {
+            const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0) => {
 
                 
                 const oscillator = audioCtx.createOscillator()
@@ -770,7 +770,7 @@
                 
                 const compressor = audioCtx.createDynamicsCompressor();
                 compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
-                compressor.knee.setValueAtTime(80, audioCtx.currentTime);
+                compressor.knee.setValueAtTime(40, audioCtx.currentTime);
                 compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
                 compressor.attack.setValueAtTime(1.0, audioCtx.currentTime);
                 compressor.release.setValueAtTime(0.5, audioCtx.currentTime);
@@ -783,7 +783,18 @@
 
                 filter.connect(filter2)
                 filter2.connect(compressor)
-                convolver.connect(filter)
+
+                const delay = audioCtx.createDelay();
+                delay.delayTime.value = delayAmount;
+                const feedback = audioCtx.createGain();
+                feedback.gain.value = feedbackAmount;
+
+                delay.connect(feedback);
+                feedback.connect(delay);
+
+                convolver.connect(delay)
+                delay.connect(filter);
+
 
                 function impulseResponse( duration, decay, reverse ) {
                     var sampleRate = audioCtx.sampleRate;
@@ -808,16 +819,16 @@
                 
                 oscillator.start();
                 modulator.start();
-                return [amGain, fmGain]
+                return [amGain, fmGain, delay]
             }
 
-            const [amGain, fmGain] = amFm(20, 7000, 14000, 300, 'square')
+            const [amGain, fmGain, delay] = amFm(20, 7000, 14000, 300, 'square')
 
            // const [amGain2, fmGain2] = amFm(2, 200, 13000, 1000)
 
             //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
 
-            const [amGain2, fmGain2] = amFm(5, 93, 12000, 450, 'square', 0.1, 60.0)
+            const [amGain2, fmGain2] = amFm(5, 93, 12000, 450, 'square', 0.1, 60.0, 3.0, 0.1)
 
             const [amGain3, fmGain3] = amFm(5, 20, 15000, 100, 'square')
 
@@ -830,15 +841,22 @@
             const audioloop = setInterval(() => {
 
                 
-                
+                const base = (200 + screenHeight - y) / screenHeight
+
                 fmGain.gain.linearRampToValueAtTime(
                     1000 + 10 * energy + 1000 * (200  + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                 amGain.gain.linearRampToValueAtTime(
                     3.0 + 100 * energy, audioCtx.currentTime + 0.2) //
 
-                    
+                    if (energy > 0.1) {
+                        delay.delayTime.value += 1000 * energy;
 
-                const base = (200 + screenHeight - y) / screenHeight
+                    } else {
+                        delay.delayTime.value -= 0.1;
+
+                    }
+                    
+                
                 if (window.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
