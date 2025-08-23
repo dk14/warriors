@@ -855,22 +855,14 @@
                     3.0 + 100 * energy, audioCtx.currentTime + 0.2) //
 
                     delay.delayTime.value -= 0.001
+                    if (delay.delayTime.value < - 3.5) {
+                        delay.delayTime.value = -3.5
+                    }
                     if (energy > 0.01) {
 
-                        //if (feedback.gain.value < 0.2) {
-                            
-                        //}
-
                         feedback.gain.value += 0.008
-                    } else {
-                        //delay.delayTime.value += 0.05
                     }
-                    
-          
-                        //delay.delayTime.value -= 0.2
                     feedback.gain.value -= 0.005
-
-                    
 
                     feedback.gain.value = Math.max(feedback.gain.value, 0.1)
                     delay.delayTime.value = Math.max(delay.delayTime.value, 0.01)
