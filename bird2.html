@@ -749,8 +749,7 @@
 
                 const amGain = audioCtx.createGain()
                 amGain.gain.value = 1
-                oscillator.connect(amGain)
-                
+                oscillator.connect(amGain)                
 
                 modulator.connect(fmGain)
                 fmGain.connect(oscillator.frequency)
@@ -779,7 +778,21 @@
                 const convolver = audioCtx.createConvolver()
 
                 //oscillator.connect(audioCtx.destination);
-                amGain.connect(convolver)
+                
+
+                 if (type === 'square') {
+                   
+                    const smooth = audioCtx.createBiquadFilter();
+                    smooth.type = "notch"
+                    smooth.frequency.setTargetAtTime(2350, audioCtx.currentTime, 0);
+                    //smooth.gain.value = 20
+                    smooth.Q.value = 1
+                    amGain.connect(smooth)
+                    smooth.connect(convolver)
+                } else {
+                    amGain.connect(convolver)
+                }
+                
 
                 const filter3 = audioCtx.createBiquadFilter();
             
