@@ -769,10 +769,10 @@
                 
                 const compressor = audioCtx.createDynamicsCompressor();
                 compressor.threshold.setValueAtTime(-0.5, audioCtx.currentTime);
-                compressor.knee.setValueAtTime(20, audioCtx.currentTime);
+                compressor.knee.setValueAtTime(0, audioCtx.currentTime);
                 compressor.ratio.setValueAtTime(40, audioCtx.currentTime);
-                compressor.attack.setValueAtTime(0.1, audioCtx.currentTime);
-                compressor.release.setValueAtTime(0.1, audioCtx.currentTime);
+                compressor.attack.setValueAtTime(0.0, audioCtx.currentTime);
+                compressor.release.setValueAtTime(0.0, audioCtx.currentTime);
                 
 
                 const convolver = audioCtx.createConvolver()
