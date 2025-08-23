@@ -834,7 +834,7 @@
 
             //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
 
-            const [amGain2, fmGain2, delay, feedback] = amFm(5, 93, 13000, 450, 'square', 0.15, 100.0, 0.0, 0.9, 20000)
+            const [amGain2, fmGain2, delay, feedback] = amFm(5, 94, 13000, 450, 'square', 0.15, 100.0, 0.0, 0.9, 20000)
 
             const [amGain3, fmGain3] = amFm(5, 20, 15000, 100, 'square')
 
@@ -875,9 +875,8 @@
                 if (window.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
-                    25 + 5 * (screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    15 + 5 * (screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                     //15
-                    
                     amGain2.gain.linearRampToValueAtTime(
                      40, audioCtx.currentTime + 0.1) //
 
