@@ -848,23 +848,31 @@
                 amGain.gain.linearRampToValueAtTime(
                     3.0 + 100 * energy, audioCtx.currentTime + 0.2) //
 
-                    if (energy > 0.1) {
-                        delay.delayTime.value = 0.1 + 10 * energy;
-                        feedback.gain.value += 0.8 + 100 * energy + base / 10
-                        feedback.gain.value = Math.min(feedback.gain.value, 0.99)
+                    if (energy > 0.01) {
+                        delay.delayTime.value = energy + base / 10  + (delay.delayTime.value / 10)
+                        feedback.gain.value += 0.008
+                    }
+                    
+                    if (false) {
+                        //delay.delayTime.value += 0.03
+                        //feedback.gain.value = 0.9
+                        
 
                     } else {
-                        delay.delayTime.value -= 100 * base;
-                        feedback.gain.value -= 0.001
-                        feedback.gain.value = Math.max(feedback.gain.value, 0.01)
-                        delay.delayTime.value = Math.max(delay.delayTime.value, 0.01)
+                        delay.delayTime.value -= 10 * base;
+                        feedback.gain.value -= 0.004
+                       
                     }
+
+                    feedback.gain.value = Math.max(feedback.gain.value, 0.1)
+                    delay.delayTime.value = Math.max(delay.delayTime.value, 0.01)
+                    feedback.gain.value = Math.min(feedback.gain.value, 0.99)
                     
                 
                 if (window.winamp && !window.black) {
 
                     fmGain2.gain.linearRampToValueAtTime(
-                    20 + 10 * energy + 30 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
+                    20 + 10 * energy + 5 * (200 + screenHeight - y) / screenHeight, audioCtx.currentTime + 0.1)
                     
                     amGain2.gain.linearRampToValueAtTime(
                      40 + 10 * energy, audioCtx.currentTime + 0.) //
