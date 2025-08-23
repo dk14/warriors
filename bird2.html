@@ -855,7 +855,7 @@
                     3.0 + 100 * energy, audioCtx.currentTime + 0.2) //
 
                     if (base > 0.1) {
-                        delay.delayTime.value -= 0.001
+                        delay.delayTime.value -= 0.01
                     }
                     
                     if (delay.delayTime.value < - 3.5) {
@@ -869,7 +869,7 @@
 
                     feedback.gain.value = Math.max(feedback.gain.value, 0.1)
                     delay.delayTime.value = Math.max(delay.delayTime.value, 0.01)
-                    feedback.gain.value = Math.min(feedback.gain.value, 0.5)
+                    feedback.gain.value = Math.min(feedback.gain.value, 0.8)
                     //feedback.gain.value = 0
                 
                 if (window.winamp && !window.black) {
