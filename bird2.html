@@ -257,7 +257,31 @@
             if (window.isWorkletContext) {
                 registerProcessor('clipper', class clipper extends AudioWorkletProcessor {
                     process(input, output, parameters) {
+                        const sourceLimit = Math.min(inputList.length, outputList.length);
+
+                        for (let inputNum = 0; inputNum < sourceLimit; inputNum++) {
+                            const input = inputList[inputNum];
+                            const output = outputList[inputNum];
+                            const channelCount = Math.min(input.length, output.length);
+                            const threshold = parameters.threshold
+
+                            for (let channelNum = 0; channelNum < channelCount; channelNum++) {
+                                input[channelNum].forEach((sample, i) => {
+                                    output[channelNum][i] = sample;
+                                });
+                            }
+                        }
                         return true;
+                    }
+                    static get parameterDescriptors() {
+                        return [
+                            {
+                                name: "threshold",
+                                defaultValue: 0.8,
+                                minValue: 0,
+                                maxValue: 1,
+                            },
+                        ];
                     }
                 });
             }
