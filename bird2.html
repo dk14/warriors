@@ -244,6 +244,7 @@
             setInterval(() => {
                 energy = 0
             }, 300)
+
         </script>
         
         <script type="text/javascript" src="https://unpkg.com/butterchurn"></script>
@@ -252,6 +253,17 @@
   
 
         <script src="https://unpkg.com/intersects/umd/intersects.min.js"></script>
+        <script id="worklet1">
+            if (window.isWorkletContext) {
+                registerProcessor('clipper', class clipper extends AudioWorkletProcessor {
+                    process(input, output, parameters) {
+                        return true;
+                    }
+                });
+            }
+            
+        </script>
+        
         <script>
         var screenWidth = document.body.clientWidth
         var screenHeight = document.body.clientHeight
@@ -725,34 +737,24 @@
          init()
 
          var audioActive = false
-         const audio = () => {
+         const audio = async () => {
             audioActive = true
             const audioCtx = new AudioContext()
             const streamNode = audioCtx.createMediaStreamDestination();
             
+            const workletSource = "const window = {}; window.isWorkletContext = true;" + document.getElementById("worklet1").innerText
+            const workletBlob = new Blob([workletSource], {type: "application/javascript"});
+
+            await audioCtx.audioWorklet.addModule(URL.createObjectURL(workletBlob))
+            const node = new AudioWorkletNode(audioCtx, 'clipper');
 
             const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0, masterlow = 30000) => {
 
                 const oscillator = audioCtx.createOscillator()
-                const oscillator2 = audioCtx.createOscillator()
                 
                     
                 oscillator.type = type;
                 oscillator.frequency.value = f1; // or 2
-            
-                const osc2gain = audioCtx.createGain()
-                osc2gain.value = -1
-
-                const osc2delay = audioCtx.createDelay()
-                osc2delay.delayTime.value = 0.6 * 1 / f1
-
-                oscillator.connect(osc2gain)
-                if (type === 'sawtooth') {
-                     oscillator.frequency.value *= 1.95
-                    osc2gain.connect(osc2delay)
-                }
-                
-
 
                 const modulator = audioCtx.createOscillator()
                 modulator.type = 'sine'
@@ -763,8 +765,7 @@
 
                 const amGain = audioCtx.createGain()
                 amGain.gain.value = 1
-                oscillator.connect(amGain) 
-                osc2delay.connect(amGain)              
+                oscillator.connect(amGain)             
 
                 modulator.connect(fmGain)
                 fmGain.connect(oscillator.frequency)
