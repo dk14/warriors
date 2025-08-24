@@ -734,9 +734,14 @@
             const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0, masterlow = 30000) => {
 
                 
-                const oscillator = audioCtx.createOscillator()
-                oscillator.type = type;
-                oscillator.frequency.value = f1; // or 2
+                if (type === "short-square") {
+
+                } else {
+                    const oscillator = audioCtx.createOscillator()
+                    oscillator.type = type;
+                    oscillator.frequency.value = f1; // or 2
+                }
+            
 
 
 
