@@ -733,16 +733,25 @@
 
             const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0, masterlow = 30000) => {
 
+                const oscillator = audioCtx.createOscillator()
+                const oscillator2 = audioCtx.createOscillator()
                 
-                if (type === "short-square") {
-
-                } else {
-                    const oscillator = audioCtx.createOscillator()
-                    oscillator.type = type;
-                    oscillator.frequency.value = f1; // or 2
-                }
+                    
+                oscillator.type = type;
+                oscillator.frequency.value = f1; // or 2
             
+                const osc2gain = audioCtx.createGain()
+                osc2gain.value = -1
 
+                const osc2delay = audioCtx.createDelay()
+                osc2delay.delayTime.value = 0.6 * 1 / f1
+
+                oscillator.connect(osc2gain)
+                if (type === 'sawtooth') {
+                     oscillator.frequency.value *= 1.95
+                    osc2gain.connect(osc2delay)
+                }
+                
 
 
                 const modulator = audioCtx.createOscillator()
@@ -754,7 +763,8 @@
 
                 const amGain = audioCtx.createGain()
                 amGain.gain.value = 1
-                oscillator.connect(amGain)                
+                oscillator.connect(amGain) 
+                osc2delay.connect(amGain)              
 
                 modulator.connect(fmGain)
                 fmGain.connect(oscillator.frequency)
@@ -866,7 +876,8 @@
 
             //const [amGain2, fmGain2] = amFm(1, 5, 13000, 1000)
 
-            const [amGain2, fmGain2, delay, feedback, modulator] = amFm(5, 93, 13000, 450, 'square', 0.15, 100.0, 0.0, 0.9, 20000)
+            const [amGain2, fmGain2, delay, feedback, modulator] = 
+                amFm(5, 93, 13000, 450, 'square', 0.15, 100.0, 0.0, 0.9, 20000)
 
             const [amGain3, fmGain3] = amFm(5, 20, 15000, 100, 'square')
 
