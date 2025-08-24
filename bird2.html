@@ -256,7 +256,7 @@
         <script id="worklet1">
             if (window.isWorkletContext) {
                 registerProcessor('clipper', class clipper extends AudioWorkletProcessor {
-                    process(input, output, parameters) {
+                    process(inputList, outputList, parameters) {
                         const sourceLimit = Math.min(inputList.length, outputList.length);
 
                         for (let inputNum = 0; inputNum < sourceLimit; inputNum++) {
@@ -783,6 +783,9 @@
                 const modulator = audioCtx.createOscillator()
                 modulator.type = 'sine'
                 modulator.frequency.value = f2
+
+                const clipper = new AudioWorkletNode(audioCtx, 'clipper');
+                clipper.parameters.get("threshold").value = 0.8
 
                 const fmGain = audioCtx.createGain()
                 fmGain.gain.value = 10
