@@ -267,7 +267,7 @@
 
                             for (let channelNum = 0; channelNum < channelCount; channelNum++) {
                                 input[channelNum].forEach((sample, i) => {
-                                    const threshold = 0.5 //thresholdParam.length === 1 ? thresholdParam[0] : thresholdParam[i]  
+                                    const threshold = 0.95 //thresholdParam.length === 1 ? thresholdParam[0] : thresholdParam[i]  
                                     let out = sample
                                     if (Math.abs(sample) > threshold) {
                                         out = 2 * Math.abs(sample)
