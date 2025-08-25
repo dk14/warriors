@@ -941,6 +941,9 @@
 
                     if (base > 0.1) {
                         delay.delayTime.value -= 0.01 * gameRatio
+                    } else {
+                        //feedback.gain.value += 0.05
+                         delay.delayTime.value += 0.1 * gameRatio
                     }
                     
                     if (delay.delayTime.value < - 3.5) {
