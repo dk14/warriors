@@ -270,7 +270,7 @@
                                     const threshold = 0.5 //thresholdParam.length === 1 ? thresholdParam[0] : thresholdParam[i]  
                                     let out = sample
                                     if (Math.abs(sample) > threshold) {
-                                        out = 2 * Math.abs(sample) * Math.abs(sample)
+                                        out = 2 * Math.abs(sample)
                                         if (sample < 0) {
                                             out = -out
                                         }
