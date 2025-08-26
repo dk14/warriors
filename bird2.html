@@ -296,8 +296,8 @@
         </script>
         
         <script>
-        var screenWidth = document.body.clientWidth
-        var screenHeight = document.body.clientHeight
+        window.screenWidth = document.body.clientWidth
+        window.screenHeight = document.body.clientHeight
 
 
         document.getElementById("start").style.position = "absolute"
@@ -770,13 +770,19 @@
          var audioActive = false
          const audio = async () => {
             audioActive = true
-            const audioCtx = new AudioContext()
+            window.audioCtx = new AudioContext()
             const streamNode = audioCtx.createMediaStreamDestination();
             
             const workletSource = "const window = {}; window.isWorkletContext = true;" + document.getElementById("worklet1").innerText
             const workletBlob = new Blob([workletSource], {type: "application/javascript"});
 
             await audioCtx.audioWorklet.addModule(URL.createObjectURL(workletBlob))
+
+            window.masterNode = audioCtx.createGain()
+            masterNode.gain.value = 1
+
+            masterNode.connect(streamNode)
+            masterNode.connect(audioCtx.destination)
 
             const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0, masterlow = 30000, clipperWorklet = null) => {
 
@@ -902,8 +908,7 @@
                 }
                 convolver.normalize = false
                 convolver.buffer = impulseResponse(conv, decay, true)
-                compressor.connect(audioCtx.destination)
-                compressor.connect(streamNode)
+                compressor.connect(masterNode)
                 
                 oscillator.start();
                 modulator.start();
@@ -1116,7 +1121,40 @@
             document.addEventListener('webkitfullscreenchange', exitHandler, false);
         }
 
-        window.reset = () => {
+        const wait = async (time) => {
+            return await new Promise(resolve => {
+                setTimeout(() => resolve(null), time)
+            })
+        }
+
+        window.reset = async () => {
+            const shutdown = document.createElement("canvas")
+            shutdown.style.zIndex = "500"
+            shutdown.style.position = "fixed"
+            shutdown.style.top = 0
+            shutdown.style.left = 0
+            shutdown.style.width = screenWidth
+            shutdown.style.height = screenHeight
+            document.body.appendChild(shutdown)
+
+            const shutdownCanvas = shutdown.getContext("2d")
+            
+            
+            for (let i = 0; i < 20; i++) {
+                shutdownCanvas.fillStyle = "rgba(0,0,0,0.1)"
+                shutdownCanvas.fillRect(0,0,screenWidth, screenHeight)
+                if (window.audioCtx) {
+                    window.masterNode.gain.value -= 0.05
+                    if (window.masterNode.gain.value < 0) {
+                        window.masterNode.gain.value = 0
+                    }
+                }
+                
+                await wait(100)
+            }
+
+            
+            
             location.reload()
         }
 
