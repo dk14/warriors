@@ -1110,6 +1110,9 @@
         }, 1000)
 
         window.onresize = function() {
+            window.screenWidth = document.body.clientWidth
+            window.screenHeight = document.body.clientHeight
+
             reset()
         };
 
@@ -1156,10 +1159,17 @@
         window.reset = async () => {
 
             try {
-               await document.exitFullscreen()
+               document.exitFullscreen()
             } catch {
 
             }
+
+            try {
+                videoElem.webkitExitFullScreen()
+            } catch {
+                
+            }
+            
             const shutdown = document.createElement("canvas")
             shutdown.style.zIndex = "500"
             shutdown.style.position = "fixed"
@@ -1203,6 +1213,9 @@
         const portrait = window.matchMedia("(orientation: portrait)");
 
         portrait.addEventListener("change", (e) => {
+             window.screenWidth = document.body.clientWidth
+            window.screenHeight = document.body.clientHeight
+
             reset()
         });
 
