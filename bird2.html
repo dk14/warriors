@@ -299,6 +299,10 @@
         window.screenWidth = document.body.clientWidth
         window.screenHeight = document.body.clientHeight
 
+        if (screenHeight < 600) {
+            window.winamp = true
+        }
+
 
         document.getElementById("start").style.position = "absolute"
         document.getElementById("start").style.top = screenHeight / 2
@@ -525,11 +529,6 @@
                 circles.push(createCircle())
             }
 
-            if (screenHeight < 600) {
-                window.winamp = true
-            }
-
-            
             if (window.winamp) {
                 window.awarenessCircle = createCircle();
                 awarenessCircle.r = 4 * radius * 1.3 * 755 / screenHeight
