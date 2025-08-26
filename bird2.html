@@ -1128,6 +1128,12 @@
         }
 
         window.reset = async () => {
+
+            try {
+               await document.exitFullscreen()
+            } catch {
+
+            }
             const shutdown = document.createElement("canvas")
             shutdown.style.zIndex = "500"
             shutdown.style.position = "fixed"
@@ -1139,7 +1145,7 @@
 
             const shutdownCanvas = shutdown.getContext("2d")
             
-            
+        
             for (let i = 0; i < 20; i++) {
                 shutdownCanvas.fillStyle = "rgba(0,0,0,0.1)"
                 shutdownCanvas.fillRect(0,0,screenWidth, screenHeight)
