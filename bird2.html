@@ -1143,7 +1143,7 @@
             for (let i = 0; i < 20; i++) {
                 shutdownCanvas.fillStyle = "rgba(0,0,0,0.1)"
                 shutdownCanvas.fillRect(0,0,screenWidth, screenHeight)
-                if (window.audioCtx) {
+                if (window.audioCtx && window.masterNode) {
                     window.masterNode.gain.value -= 0.05
                     if (window.masterNode.gain.value < 0) {
                         window.masterNode.gain.value = 0
