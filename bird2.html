@@ -300,6 +300,7 @@
         window.screenHeight = document.body.clientHeight
 
         if (screenHeight < 600) {
+            window.black = true
             window.winamp = true
         }
 
@@ -1167,7 +1168,7 @@
             try {
                 videoElem.webkitExitFullScreen()
             } catch {
-                
+
             }
             
             const shutdown = document.createElement("canvas")
