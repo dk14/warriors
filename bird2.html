@@ -82,14 +82,12 @@
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
-            const videoElem = document.createElement("video");
+            window.videoElem = document.createElement("video");
             
             
             videoElem.autoplay = true
             videoElem.controls = true
             videoElem.style.display = "none"
-
-
 
             const fullscreen = document.createElement("button");
       
@@ -1108,7 +1106,7 @@
         }, 1000)
 
         window.onresize = function() {
-            location.reload()
+            reset()
         };
 
         if (document.addEventListener) {
@@ -1118,16 +1116,24 @@
             document.addEventListener('webkitfullscreenchange', exitHandler, false);
         }
 
+        window.reset = () => {
+            location.reload()
+        }
+
+        videoElem.onpause = () => {
+            reset()
+        }
+
         function exitHandler(){
             if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement){
-                location.reload()
+                reset()
             }
         }
 
         const portrait = window.matchMedia("(orientation: portrait)");
 
         portrait.addEventListener("change", (e) => {
-            location.reload()
+            reset()
         });
 
 
