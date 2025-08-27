@@ -316,8 +316,6 @@
          
          const svgns = "http://www.w3.org/2000/svg"
          const container = document.getElementById( 'cont' ).getElementById( 'scene' );
-         document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
-         document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
 
          const scoreText = document.createElementNS(svgns, "text");
 
@@ -328,6 +326,9 @@
 
 
          const retryWindowSetup = () => {
+            document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
+            document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
+
             scoreText.setAttributeNS(null, 'x', 30);
             scoreText.setAttributeNS(null, 'y', 88);
             scoreText.textContent = "00"
