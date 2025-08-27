@@ -1124,6 +1124,9 @@
         }, 1000)
 
         window.onresize = function() {
+            setTimeout(() => {
+                reset()
+            }, 300)
             reset()
         };
 
