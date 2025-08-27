@@ -632,13 +632,7 @@
             window.redraw = true
             
             const loop = () => setTimeout(() => {
-                canvas.width = document.body.clientWidth
-                canvas.height = document.body.clientHeight
-
-                if (window.winampCanvas) {
-                    winampCanvas.width = document.body.clientWidth
-                    winampCanvas.height = document.body.clientHeight
-                }
+                
 
                 if (!play) {
                     loop()
@@ -646,6 +640,14 @@
                 }
 
                 window.redraw = true
+                
+                canvas.width = document.body.clientWidth
+                canvas.height = document.body.clientHeight
+
+                if (window.winampCanvas) {
+                    winampCanvas.width = document.body.clientWidth
+                    winampCanvas.height = document.body.clientHeight
+                }
 
                 const delta = (performance.now().toFixed() - time) / 10
                 window.i_precise += delta
