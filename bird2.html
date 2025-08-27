@@ -1121,6 +1121,13 @@
             reset()
         };
 
+
+        setInterval(() => {
+            if (screenHeight !== document.body.clientHeight || screenWidth !== document.body.clientWidth) {
+                reset()
+            }
+        }, 100)
+
         if (document.addEventListener) {
             document.addEventListener('fullscreenchange', exitHandler, false);
             document.addEventListener('mozfullscreenchange', exitHandler, false);
