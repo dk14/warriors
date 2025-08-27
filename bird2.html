@@ -323,15 +323,15 @@
 
          const retryText = document.createElementNS(svgns, "text");
          const retryRect = document.createElementNS(svgns, "rect");
-
+         scoreText.textContent = "00"
 
          const retryWindowSetup = () => {
             document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
             document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
 
-            scoreText.setAttributeNS(null, 'x', 30);
-            scoreText.setAttributeNS(null, 'y', 88);
-            scoreText.textContent = "00"
+            scoreText.setAttributeNS(null, 'x', 20);
+            scoreText.setAttributeNS(null, 'y', 78);
+            
             scoreText.setAttributeNS(null, 'style', `fill: ${window.winamp ? 'pink' : 'cyan'}; font-size: 80px; font-style: italic; opacity: 0.3;`);
         
             retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
