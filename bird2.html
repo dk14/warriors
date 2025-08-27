@@ -734,7 +734,7 @@
                                 r.height += 2 * energy
                             } else {
                                 r.y += 2 * energy
-                                r.dy = window.spectra[2 * ii] / 5 ?? 0           
+                                r.dy = gameRatio * window.spectra[2 * ii] / 5 ?? 0           
                             }
                         }
                     }
@@ -968,7 +968,7 @@
 
             const [amGain3, fmGain3] = amFm(5, 20, 15000, 100, 'square')
 
-            const gameRatio = 1.8 * screenHeight / 755
+            window.gameRatio = 1.8 * screenHeight / 755
 
             amGain2.gain.value = 0
             //onst [amGain3, fmGain3] = amFm(1, 200, 13000, 400, )
