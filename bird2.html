@@ -79,8 +79,6 @@
 
             canvas.width = document.body.clientWidth
             canvas.height = document.body.clientHeight
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
 
             window.videoElem = document.createElement("video");
             
@@ -140,7 +138,7 @@
             //document.body.appendChild(winampActivate)
 
 
-            let vingetteBuffer = null
+            window.vingetteBuffer = null
             const drawVingette = () => {
                 if (!vingetteBuffer) {
                     vingetteBuffer = document.createElement("canvas")
@@ -330,18 +328,24 @@
          container.appendChild(scoreText);
 
          const retryText = document.createElementNS(svgns, "text");
-         retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
-         retryText.setAttributeNS(null, 'y', screenHeight / 2);
-         retryText.setAttributeNS(null, 'style', "fill: #FFC1CC;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
-         
          const retryRect = document.createElementNS(svgns, "rect");
 
-         retryRect.setAttributeNS(null, 'x', 0);
-         retryRect.setAttributeNS(null, 'y', 0);
-         retryRect.setAttributeNS(null, 'width', screenWidth);
-         retryRect.setAttributeNS(null, 'height', screenHeight);
-         retryRect.setAttributeNS(null, 'style', "fill: black; opacity: 0.5");
-     
+
+         const retryWindowSetup = () => {
+            retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
+            retryText.setAttributeNS(null, 'y', screenHeight / 2);
+            retryText.setAttributeNS(null, 'style', "fill: #FFC1CC;font-size: 30px;font-style: italic; font-weight:bolder; opacity: 0.5");
+            
+            retryRect.setAttributeNS(null, 'x', 0);
+            retryRect.setAttributeNS(null, 'y', 0);
+            retryRect.setAttributeNS(null, 'width', screenWidth);
+            retryRect.setAttributeNS(null, 'height', screenHeight);
+            retryRect.setAttributeNS(null, 'style', "fill: black; opacity: 0.5");
+        
+         }
+
+         retryWindowSetup()
+         
          setInterval(() => {
             scoreText.textContent = score
             retryText.textContent = "HIGH SCORE: " + highscore
@@ -350,7 +354,7 @@
          }, 200)
 
 
-         const drawings = []
+         window.drawings = []
 
          const draw = () => {
             if (!window.redraw) {
@@ -730,6 +734,7 @@
                             localStorage.setItem('highscore', highscore)
                         }
                         
+                        retryWindowSetup()
                         container.appendChild(retryRect);
                         container.appendChild(retryText);
                         if (!window.winamp) {
@@ -1113,9 +1118,6 @@
         }, 1000)
 
         window.onresize = function() {
-            window.screenWidth = document.body.clientWidth
-            window.screenHeight = document.body.clientHeight
-
             reset()
         };
 
@@ -1160,6 +1162,18 @@
         startup()
 
         window.reset = async () => {
+            window.screenWidth = document.body.clientWidth
+            window.screenHeight = document.body.clientHeight
+            window.vingetteBuffer = null
+
+            canvas.width = document.body.clientWidth
+            canvas.height = document.body.clientHeight
+
+            window.drawings.forEach((d,i) => {
+                if (d.type === 'rect') {
+                    drawings.splice(i, 1)
+                }
+            })
 
             try {
                document.exitFullscreen()
@@ -1187,7 +1201,7 @@
             const shutdownCanvas = shutdown.getContext("2d")
             
         
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 shutdownCanvas.fillStyle = "rgba(0,0,0,0.1)"
                 shutdownCanvas.fillRect(0,0,screenWidth, screenHeight)
                 if (window.audioCtx && window.masterNode) {
@@ -1218,8 +1232,6 @@
         const portrait = window.matchMedia("(orientation: portrait)");
 
         portrait.addEventListener("change", (e) => {
-             window.screenWidth = document.body.clientWidth
-            window.screenHeight = document.body.clientHeight
 
             reset()
         });
