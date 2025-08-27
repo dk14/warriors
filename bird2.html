@@ -331,7 +331,7 @@
             scoreText.setAttributeNS(null, 'x', 30);
             scoreText.setAttributeNS(null, 'y', 88);
             scoreText.textContent = "00"
-            scoreText.setAttributeNS(null, 'style', "fill: cyan; font-size: 80px; font-style: italic; opacity: 0.3;");
+            scoreText.setAttributeNS(null, 'style', `fill: ${window.winamp ? 'pink' : 'cyan'}; font-size: 80px; font-style: italic; opacity: 0.3;`);
         
             retryText.setAttributeNS(null, 'x', screenWidth / 2 - 200);
             retryText.setAttributeNS(null, 'y', screenHeight / 2);
@@ -636,7 +636,6 @@
 
                 if (screenHeight < 600) {
                     window.winamp = true
-                    window.black = true
                 }
 
                 window.redraw = true
