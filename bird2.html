@@ -325,7 +325,7 @@
          const retryRect = document.createElementNS(svgns, "rect");
          scoreText.textContent = "00"
 
-         const retryWindowSetup = () => {
+         window.retryWindowSetup = () => {
             document.getElementById( 'cont' ).setAttributeNS(null, "width", screenWidth)
             document.getElementById( 'cont' ).setAttributeNS(null, "height", screenHeight)
 
@@ -1192,6 +1192,12 @@
                     drawings.splice(i, 1)
                 }
             })
+
+            try {
+                window.retryWindowSetup()
+            } catch {
+                
+            }
 
             setTimeout(() => {
                 document.exitFullscreen()
