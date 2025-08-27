@@ -1180,7 +1180,7 @@
 
             canvas.width = document.body.clientWidth
             canvas.height = document.body.clientHeight
-            
+
             if (window.winampCanvas) {
                 winampCanvas.width = canvas.width
                 winampCanvas.height = canvas.height
@@ -1193,17 +1193,13 @@
                 }
             })
 
-            try {
-               document.exitFullscreen()
-            } catch {
+            setTimeout(() => {
+                document.exitFullscreen()
+            }, 10)
 
-            }
-
-            try {
+            setTimeout(() => {
                 videoElem.webkitExitFullScreen()
-            } catch {
-
-            }
+            }, 10)
 
             videoElem.style.display = 'none'
             
