@@ -302,6 +302,9 @@
         if (screenHeight < 600) {
             window.black = true
             window.winamp = true
+        } else {
+            window.winamp = false
+            window.black = false
         }
 
 
@@ -1011,7 +1014,7 @@
                 
             }, 100)
 
-            window.winamp = false
+            
             const initWinampViz = (canvas) => {
 
                 visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
@@ -1062,8 +1065,6 @@
          }
 
          
-
-         window.black = false
          document.addEventListener("touchend", (ev) => {
 
             try {
