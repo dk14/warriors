@@ -713,11 +713,30 @@
                     const edge =  r.y + (r.dy ?? 0) < 30 ? r.height : r.y + (r.dy ?? 0)
                     r.opacity = 0.15 - (y - edge) / (5 * screenHeight) - 0.2 * Math.abs((rcx - x) / screenHeight)
 
+                    const rectEdge = rcx
+                    speed += 0.0000001
+
                     if (window.winamp) {
                         r.opacity += 0.4
                         r.stroke[0] -= 5
                         r.stroke[1] -= 5
                         r.stroke[2] -= 5
+
+                        if (!window.black && x - 50 > rectEdge) {
+                            r.stroke[0] = 255
+                            r.stroke[1] = 192
+                            r.stroke[2] = 203
+                            r.opacity = 0.1 + energy * (screenHeight - y) / screenHeight
+                        }
+
+                        if (!window.black) {
+                            if (r.y + (r.dy ?? 0) < 30) {
+                                r.height += 2 * energy
+                            } else {
+                                r.y += 2 * energy
+                                r.dy = score = window.spectra[2 * ii] ?? 0           
+                            }
+                        }
                     }
                     
                     if (rcx < -50) {
@@ -726,8 +745,7 @@
  
                     }
 
-                    const rectEdge = rcx
-                    speed += 0.0000001
+
                     
                     if (x > rectEdge + 30 && r["counted"] !== true) {
                         r["counted"] = true
@@ -793,6 +811,12 @@
             const workletSource = "const window = {}; window.isWorkletContext = true;" + document.getElementById("worklet1").innerText
             const workletBlob = new Blob([workletSource], {type: "application/javascript"});
 
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+
+            const bufferLength = analyser.frequencyBinCount;
+            window.spectra = new Uint8Array(bufferLength);
+
             await audioCtx.audioWorklet.addModule(URL.createObjectURL(workletBlob))
 
             window.masterNode = audioCtx.createGain()
@@ -800,6 +824,7 @@
 
             masterNode.connect(streamNode)
             masterNode.connect(audioCtx.destination)
+            masterNode.connect(analyser)
 
             const amFm = (f1, f2, high, low, type = 'saw', conv = 0.015, decay = 30.0, delayAmount = 0.0, feedbackAmount = 0.0, masterlow = 30000, clipperWorklet = null) => {
 
@@ -951,6 +976,8 @@
             //amGain3.gain.value = 30
 
             const audioloop = setInterval(() => {
+
+                analyser.getByteFrequencyData(spectra);
                 
                 const base = (200 + screenHeight - y) / screenHeight
 
