@@ -85,8 +85,6 @@
             
             videoElem.autoplay = true
             videoElem.controls = true
-            videoElem.style.width = document.body.clientWidth
-            videoElem.style.height = document.body.clientHeight
             videoElem.style.display = "none"
 
             const fullscreen = document.createElement("button");
@@ -641,14 +639,15 @@
 
                 window.redraw = true
                 
-                canvas.width = document.body.clientWidth
-                canvas.height = document.body.clientHeight
-
-                if (window.winampCanvas) {
-                    winampCanvas.width = document.body.clientWidth
-                    winampCanvas.height = document.body.clientHeight
+                if (videoElem.style.display !== 'block') {
+                    canvas.width = document.body.clientWidth
+                    canvas.height = document.body.clientHeight
+                    if (window.winampCanvas) {
+                        winampCanvas.width = document.body.clientWidth
+                        winampCanvas.height = document.body.clientHeight
+                    }
                 }
-
+                
                 const delta = (performance.now().toFixed() - time) / 10
                 window.i_precise += delta
                 window.i = Math.round(i_precise)
