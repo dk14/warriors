@@ -1125,7 +1125,10 @@
 
 
         setInterval(() => {
-            if (screenHeight !== document.body.clientHeight || screenWidth !== document.body.clientWidth) {
+            if (window.screenHeight !== document.body.clientHeight || window.screenWidth !== document.body.clientWidth) {
+                setTimeout(() => {
+                    reset()
+                }, 300)
                 reset()
             }
         }, 100)
@@ -1177,8 +1180,12 @@
 
             canvas.width = document.body.clientWidth
             canvas.height = document.body.clientHeight
-            winampCanvas.width = canvas.width
-            winampCanvas.height = canvas.height
+            
+            if (window.winampCanvas) {
+                winampCanvas.width = canvas.width
+                winampCanvas.height = canvas.height
+            }
+            
 
             window.drawings.forEach((d,i) => {
                 if (d.type === 'rect') {
