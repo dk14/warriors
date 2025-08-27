@@ -503,9 +503,9 @@
 
         window.speed = 1.0
 
-        const start = () => {
-            if (window.fpsprecise < 29) {
-                window.reset()
+        const start = async () => {
+            if (window.fpsprecise < 90) {
+                await window.reset()
             }
             fullscreen.style.display = 'none'
             winampActivate.style.display = 'none'
