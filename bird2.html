@@ -629,14 +629,17 @@
             window.redraw = true
             
             const loop = () => setTimeout(() => {
+                canvas.width = document.body.clientWidth
+                canvas.height = document.body.clientHeight
+
+                if (window.winampCanvas) {
+                    winampCanvas.width = document.body.clientWidth
+                    winampCanvas.height = document.body.clientHeight
+                }
 
                 if (!play) {
                     loop()
                     return
-                }
-
-                if (screenHeight < 600) {
-                    window.winamp = true
                 }
 
                 window.redraw = true
@@ -1196,7 +1199,7 @@
             try {
                 window.retryWindowSetup()
             } catch {
-                
+
             }
 
             setTimeout(() => {
