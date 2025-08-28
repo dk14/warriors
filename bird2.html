@@ -431,7 +431,7 @@
 
                     context.lineWidth = d.strokeWidth ?? 0;
                     context.beginPath();
-                    context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width, d.height);
+                    context.rect(d.x + (d.dx ?? 0), d.y + (d.dy ?? 0), d.width + (d.dw ?? 0), d.height + (d.dh ?? 0));
                     
                     context.fill();
                     if (d.strokeWidth) {
@@ -731,6 +731,7 @@
                         if (!window.black) {
                             if (r.y + (r.dy ?? 0) < 30) {
                                 r.height += 2 * energy
+                                r.dh = gameRatio * (window.waveform[2 * ii] - 128)
                             } else {
                                 r.y += 2 * energy
                                 r.dy = gameRatio * window.spectra[2 * ii] / 5 ?? 0           
@@ -752,7 +753,7 @@
                         
                     }
 
-                    const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width, r.height)
+                    const lost = Intersects.circleBox(x, y, radius, rcx, r.y + (r.dy ?? 0), r.width + (r.dw ?? 0), r.height + (r.dh ?? 0))
                     if (lost) {
                         rects.length = 0
                         play = false
@@ -815,6 +816,7 @@
 
             const bufferLength = analyser.frequencyBinCount;
             window.spectra = new Uint8Array(bufferLength);
+            window.waveform = new Uint8Array(bufferLength);
 
             await audioCtx.audioWorklet.addModule(URL.createObjectURL(workletBlob))
 
@@ -977,6 +979,7 @@
             const audioloop = setInterval(() => {
 
                 analyser.getByteFrequencyData(spectra);
+                analyser.getByteTimeDomainData(waveform);
                 
                 const base = (200 + screenHeight - y) / screenHeight
 
