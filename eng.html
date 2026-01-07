@@ -171,7 +171,7 @@
 
         while (true) {
             counter++
-            if (counter > 20) {
+            if (counter > 200) {
                 throw "overflow " + state + "\n" + output.map(x => `${x[0]}:${x[1]}`)
             }
             const next = predictDeterministic(state);
@@ -187,30 +187,8 @@
             state = [...state, next]; 
         }
 
-        return output.map(x => x[0]);   
+        return output  
     }
-
-    const state = [10n, 20n, 10n, 20n, 20n, 10n].map((x, i) => [x, i])
-
-    tg("br")
-
-    const span2 = tg("span", "res")
-    span2.textContent = find(state, [10n, 20n]).map(x => x[0])
-    span2.style.color = "green"
-
-    tg("br")
-
-    const span3 = tg("span", "res")
-    const ctx = {}
-    span3.textContent = predictDeterministic(state, ctx)[0] + "; n = " + ctx.n + "; roll = " + ctx.roll
-    span3.style.color = "green"
-
-    tg("br")
-
-
-    const span4 = tg("span", "res")
-    span4.textContent = predictContinuously(state)
-    span4.style.color = "green"
 
 
 </script>
@@ -287,6 +265,31 @@
     }
 
 
+</script>
+
+<script>
+    
+    const state = render("Hello World; okay Hello World! He")
+
+    tg("br")
+
+    const span2 = tg("span", "res")
+    span2.textContent = parse(find(state, render("Hello ").map(x => x[0])))
+    span2.style.color = "green"
+
+    tg("br")
+
+    const span3 = tg("span", "res")
+    const ctx = {}
+    span3.textContent = "PREDICT: " + predictDeterministic(state, ctx)[0] + "; n = " + ctx.n + "; roll = " + ctx.roll
+    span3.style.color = "green"
+
+    tg("br")
+
+
+    const span4 = tg("span", "res")
+    span4.textContent = "STREAM: " +parse(predictContinuously(state))
+    span4.style.color = "green"
 </script>
 
 
