@@ -1,0 +1,223 @@
+<html>
+<body style = "background-color: black"></body>
+<script>
+    const tg = (name, id, attr = {}) => {
+        const el = document.createElement(name)
+        el.setAttribute("id", id)
+        for(const [k, v] in Object.entries(attr)) {
+            el.setAttribute(k, v)
+        }
+        document.body.appendChild(el)
+        return el
+
+    }
+
+    const $ = (name) => {
+        return document.getElementById(name)
+    }
+
+    const span = tg("span")
+    span.textContent = "aaaa"
+    span.style.color = "green"
+    
+
+
+</script>
+
+<script>
+    //search engine
+</script>
+
+<script>
+    //prediction
+
+    const find = (state, pattern) => {
+        const result = [];
+        if (pattern.length === 0) {
+            return state.map(() => undefined);
+        }
+
+        for (let i = 0; i <= state.length - pattern.length; i++) {
+            let match = true;
+            for (let j = 0; j < pattern.length; j++) {
+                if (state[i + j][0] !== pattern[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                const nextCh = state[i + pattern.length]
+                if (nextCh) {
+                    result.push(nextCh);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    const unique = (state, pattern) => {
+       return find(state, pattern).length === 1
+    }
+
+    const exists = (state, pattern) => {
+        return find(state, pattern).length >= 1
+    }
+
+    const many = (state, pattern) => {
+        return find(state, pattern).length > 1
+    }
+
+    const none = (state, pattern) => {
+        return find(state, pattern).length === 0
+    }
+
+    const predict = (state, ctx = {}) => {
+        if (state.length === 0) return undefined;
+
+        let previousMany = null;
+
+        for (let len = 1; len <= state.length; len++) {
+            const pattern = state.slice(state.length - len); 
+            const matches = find(state, pattern.map(x => x[0]));
+
+            ctx.n = len
+
+            if (matches.length === 1) {
+                return matches;
+            }
+
+            if (matches.length > 1) {
+                previousMany = matches;
+                continue;
+            }
+
+            if (previousMany) {
+                return previousMany
+            }
+        }
+
+        return undefined;
+    }
+
+    function predictDeterministic(state, ctx = {}) {
+        let result = predict(state, ctx); 
+        ctx.roll = false 
+
+        if (!result || result.length === 1) {
+            return result?.[0] ?? result;
+        }
+
+        while (Array.isArray(result) && result.length > 1) {
+            const refined = predict(result);
+            if (!refined) break;
+            if (refined.length === 1) {
+                result = refined;
+                break;
+            }
+            result = refined;
+        }
+
+
+        if (result.length > 1) {
+            ctx.roll = true
+        }
+
+        return result[0]
+    }
+
+    function pairEquals(a, b) {
+        return a[0] === b[0] && a[1] === b[1];
+    }
+
+    function checkRepeat(output) {
+        const n = output.length;
+        if (n === 0) return false;
+
+        const pi = new Array(n).fill(0);
+
+        for (let i = 1; i < n; i++) {
+            let j = pi[i - 1];
+            while (j > 0 && !pairEquals(output[i], output[j])) {
+                j = pi[j - 1];
+            }
+            if (pairEquals(output[i], output[j])) j++;
+            pi[i] = j;
+        }
+
+        const period = n - pi[n - 1];
+        return pi[n - 1] > 0 && n % period === 0;
+    }
+
+    function predictContinuously(initState, ctx = {}) {
+        let state = [...initState];
+        const output = [];
+
+        let counter = 0
+
+        const seqHistory = [];              
+        const jumpSites = new Set(); 
+
+        const turing = (output) => {
+            const isSequential = output.slice(-2)[0][1] === output.slice(-2)[1][1]
+
+            if (isSequential) {
+                seqHistory.push(next);
+            } else {
+                jumpSites.add(state.length);
+            }
+
+        }
+
+        while (true) {
+            counter++
+            if (counter > 20) {
+                throw "overflow " + state + "\n" + output.map(x => `${x[0]}:${x[1]}`)
+            }
+            const next = predictDeterministic(state);
+
+            if (!next) break;
+            output.push(next);
+
+            if (checkRepeat(output)) break;
+
+            //turing(output)
+
+           
+            state = [...state, next]; 
+        }
+
+        return output.map(x => x[0]);   
+    }
+
+    const state = [10n, 20n, 10n, 20n, 20n, 10n].map((x, i) => [x, i])
+
+    tg("br")
+
+    const span2 = tg("span", "res")
+    span2.textContent = find(state, [10n, 20n]).map(x => x[0])
+    span2.style.color = "green"
+
+    tg("br")
+
+    const span3 = tg("span", "res")
+    const ctx = {}
+    span3.textContent = predictDeterministic(state, ctx)[0] + "; n = " + ctx.n + "; roll = " + ctx.roll
+    span3.style.color = "green"
+
+    tg("br")
+
+
+    const span4 = tg("span", "res")
+    span4.textContent = predictContinuously(state)
+    span4.style.color = "green"
+
+
+</script>
+
+<script>
+    //editor
+</script>
+
+
+</html>
