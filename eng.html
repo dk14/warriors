@@ -269,7 +269,7 @@
 
 <script>
     
-    const state = render("Hello World; okay Hello World! He")
+    const state = render("Hello World; okay Hello World! Hello W")
 
     tg("br")
 
@@ -281,7 +281,7 @@
 
     const span3 = tg("span", "res")
     const ctx = {}
-    span3.textContent = "PREDICT: " + predictDeterministic(state, ctx)[0] + "; n = " + ctx.n + "; roll = " + ctx.roll
+    span3.textContent = "PREDICT: " + parse([predictDeterministic(state, ctx)]) + "; n = " + ctx.n + "; roll = " + ctx.roll
     span3.style.color = "green"
 
     tg("br")
