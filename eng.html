@@ -216,7 +216,77 @@
 </script>
 
 <script>
-    //editor
+    const MAX_UNICODE = 0x10FFFFn;          // highest defined Unicode scalar value
+
+    function entityToBigInt(fragment) {
+        const decMatch = fragment.match(/^&#(\d+);$/);
+        if (decMatch) return BigInt(decMatch[1]);
+
+        const hexMatch = fragment.match(/^&#x([0-9a-fA-F]+);$/);
+        if (hexMatch) return BigInt('0x' + hexMatch[1]);
+
+        return null;
+    }
+
+    function cpToString(cp) {
+        if (cp <= MAX_UNICODE) {
+            // String.fromCodePoint works with Numbers, so we cast safely
+            return String.fromCodePoint(Number(cp));
+        }
+        // otherwise emit a decimal numeric entity
+        return `&#${cp.toString()};`;
+    }
+
+    function tokenToBigInt(token) {
+        const entity = entityToBigInt(token);
+        if (entity !== null) return entity;
+
+        // token is a normal character – get its code point
+        const cp = token.codePointAt(0);
+        return BigInt(cp);
+    }
+
+    function render(input) {
+        const result = [];
+        let pos = 0;
+        let i = 0;
+
+        while (i < input.length) {
+            // Look ahead for an entity starting with '&'
+            if (input[i] === '&') {
+            // Find the terminating ';' (if any)
+            const semi = input.indexOf(';', i + 1);
+            if (semi !== -1) {
+                const candidate = input.slice(i, semi + 1);
+                const big = entityToBigInt(candidate);
+                if (big !== null) {
+                result.push([big, pos++]);
+                i = semi + 1;
+                continue;
+                }
+            }
+            }
+
+            // Normal character (may be a surrogate pair → use codePointAt)
+            const cp = input.codePointAt(i);
+            result.push([BigInt(cp), pos++]);
+
+            // Advance by 1 code unit for BMP chars, 2 for surrogate pairs
+            i += cp > 0xFFFF ? 2 : 1;
+        }
+
+        return result;
+    }
+
+    function parse(state) {
+        const ordered = [...state].sort((a, b) => a[1] - b[1]);
+
+        return ordered
+            .map(([cp]) => cpToString(cp))
+            .join('');
+    }
+
+
 </script>
 
 
