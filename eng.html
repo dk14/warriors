@@ -199,6 +199,37 @@
         return count;
     }
 
+    const eraseSeqNo = (seq) => {
+        return seq.map(x => x[0])
+    }
+
+    const enrichSeqNo = (seq) => {
+        return seq.map(x => [x, 0])
+    }
+
+    const isZeroBranch = (state, seq) => {
+        for (let i = 0; i < seq.length; i++) {
+            const candidate = eraseSeqNo(seq.slice(0, i))
+            const inference = inferIncDec(eraseSeqNo(state), candidate)
+            if (inference[0].length > 0) {
+                const [incs, decs] = inference
+                return {zero: candidate, incs: incs, decs: decs}
+            }
+        }
+       return undefined
+
+    }
+
+    const parseIncDec = (inference) => {
+        const [incs, decs] = inference
+        const incsData = incs.map(inc => parse(enrichSeqNo(parseKey(inc))))
+        const decsData = decs.map(dec => parse(enrichSeqNo(parseKey(dec))))
+
+        return `incs: ${incsData}; decs: ${decsData}`
+
+
+    }
+
 
 
 console.log("HELLO")
@@ -443,36 +474,16 @@ console.log("count = " + countVar(state2, [incs, decs]))
         let state = [...initState];
         const output = [];
 
+        ctx.loop = false
+
         let counter = 0
-
-        ctx.seqHistory = [];              
-        ctx.jumpSites = new Set(); 
-
-        const turing = (output) => {
-            if (output.slice(-2).length < 2) return
-
-            const processSeq = (seq) => {
-
-            }
-
-            const isSequential = output.slice(-2)[0][1] === output.slice(-2)[1][1]
-
-            if (isSequential) {
-                ctx.seqHistory.push(output.slice(-2)[1]);
-            } else {
-                processSeq(ctx.seqHistory)
-                ctx.seqHistory = []
-                ctx.jumpSites.add(state.length);
-            }
-
-        }
 
         while (true) {
             counter++
             
 
             const next = predictDeterministic(state);
-            
+       
             if (!next) break;
             output.push(next);
 
@@ -494,10 +505,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 
                 const keep = output.length - repeatLen; 
                 output.splice(keep, repeatLen);
+                ctx.loop = true
                 break;                                  
             }
-
-            turing(output)
 
            
             state = [...state, next]; 
@@ -533,9 +543,19 @@ console.log("count = " + countVar(state2, [incs, decs]))
     tg("br")
 
 
+    const ctx2 = {}
     const span4 = tg("span", "res")
-    span4.textContent = "STREAM: " + parse(predictContinuously(state))
+    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop
     span4.style.color = "green"
+
+    tg("br")
+    tg("br")
+    const span5= tg("span", "res")
+    const ctx3 = {}
+    console.log("BRANCHING")
+    //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
+    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0+++l -l0l")), eraseSeqNo(render("0"))))
+    span5.style.color = "green"
 </script>
 
 
