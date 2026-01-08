@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pure‑JS Terminal (fixed arrows)</title>
+<title>Terminal</title>
 <style>
   html,body{margin:0;height:100%;background:#000;color:#0f0;font-family:monospace;}
   #term{position:relative;width:100%;height:100%;overflow:hidden;outline:none;}
@@ -107,6 +107,7 @@ function ensureVisible(){
   const pad = 20;
   const scrollX = Math.max(0, cx - rect.width + pad);
   const scrollY = Math.max(0, cy - rect.height + pad);
+  getCell(cursor.x, cursor.y)
   term.scrollTo(scrollX, scrollY);
 }
 
@@ -267,6 +268,9 @@ term.addEventListener('keydown', e => {
    } 
     
   } else {
+
+    const scrrenWidthCh = Math.floor(window.screen.width / cellW)
+    const scrrenHeightCh = Math.floor(window.screen.height / cellH)
     
     if (k === 'Enter'){
       putstr('\n');
@@ -275,12 +279,20 @@ term.addEventListener('keydown', e => {
       entBuffer = ''
       putstr('\b')
     } else if (k === 'ArrowUp'){
+      if (e.metaKey) { for (i=0;i<4;i++) { putstr('\x1b[A')}}
+      //if (e.altKey) { for (i=0;i<scrrenHeightCh;i++) { putstr('\x1b[A')}}
       putstr('\x1b[A');
     } else if (k === 'ArrowDown'){
+      if (e.metaKey) { for (i=0;i<4;i++) { putstr('\x1b[B')}}
+      //if (e.altKey) { for (i=0;i<scrrenHeightCh;i++) { putstr('\x1b[B')}}
       putstr('\x1b[B')
     } else if (k === 'ArrowRight'){
+      if (e.metaKey) { for (i=0;i<4;i++) { putstr('\x1b[C')}}
+      //if (e.altKey) { for (i=0;i<scrrenWidthCh;i++) { putstr('\x1b[C')}}
       putstr('\x1b[C')  
     } else if (k === 'ArrowLeft'){
+      if (e.metaKey) { for (i=0;i<4;i++) { putstr('\x1b[D')}}
+      //if (e.altKey) { for (i=0;i<scrrenWidthCh;i++) { putstr('\x1b[D')}}
       putstr('\x1b[D')
     } else if (k === 'Escape'){
       putstr('\x1b')
@@ -297,7 +309,7 @@ function init(){
 window.addEventListener('load', init);
 
 /* ---------- Demo ---------- */
-putstr('Pure‑JS terminal.\n');
+putstr('Eng terminal.\n');
 putstr('Try arrows, backspace, colors: \x1b[31mred\x1b[0m.\n');
 putstr('Unicode: &#9898;');
 </script>
