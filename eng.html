@@ -238,6 +238,14 @@
         return bestVal;
     }
 
+    function countUniqueBy(array, predicate) {
+        if (!Array.isArray(array) || array.length === 0) return 0;
+        const fn = typeof predicate === 'function' ? predicate : (o) => o[predicate];
+        const seen = new Set();
+        for (const item of array) seen.add(fn(item));
+        return seen.size;
+    }
+
     function predictContinuously(initState, ctx = {}) {
         let state = [...initState];
         const output = [];
@@ -267,7 +275,7 @@
             if (!next) break;
             output.push(next);
 
-            const limit = maxValueBy(output, x => x[1])
+            const limit = countUniqueBy(output, x => x[1])
 
             if (counter > limit) {
                 output.forEach(el => {
@@ -306,7 +314,8 @@
 
 <script>
     
-    const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
+    //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
+    const state = render("Hello!He")
 
     console.log("N:" + state.slice(-1)[0][1])
     tg("br")
