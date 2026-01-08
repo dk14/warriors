@@ -28,6 +28,146 @@
     //search engine
 </script>
 
+<script>
+    //free syntax turing parser
+
+    // find non-overlapping occurrences of pattern in state (left-to-right)
+    function findNonOverlappingOccurrences(state, pattern) {
+        const n = state.length, m = pattern.length;
+        if (m === 0 || m > n) return [];
+        const occ = [];
+        for (let i = 0; i <= n - m; ) {
+            let ok = true;
+            for (let j = 0; j < m; j++) {
+            if (state[i + j] !== pattern[j]) { ok = false; break; }
+            }
+            if (ok) { occ.push(i); i += m; } else { i += 1; }
+        }
+        return occ;
+    }
+
+    // getPossibleIntroSections(state, zeroToken) using non-overlapping matches
+    function getPossibleIntroSections(state, zeroToken) {
+        if (!Array.isArray(zeroToken) || zeroToken.length === 0) return [];
+        const occ = findNonOverlappingOccurrences(state, zeroToken);
+        if (occ.length < 2) return [];
+        const sections = [];
+        const m = zeroToken.length;
+        for (let k = 0; k < occ.length - 1; k++) {
+            const s = occ[k] + m;       // first index after k-th match
+            const e = occ[k + 1] - 1;   // last index before (k+1)-th match
+            if (s <= e) sections.push({ start: s, end: e, slice: state.slice(s, e + 1) });
+        }
+        return sections;
+    }
+function tokenize(introSection, state) {
+  const nIntro = introSection.length, nState = state.length;
+  const serialize = (arr, start, len) => {
+    let s = '';
+    for (let i = 0; i < len; i++) { if (i) s += ','; s += arr[start + i].toString(); }
+    return s;
+  };
+
+  const inState = new Map();
+  for (let s = 0; s < nIntro; s++) {
+    for (let len = 1; s + len <= nIntro; len++) {
+      const key = serialize(introSection, s, len);
+      if (inState.has(key)) continue;
+      let cnt = 0;
+      for (let i = 0; i + len <= nState; i++) {
+        let j = 0;
+        while (j < len && state[i + j] === introSection[s + j]) j++;
+        if (j === len) cnt++;
+        if (cnt > 1) break;
+      }
+      if (cnt > 1) inState.set(key, cnt);
+    }
+  }
+  if (inState.size === 0) return new Map();
+
+  const positions = new Map();
+  for (let s = 0; s < nIntro; s++) {
+    for (let len = 1; s + len <= nIntro; len++) {
+      const key = serialize(introSection, s, len);
+      if (!inState.has(key)) continue;
+      if (!positions.has(key)) positions.set(key, []);
+      positions.get(key).push(s);
+    }
+  }
+  // ensure start indices are sorted ascending for deterministic left-to-right selection
+  for (const arr of positions.values()) arr.sort((a,b) => a-b);
+
+  const candidates = [];
+  for (const [k, cState] of inState.entries()) {
+    const len = k === '' ? 0 : k.split(',').length;
+    candidates.push({ key: k, len, cState });
+  }
+  candidates.sort((a, b) => b.len - a.len || b.cState - a.cState || (a.key < b.key ? -1 : 1));
+
+  const covered = new Array(nIntro).fill(false);
+  const result = new Map();
+  for (const cand of candidates) {
+    const starts = positions.get(cand.key) || [];
+    let taken = 0;
+    for (const st of starts) {
+      let conflict = false;
+      for (let p = st; p < st + cand.len; p++) {
+        if (covered[p]) { conflict = true; break; }
+      }
+      if (conflict) continue;
+      for (let p = st; p < st + cand.len; p++) covered[p] = true;
+      taken++;
+    }
+    if (taken > 0) result.set(cand.key, taken);
+  }
+  return result;
+}
+
+function detectOverlaps(introSection, tokens) {
+  // parse token key to array of BigInt
+  const parse = (key) => key.split(',').map(s => BigInt(s));
+  // find all chosen occurrences (non-overlapping assumption may be false)
+  const occurrences = []; // { key, start, end } end is exclusive
+  for (const [key, count] of tokens.entries()) {
+    const tok = parse(key);
+    const len = tok.length;
+    // scan introSection for matches, collect up to 'count' matches (or all matches)
+    for (let i = 0; i + len <= introSection.length; i++) {
+      let j = 0;
+      while (j < len && introSection[i + j] === tok[j]) j++;
+      if (j === len) occurrences.push({ key, start: i, end: i + len });
+    }
+  }
+  // detect overlapping pairs
+  const overlaps = [];
+  // sort by start to make detection deterministic
+  occurrences.sort((a,b) => a.start - b.start || a.end - b.end || (a.key < b.key ? -1 : 1));
+  for (let i = 0; i < occurrences.length; i++) {
+    for (let j = i + 1; j < occurrences.length; j++) {
+      const A = occurrences[i], B = occurrences[j];
+      if (B.start >= A.end) break; // no overlap with any further (sorted)
+      // overlap exists if B.start < A.end
+      overlaps.push({
+        aKey: A.key, aRange: [A.start, A.end],
+        bKey: B.key, bRange: [B.start, B.end]
+      });
+    }
+  }
+  return overlaps;
+}
+
+
+console.log("HELLO")
+const intro = [1n,2n,3n,2n,3n];
+const state2 = [0n,  1n,2n,3n,2n,3n,  4n,1n,2n,0n, 3n,2n];
+const map = tokenize(intro, state2);
+for (const [k,v] of map) console.log(k, '->', v);
+
+console.log(detectOverlaps(intro, map));
+
+
+</script>
+
 
 <script>
     const MAX_UNICODE = 0x10FFFFn;          // highest defined Unicode scalar value
@@ -244,6 +384,10 @@
         const seen = new Set();
         for (const item of array) seen.add(fn(item));
         return seen.size;
+    }
+
+    function checkIntroSection(candidate, state) {
+
     }
 
     function predictContinuously(initState, ctx = {}) {
