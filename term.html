@@ -119,7 +119,7 @@ function applySGR(params){
     34:'#00f',35:'#f0f',36:'#0ff',37:'#fff',
     0:'#0f0'   // reset → default green
   };
-  const code = params[0]||0;
+  const code = params[0];
   color = colors[code]
 }
 
@@ -135,16 +135,22 @@ function decodeEntity(str){
   return null; // not a valid entity
 }
 
+let escBuffer = ''
+
 /* ---------- putstr (renders text & VT) ---------- */
 function putstr(str){
+  str = escBuffer + str
   let i = 0;
   while (i < str.length){
     const ch = str[i];
-    if (ch === '\x1b' && str[i+1] === '['){          // CSI start
+    if (ch === '\x1b' && str[i+1] === undefined) {
+      escBuffer = '\x1b'
+    } else if (ch === '\x1b' && str[i+1] === '['){          // CSI start
       if (str[i+2] === 'A') {
         i = i+3
         cursor.y = cursor.y - 1;
         drawCursor(); ensureVisible();
+        escBuffer = ''
         continue
       }
 
@@ -152,6 +158,7 @@ function putstr(str){
          i = i+3
         cursor.y = cursor.y + 1;
         drawCursor(); ensureVisible();
+        escBuffer = ''
         continue
       }
 
@@ -159,13 +166,15 @@ function putstr(str){
          i = i+3
         cursor.x = cursor.x + 1;
         drawCursor(); ensureVisible();
+        escBuffer = ''
         continue
       }
 
       if (str[i+2] === 'D') {
-         i = i+3
+        i = i+3
         cursor.x = cursor.x - 1;
         drawCursor(); ensureVisible();
+        escBuffer = ''
         continue
       }
       
@@ -174,14 +183,32 @@ function putstr(str){
         const seq = str.slice(i+2, end).split(';').map(Number);
         applySGR(seq);
         i = end + 1;
+        escBuffer = ''
         continue;
       }
-    }
-    if (ch === '\n'){
+
+      if (escBuffer.length > 10) {
+        escBuffer.forEach(ch => {
+          const cell = getCell(cursor.x, cursor.y);
+          if (color) {
+            cell.style.color = color
+          }
+          cell.textContent = ch;
+          cursor.x++;
+        })
+
+        escBuffer = ''
+      }
+
+      escBuffer = str.slice(i)
+    } else if (ch === '\n'){
+      escBuffer = ''
       cursor.y++; cursor.x = 0;
     } else if (ch === '\r'){
+      escBuffer = ''
       cursor.x = 0;
     } else if (ch === '\b'){
+      escBuffer = ''
       if (cursor.x > 0){
         cursor.x--;
         const cell = getCell(cursor.x, cursor.y);
@@ -191,6 +218,10 @@ function putstr(str){
         cell.textContent = '';
       }
     } else {
+      if (escBuffer.length > 0) {
+        i++
+        continue
+      }
       const cell = getCell(cursor.x, cursor.y);
       if (color) {
         cell.style.color = color
@@ -311,7 +342,7 @@ window.addEventListener('load', init);
 /* ---------- Demo ---------- */
 putstr('Pure‑JS terminal.\n');
 putstr('Try arrows, backspace, colors: \x1b[31mred\x1b[0m.\n');
-putstr('Unicode: &#9898; → \u{9898}\n');
+putstr('Unicode: &#9898;');
 </script>
 </body>
 </html>
