@@ -252,16 +252,24 @@
 
         let counter = 0
 
-        const seqHistory = [];              
-        const jumpSites = new Set(); 
+        ctx.seqHistory = [];              
+        ctx.jumpSites = new Set(); 
 
         const turing = (output) => {
+            if (output.slice(-2).length < 2) return
+
+            const processSeq = (seq) => {
+
+            }
+
             const isSequential = output.slice(-2)[0][1] === output.slice(-2)[1][1]
 
             if (isSequential) {
-                seqHistory.push(next);
+                ctx.seqHistory.push(output.slice(-2)[1]);
             } else {
-                jumpSites.add(state.length);
+                processSeq(ctx.seqHistory)
+                ctx.seqHistory = []
+                ctx.jumpSites.add(state.length);
             }
 
         }
@@ -287,9 +295,6 @@
                 throw "overflow " + parse(state) + "\n" + output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
             }
 
-
-
-
             const repeatLen = checkRepeat(output)
             //const repeatLen = checkRepeat(output.map(x => [x[0], 0]));
             if (repeatLen > 0) {
@@ -299,7 +304,7 @@
                 break;                                  
             }
 
-            //turing(output)
+            turing(output)
 
            
             state = [...state, next]; 
