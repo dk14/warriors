@@ -61,6 +61,19 @@
         return sections;
     }
 
+    // helper to count occurrences of a needle (allow overlaps)
+    const countOccurrences = (hay, needle) => {
+        const n = hay.length, m = needle.length;
+        if (m === 0) return 0;
+        let c = 0;
+        for (let i = 0; i + m <= n; i++) {
+        let j = 0;
+        while (j < m && hay[i + j] === needle[j]) j++;
+        if (j === m) c++;
+        }
+        return c;
+    };
+
     // input: introSection: BigInt[], state: BigInt[]
     // output: Map<string, {count: number, firstStart: number}>
 
@@ -120,18 +133,18 @@
             let taken = 0;
             let firstStart = -1;
             for (const st of starts) {
-            // check if this occurrence is free (no overlap with already taken occurrences)
-            let conflict = false;
-            for (let p = st; p < st + cand.len; p++) {
-                if (covered[p]) { conflict = true; break; }
+                // check if this occurrence is free (no overlap with already taken occurrences)
+                let conflict = false;
+                for (let p = st; p < st + cand.len; p++) {
+                    if (covered[p]) { conflict = true; break; }
+                }
+                if (conflict) continue;
+                // take it
+                for (let p = st; p < st + cand.len; p++) covered[p] = true;
+                if (firstStart === -1) firstStart = st;
+                taken++;
             }
-            if (conflict) continue;
-            // take it
-            for (let p = st; p < st + cand.len; p++) covered[p] = true;
-            if (firstStart === -1) firstStart = st;
-            taken++;
-            }
-            if (taken > 0) result.set(cand.key, { count: taken, firstStart });
+            if (taken > 0) result.set(cand.key, { count: countOccurrences(introSection, parseKey(cand.key)), firstStart });
         }
 
         return result;
@@ -185,19 +198,6 @@
 
         let count = 0;
 
-        // helper to count occurrences of a needle (allow overlaps)
-        const countOccurrences = (hay, needle) => {
-            const n = hay.length, m = needle.length;
-            if (m === 0) return 0;
-            let c = 0;
-            for (let i = 0; i + m <= n; i++) {
-            let j = 0;
-            while (j < m && hay[i + j] === needle[j]) j++;
-            if (j === m) c++;
-            }
-            return c;
-        };
-
         for (const n0 of incNeedles) count += countOccurrences(state, n0.arr);
         for (const n0 of decNeedles) count -= countOccurrences(state, n0.arr);
 
@@ -241,7 +241,7 @@ console.log("HELLO")
 const intro = [1n,2n,3n,2n,3n];
 const state2 = [0n, 0n,    1n,2n,3n,2n,3n, 0n, 0n, 4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
 const map = tokenize(intro, state2);
-//for (const [k,v] of map) console.log(k, '->', v);
+for (const [k,v] of map) console.log(k, '->', v);
 
 const zeroToken = [0n, 0n];
 const [incs, decs] = inferIncDec(state2, zeroToken);
@@ -528,14 +528,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("Hello!He")
+    const state = render("0+-0++l0-l:---l0--l0-l")
     //const state = render("+-0+++l-l0")
 
     console.log("N:" + state.slice(-1)[0][1])
     tg("br")
 
     const span2 = tg("span", "res")
-    span2.textContent = parse(find(state, render("Welcome to the ").map(x => x[0])))
+    span2.textContent = parse(find(state, render("l").map(x => x[0])))
     span2.style.color = "green"
 
     tg("br")
@@ -559,7 +559,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctx3 = {}
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
-    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0+++l -l0l")), eraseSeqNo(render("0"))))
+    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0++l:-l0l")), eraseSeqNo(render("0"))))
     span5.style.color = "green"
 </script>
 
