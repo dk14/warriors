@@ -138,29 +138,32 @@
 
     function inferIncDec(state, zeroToken) {
         const sections = getPossibleIntroSections(state, zeroToken);
-        for (const sec of sections) {
-            const intro = sec.slice;
-            const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
-            if (tokens.size < 2) continue;
-            const entries = Array.from(tokens.entries());
-            const incSet = new Set(), decSet = new Set();
-            for (let i = 0; i < entries.length; i++) {
+        if (sections.length === 0) return [[], []]
+        const sec = sections[0]
+
+        const intro = sec.slice;
+        const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
+        if (tokens.size < 2) return [[], []] ;
+
+        const entries = Array.from(tokens.entries());
+        const incSet = new Set(), decSet = new Set();
+        for (let i = 0; i < entries.length; i++) {
             for (let j = i + 1; j < entries.length; j++) {
                 const [ki, vi] = entries[i];
                 const [kj, vj] = entries[j];
                 if (vi.count > 0 && vi.count === vj.count) {
-                if (vi.firstStart <= vj.firstStart) { incSet.add(ki); decSet.add(kj); }
-                else { incSet.add(kj); decSet.add(ki); }
+                    if (vi.firstStart <= vj.firstStart) { incSet.add(ki); decSet.add(kj); }
+                    else { incSet.add(kj); decSet.add(ki); }
                 }
             }
-            }
-            if (incSet.size > 0) {
+        }
+        if (incSet.size > 0) {
             for (const t of Array.from(incSet)) {
                 if (decSet.has(t)) { incSet.delete(t); decSet.delete(t); }
             }
             return [Array.from(incSet), Array.from(decSet)];
-            }
         }
+
         return [[], []];
     }
 
