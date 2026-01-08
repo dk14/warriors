@@ -23,7 +23,7 @@ window.session = "";                     // full input history
 
 /* ---------- Terminal state ---------- */
 const term   = document.getElementById('term');
-const cellW  = 9;                         // approx. width of one character
+const cellW  = 8;                         // approx. width of one character
 const cellH  = 18;                        // approx. height of one line
 let cursor   = {x:0, y:0};
 let cells    = new Map();                // "x,y" → <span>
@@ -139,17 +139,20 @@ let escBuffer = ''
 
 /* ---------- putstr (renders text & VT) ---------- */
 function putstr(str){
+  window.session += str
   str = escBuffer + str
   let i = 0;
   while (i < str.length){
     const ch = str[i];
     if (ch === '\x1b' && str[i+1] === undefined) {
+      curElm.style.background = 'blue'
       escBuffer = '\x1b'
     } else if (ch === '\x1b' && str[i+1] === '['){          // CSI start
       if (str[i+2] === 'A') {
         i = i+3
         cursor.y = cursor.y - 1;
         drawCursor(); ensureVisible();
+        curElm.style.background = 'green'
         escBuffer = ''
         continue
       }
@@ -158,6 +161,7 @@ function putstr(str){
          i = i+3
         cursor.y = cursor.y + 1;
         drawCursor(); ensureVisible();
+        curElm.style.background = 'green'
         escBuffer = ''
         continue
       }
@@ -166,6 +170,7 @@ function putstr(str){
          i = i+3
         cursor.x = cursor.x + 1;
         drawCursor(); ensureVisible();
+        curElm.style.background = 'green'
         escBuffer = ''
         continue
       }
@@ -175,6 +180,7 @@ function putstr(str){
         cursor.x = cursor.x - 1;
         drawCursor(); ensureVisible();
         escBuffer = ''
+        curElm.style.background = 'green'
         continue
       }
       
@@ -184,6 +190,7 @@ function putstr(str){
         applySGR(seq);
         i = end + 1;
         escBuffer = ''
+        curElm.style.background = 'green'
         continue;
       }
 
@@ -197,6 +204,7 @@ function putstr(str){
           cursor.x++;
         })
 
+        curElm.style.background = 'green'
         escBuffer = ''
       }
 
@@ -235,99 +243,48 @@ function putstr(str){
   ensureVisible();
 }
 
+let entBuffer = ''
+
 /* ---------- Keyboard handling ---------- */
 term.addEventListener('keydown', e => {
   e.preventDefault();
-  const k = e.key;
-  let seq = '';                     
 
+  const k = e.key;                 
   if (k.length === 1 && !e.ctrlKey && !e.metaKey){
-    if (recentBuffer === "") recentStart = {x: cursor.x, y: cursor.y};
-    seq = k;
-    putstr(seq);
-    recentBuffer += k;
-    window.session += seq;
-
-    if (k === ';'){
-      const decMatch = recentBuffer.match(/&#(\d+);$/);
-      const hexMatch = recentBuffer.match(/&#x([0-9a-fA-F]+);$/);
-      let codepoint = null;
-      let matchText = null;
-      if (decMatch) { codepoint = Number(decMatch[1]); matchText = decMatch[0]; }
-      else if (hexMatch) { codepoint = parseInt(hexMatch[1], 16); matchText = hexMatch[0]; }
-
-      if (codepoint !== null){
-        if (codepoint >= 0 && codepoint <= 0x10FFFF){
-          const char = String.fromCodePoint(codepoint);
-          const entityLength = matchText.length;
-          const startX = recentStart.x + (recentBuffer.length - entityLength);
-          const startY = recentStart.y;
-          window.session = window.session.slice(0, -entityLength) + char;
-          for (let i = 0; i < entityLength; i++){
-            const ex = startX + i;
-            const ey = startY;
-            const c = getCell(ex, ey);
-            c.textContent = '';
-          }
-          cursor.x = startX;
-          cursor.y = startY;
-          putstr(char);
-          recentBuffer = "";
-          recentStart = {x: cursor.x, y: cursor.y};
-        } else {
-          recentBuffer = "";
-        }
-      }
+   console.log(k)
+   if (k === '&' || entBuffer.length > 0) {
+    curElm.style.background = 'red'
+    entBuffer += k
+   } else {
+      putstr(k)
+   }
+   
+   if (k === ';' && entBuffer.length > 0) {
+    const res = decodeEntity(entBuffer)
+    entBuffer = ''
+    curElm.style.background = 'green'
+    putstr(res ?? entBuffer)
+   } 
+    
+  } else {
+    
+    if (k === 'Enter'){
+      putstr('\n');
+    } else if (k === 'Backspace'){
+      curElm.style.background = 'green'
+      entBuffer = ''
+      putstr('\b')
+    } else if (k === 'ArrowUp'){
+      putstr('\x1b[A');
+    } else if (k === 'ArrowDown'){
+      putstr('\x1b[B')
+    } else if (k === 'ArrowRight'){
+      putstr('\x1b[C')  
+    } else if (k === 'ArrowLeft'){
+      putstr('\x1b[D')
+    } else if (k === 'Escape'){
+      putstr('\x1b')
     }
-
-    if (recentBuffer.length > 64) {
-      recentBuffer = recentBuffer.slice(-64);
-      recentStart = {x: cursor.x, y: cursor.y};
-    }
-
-  } else if (k === 'Enter'){
-    seq = '\n';
-    putstr(seq);
-    recentBuffer = "";
-    recentStart = {x: cursor.x, y: cursor.y};
-    window.session += seq;
-  } else if (k === 'Backspace'){
-    seq = '\b';
-    putstr(seq)
-    window.session += seq;
-  } else if (k === 'ArrowUp'){
-    seq = '\x1b[A';
-    recentBuffer = "";
-    window.session += seq;
-    putstr(seq)
-    recentStart = {x: cursor.x, y: cursor.y};
-  } else if (k === 'ArrowDown'){
-    seq = '\x1b[B';
-    recentBuffer = "";
-    
-    window.session += seq;
-    putstr(seq)
-    recentStart = {x: cursor.x, y: cursor.y};
-  } else if (k === 'ArrowRight'){
-    seq = '\x1b[C';
-    window.session += seq;
-    putstr(seq)
-    recentBuffer = "";
-    recentStart = {x: cursor.x, y: cursor.y};
-    
-  } else if (k === 'ArrowLeft'){
-    seq = '\x1b[D';
-    window.session += seq;
-    putstr(seq)
-    recentBuffer = "";
-    recentStart = {x: cursor.x, y: cursor.y};
-    
-  } else if (k === 'Escape'){
-    seq = '\x1b';
-    window.session += seq;
-    putstr(seq)
-    recentBuffer = "";
-    recentStart = {x: cursor.x, y: cursor.y};
   }
 
 });
