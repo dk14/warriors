@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pure‑JS Terminal (fixed arrows)</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;color:#0f0;font-family:monospace;}
+  #term{position:relative;width:100%;height:100%;overflow:hidden;outline:none;}
+  .cell{position:absolute;user-select:none;white-space:pre;}
+  .cursor{
+    position:absolute;width:1ch;height:1.2em;background:#0f0;opacity:.7;
+    animation:blink .8s steps(2) infinite;
+  }
+  @keyframes blink{to{opacity:0}}
+</style>
+</head>
+<body>
+<div id="term" tabindex="0"></div>
+
+<script>
+/* ---------- Global buffer ---------- */
+window.session = "";                     // full input history
+
+/* ---------- Terminal state ---------- */
+const term   = document.getElementById('term');
+const cellW  = 9;                         // approx. width of one character
+const cellH  = 18;                        // approx. height of one line
+let cursor   = {x:0, y:0};
+let cells    = new Map();                // "x,y" → <span>
+let curElm   = null;                     // visual cursor element
+
+/* track recent typed characters for entity detection */
+let recentBuffer = "";     // recent typed characters (since recentStart)
+let recentStart = {x:0,y:0};
+
+/* ---------- Helpers ---------- */
+function key(x,y){ return `${x},${y}`; }
+
+function getCell(x,y){
+  const k = key(x,y);
+  if (cells.has(k)) return cells.get(k);
+  const el = document.createElement('span');
+  el.className = 'cell';
+  el.style.left = x*cellW+'px';
+  el.style.top  = y*cellH+'px';
+  term.appendChild(el);
+  cells.set(k,el);
+  return el;
+}
+
+/* ---------- Cursor visual ---------- */
+function drawCursor(){
+  if (!curElm){
+    curElm = document.createElement('div');
+    curElm.className = 'cursor';
+    term.appendChild(curElm);
+  }
+  curElm.style.left = cursor.x*cellW+'px';
+  curElm.style.top  = cursor.y*cellH+'px';
+  if (cursor.x < 0) {
+    const cellsCp = [...cells.entries()]
+    
+    cellsCp.forEach(entry => {
+        const [k, el] = entry
+        cells.delete(k)
+        term.removeChild(el)
+
+    })
+
+    cellsCp.forEach(entry => {
+      const [k, el] = entry
+      const [xx, yy] = k.split(",").map(x => parseInt(x))
+      const c = getCell(xx - cursor.x, yy)
+      c.textContent = el.textContent
+      c.style.color = el.style.color
+    })
+    //console.log(cells)
+    cursor.x = 0
+  }
+
+  if (cursor.y < 0) {
+    const cellsCp = [...cells.entries()]
+    
+    cellsCp.forEach(entry => {
+        const [k, el] = entry
+        cells.delete(k)
+        term.removeChild(el)
+
+    })
+
+    cellsCp.forEach(entry => {
+      const [k, el] = entry
+      const [xx, yy] = k.split(",").map(x => parseInt(x))
+      const c = getCell(xx, yy - cursor.y)
+      c.textContent = el.textContent
+      c.style.color = el.style.color
+    })
+    //console.log(cells)
+    cursor.y = 0
+  }
+}
+
+/* ---------- Scrolling ---------- */
+function ensureVisible(){
+  const rect = term.getBoundingClientRect();
+  const cx = cursor.x*cellW, cy = cursor.y*cellH;
+  const pad = 20;
+  const scrollX = Math.max(0, cx - rect.width + pad);
+  const scrollY = Math.max(0, cy - rect.height + pad);
+  term.scrollTo(scrollX, scrollY);
+}
+
+let color = undefined
+
+/* ---------- VT SGR (color) ---------- */
+function applySGR(params){
+  const colors = {
+    30:'#0f0',31:'#f00',32:'#0f0',33:'#ff0',
+    34:'#00f',35:'#f0f',36:'#0ff',37:'#fff',
+    0:'#0f0'   // reset → default green
+  };
+  const code = params[0]||0;
+  color = colors[code]
+}
+
+function decodeEntity(str){
+  // decimal:  &#12345;
+  // hex:      &#x1F600;
+  const dec = /^&#(\d+);$/.exec(str);
+  if (dec) return String.fromCodePoint(Number(dec[1]));
+
+  const hex = /^&#x([0-9a-fA-F]+);$/.exec(str);
+  if (hex) return String.fromCodePoint(parseInt(hex[1],16));
+
+  return null; // not a valid entity
+}
+
+/* ---------- putstr (renders text & VT) ---------- */
+function putstr(str){
+  let i = 0;
+  while (i < str.length){
+    const ch = str[i];
+    if (ch === '\x1b' && str[i+1] === '['){          // CSI start
+      if (str[i+2] === 'A') {
+        i = i+3
+        cursor.y = cursor.y - 1;
+        drawCursor(); ensureVisible();
+        continue
+      }
+
+      if (str[i+2] === 'B') {
+         i = i+3
+        cursor.y = cursor.y + 1;
+        drawCursor(); ensureVisible();
+        continue
+      }
+
+      if (str[i+2] === 'C') {
+         i = i+3
+        cursor.x = cursor.x + 1;
+        drawCursor(); ensureVisible();
+        continue
+      }
+
+      if (str[i+2] === 'D') {
+         i = i+3
+        cursor.x = cursor.x - 1;
+        drawCursor(); ensureVisible();
+        continue
+      }
+      
+      const end = str.indexOf('m', i+2);
+      if (end !== -1){
+        const seq = str.slice(i+2, end).split(';').map(Number);
+        applySGR(seq);
+        i = end + 1;
+        continue;
+      }
+    }
+    if (ch === '\n'){
+      cursor.y++; cursor.x = 0;
+    } else if (ch === '\r'){
+      cursor.x = 0;
+    } else if (ch === '\b'){
+      if (cursor.x > 0){
+        cursor.x--;
+        const cell = getCell(cursor.x, cursor.y);
+        if (color) {
+            cell.style.color = color
+        }
+        cell.textContent = '';
+      }
+    } else {
+      const cell = getCell(cursor.x, cursor.y);
+      if (color) {
+        cell.style.color = color
+      }
+      cell.textContent = ch;
+      cursor.x++;
+    }
+    i++;
+  }
+  drawCursor();
+  ensureVisible();
+}
+
+/* ---------- Keyboard handling ---------- */
+term.addEventListener('keydown', e => {
+  e.preventDefault();
+  const k = e.key;
+  let seq = '';                     
+
+  if (k.length === 1 && !e.ctrlKey && !e.metaKey){
+    if (recentBuffer === "") recentStart = {x: cursor.x, y: cursor.y};
+    seq = k;
+    putstr(seq);
+    recentBuffer += k;
+    window.session += seq;
+
+    if (k === ';'){
+      const decMatch = recentBuffer.match(/&#(\d+);$/);
+      const hexMatch = recentBuffer.match(/&#x([0-9a-fA-F]+);$/);
+      let codepoint = null;
+      let matchText = null;
+      if (decMatch) { codepoint = Number(decMatch[1]); matchText = decMatch[0]; }
+      else if (hexMatch) { codepoint = parseInt(hexMatch[1], 16); matchText = hexMatch[0]; }
+
+      if (codepoint !== null){
+        if (codepoint >= 0 && codepoint <= 0x10FFFF){
+          const char = String.fromCodePoint(codepoint);
+          const entityLength = matchText.length;
+          const startX = recentStart.x + (recentBuffer.length - entityLength);
+          const startY = recentStart.y;
+          window.session = window.session.slice(0, -entityLength) + char;
+          for (let i = 0; i < entityLength; i++){
+            const ex = startX + i;
+            const ey = startY;
+            const c = getCell(ex, ey);
+            c.textContent = '';
+          }
+          cursor.x = startX;
+          cursor.y = startY;
+          putstr(char);
+          recentBuffer = "";
+          recentStart = {x: cursor.x, y: cursor.y};
+        } else {
+          recentBuffer = "";
+        }
+      }
+    }
+
+    if (recentBuffer.length > 64) {
+      recentBuffer = recentBuffer.slice(-64);
+      recentStart = {x: cursor.x, y: cursor.y};
+    }
+
+  } else if (k === 'Enter'){
+    seq = '\n';
+    putstr(seq);
+    recentBuffer = "";
+    recentStart = {x: cursor.x, y: cursor.y};
+    window.session += seq;
+  } else if (k === 'Backspace'){
+    seq = '\b';
+    putstr(seq)
+    window.session += seq;
+  } else if (k === 'ArrowUp'){
+    seq = '\x1b[A';
+    recentBuffer = "";
+    window.session += seq;
+    putstr(seq)
+    recentStart = {x: cursor.x, y: cursor.y};
+  } else if (k === 'ArrowDown'){
+    seq = '\x1b[B';
+    recentBuffer = "";
+    
+    window.session += seq;
+    putstr(seq)
+    recentStart = {x: cursor.x, y: cursor.y};
+  } else if (k === 'ArrowRight'){
+    seq = '\x1b[C';
+    window.session += seq;
+    putstr(seq)
+    recentBuffer = "";
+    recentStart = {x: cursor.x, y: cursor.y};
+    
+  } else if (k === 'ArrowLeft'){
+    seq = '\x1b[D';
+    window.session += seq;
+    putstr(seq)
+    recentBuffer = "";
+    recentStart = {x: cursor.x, y: cursor.y};
+    
+  } else if (k === 'Escape'){
+    seq = '\x1b';
+    window.session += seq;
+    putstr(seq)
+    recentBuffer = "";
+    recentStart = {x: cursor.x, y: cursor.y};
+  }
+
+});
+
+/* ---------- Init ---------- */
+function init(){
+  //term.focus();
+  drawCursor();
+}
+window.addEventListener('load', init);
+
+/* ---------- Demo ---------- */
+putstr('Pure‑JS terminal.\n');
+putstr('Try arrows, backspace, colors: \x1b[31mred\x1b[0m.\n');
+putstr('Unicode: &#9898; → \u{9898}\n');
+</script>
+</body>
+</html>
