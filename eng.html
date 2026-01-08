@@ -164,17 +164,55 @@
         return [[], []];
     }
 
+        // tokenisation: [incsArray, decsArray] where each element is token key (comma-joined BigInt string)
+    // state: BigInt[]
+    function parseKey(key) {
+        return key.split(',').map(s => BigInt(s));
+    }
+
+    function countVar(state, tokenisation) {
+        const [incs, decs] = tokenisation || [[], []];
+
+        // build list of needles (arrays) from keys
+        const makeNeedles = (keys) => keys.map(k => ({ key: k, arr: parseKey(k), len: k === '' ? 0 : k.split(',').length }));
+        const incNeedles = makeNeedles(incs);
+        const decNeedles = makeNeedles(decs);
+
+        let count = 0;
+
+        // helper to count occurrences of a needle (allow overlaps)
+        const countOccurrences = (hay, needle) => {
+            const n = hay.length, m = needle.length;
+            if (m === 0) return 0;
+            let c = 0;
+            for (let i = 0; i + m <= n; i++) {
+            let j = 0;
+            while (j < m && hay[i + j] === needle[j]) j++;
+            if (j === m) c++;
+            }
+            return c;
+        };
+
+        for (const n0 of incNeedles) count += countOccurrences(state, n0.arr);
+        for (const n0 of decNeedles) count -= countOccurrences(state, n0.arr);
+
+        return count;
+    }
+
+
 
 console.log("HELLO")
 const intro = [1n,2n,3n,2n,3n];
-const state2 = [0n, 0n,    1n,2n,3n,2n,3n, 0n, 0n, 4n,1n,2n,0n, 3n,2n];
+const state2 = [0n, 0n,    1n,2n,3n,2n,3n, 0n, 0n, 4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
 const map = tokenize(intro, state2);
-for (const [k,v] of map) console.log(k, '->', v);
+//for (const [k,v] of map) console.log(k, '->', v);
 
 const zeroToken = [0n, 0n];
 const [incs, decs] = inferIncDec(state2, zeroToken);
 console.log('incs =', incs);
 console.log('decs =', decs);
+
+console.log("count = " + countVar(state2, [incs, decs]))
 
 
 </script>
