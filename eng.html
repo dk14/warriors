@@ -467,7 +467,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return output
     }
 
-    function genConditionalJump(turing, varIdx, label) {
+    function genJump(turing, varIdx, label) {
         const outs = turing
             .map((x,i) => [x[0], x[1], i])
             .filter(x => x[1] === 0n)
@@ -475,6 +475,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const instrPointer = find(outs, label)[0][1] //take first label
         return [[varIdx, instrPointer + TURING_OFFSET], ...label.map(x => [0n, x])]
+    }
+
+    function genInc(varIdx, incName) {
+        return [[varIdx, TURING_INC], ...incName.map(x => [0n, x])]
+    }
+
+    function genDec(varIdx, incName) {
+        return [[varIdx, TURING_DEC], ...incName.map(x => [0n, x])]
     }
 
 
