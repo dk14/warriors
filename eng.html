@@ -335,6 +335,127 @@ console.log("count = " + countVar(state2, [incs, decs]))
 </script>
 
 <script>
+
+    //turing executor and termination oracle
+
+    function inferMembound(turing) {
+        return {
+            currentExpansion: 0n,
+            currentHyperop: 0n,
+            hyperopBound: turing.filter(x => x[1] > 2).length,
+            baseBound: turing.length,
+        }
+
+    }
+
+    function powBigInt(base, exponent) {
+        base = BigInt(base);
+        exponent = BigInt(exponent);
+        if (exponent < 0n) throw new RangeError('negative exponent not supported for BigInt');
+        let result = 1n;
+        while (exponent > 0n) {
+            if (exponent & 1n) result *= base;
+            base *= base;
+            exponent >>= 1n;
+        }
+        return result;
+    }
+
+    function checkMembound(value, membound) {
+
+        while (membound.currentExpansion < value && currentHyperop <= membound.hyperopBound) {
+            membound.currentExpansion = powBigInt(membound.currentExpansion, baseBound)
+            membound.hyperopBound++
+        }
+
+        return membound.currentExpansion > value
+
+    }
+
+    function checkLoopSegment(coverage, jump, history) {
+        return true
+    }
+
+    function bigIntArraysEqual(a, b) {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false; // BigInt compared with ===
+        }
+        return true;
+    }
+
+    function checkRepeatCfg(state, cursor, history) {
+        for (const x of history){
+            const [pastCursor, pastState] = x
+            if (pastCursor === cursor && bigIntArraysEqual(pastState, state)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function executeTuring(turing) {
+        //input is sequence of [mem_address, instr_address]
+        //instr_address 2 means increment
+        //instr_address 1 means decrement
+        //instr_address 0 means output character (mem_adress interpreted as char then)
+        //any other instr_address jmpnz mem_address instr_address
+
+        const membound = inferMembound(turing)
+
+        let cursor = 0
+
+        const memory = []
+
+        const output = []
+
+        const history = []
+
+        const coverage = new Set()
+
+        while (cursor < turing.length) {
+
+            const [mem, instr] = turing[cursor]
+
+            if (instr === 0n) {
+                output.push(mem)
+                coverage.add(cursor)
+                cursor++
+            } else if (instr === 1n) {
+                memory[mem]++
+                if(!checkMembound(memory[mem], membound)) {
+                    return output
+                }
+                coverage.add(cursor)
+                cursor++
+            } else if (instr === 2n) {
+                memory[mem]--
+                coverage.add(cursor)
+                cursor++
+            } else {
+                if (memory[mem] === 0n) {
+                    cursor++
+                } else {
+                    coverage.add(cursor)
+                    if (!checkLoopSegment(coverage, turing[cursor], history)) {
+                        return output
+                    }
+                    cursor = instr - 2n
+                    if (!checkRepeatCfg(memory, cursor, history)) {
+                        return output
+                    }
+                }
+            }
+
+            history.push([cursor, memory])
+            
+        }
+
+        return output
+    }
+</script>
+
+<script>
     //prediction
 
     const find = (state, pattern) => {
@@ -480,80 +601,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
     }
 
 
-    function inferMembound(turing) {
-
-    }
-
-    function checkMembound(value, membound) {
-
-    }
-
-    function isInLoopSegment(coverage, turing, cursor) {
-
-    }
-
-    function accumulateCoverage(coverage, cursor, turing) {
-
-    }
-
-    function checkRepeatCfg(state, cursor, history) {
-
-    }
-
-    function executeTuring(turing) {
-        //input is sequence of [mem_address, instr_address]
-        //instr_address 2 means increment
-        //instr_address 1 means decrement
-        //instr_address 0 means output character (mem_adress interpreted as char then)
-        //any other instr_address jmpnz mem_address instr_address
-
-        const membound = inferMembound(turing)
-
-        let cursor = 0
-
-        const memory = []
-
-        const output = []
-
-        const history = []
-
-        const coverage = {}
-
-        while (cursor < turing.length) {
-
-            const [mem, instr] = turing[cursor]
-
-            if (instr === 0n) {
-                output.push(mem)
-                cursor++
-            } else if (instr === 1n) {
-                memory[mem]++
-                if(!checkMembound(memory[mem], membound)) {
-                    return output
-                }
-                cursor++
-            } else if (instr === 2n) {
-                memory[mem]--
-                cursor++
-            } else {
-                if (memory[mem] === 0n) {
-                    cursor++
-                } else {
-                    cursor = instr - 2n
-                }
-            }
-
-            history.push([cursor, memory])
-            if (!checkRepeatCfg(memory, cursor, history)) {
-                return output
-            }
-            accumulateCoverage(coverage, cursor, turing)
-
-            
-        }
-
-        return output
-    }
 
     function predictContinuously(initState, ctx = {}) {
         if (ctx.turing) {
