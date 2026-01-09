@@ -212,13 +212,17 @@
         return seq.map(x => [x, 0])
     }
 
-    const isZeroBranch = (state, seq) => {
+    const zeroBranch = (state, seq) => {
         for (let i = 0; i < seq.length; i++) {
             const candidate = eraseSeqNo(seq.slice(0, i))
             const inference = inferIncDec(eraseSeqNo(state), candidate)
             if (inference[0].length > 0) {
                 const [incs, decs] = inference
-                return {zero: candidate, incs: incs, decs: decs}
+                return {
+                    zero: enrichSeqNo(candidate), 
+                    incs: incs.map(x => enrichSeqNo(parseKey(x))), 
+                    decs: decs.map(x => enrichSeqNo(parseKey(x)))
+                }
             }
         }
        return undefined
@@ -488,6 +492,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
             
 
             const next = predictDeterministic(state);
+
+            if (ctx.order) {
+                if (next[1] !== state[state.length - 1][1]) {
+                    return output
+                }
+            }
        
             if (!next) break;
             output.push(next);
