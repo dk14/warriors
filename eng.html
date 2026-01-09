@@ -230,6 +230,19 @@
 
     }
 
+    const checkIfEndsWithToken = (output, tokens) => {
+        for (token of tokens) {
+            const strippedToken = eraseSeqNo(token)
+            const strippedOutput = eraseSeqNo(output.slice(-token.length))
+
+            if (bigIntArraysEqual(strippedToken, strippedOutput)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     const parseIncDec = (inference) => {
         const [incs, decs] = inference
         const incsData = incs.map(inc => parse(enrichSeqNo(parseKey(inc))))
@@ -324,7 +337,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
     }
 
     function parse(state) {
-        console.log(state)
         if (state === undefined || state.length === 0 || (state.length === 1 && !state[0])) return ''
 
         return state
@@ -549,17 +561,20 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         let previousMany = null;
 
+        const target = ctx.target ?? 1
+
         for (let len = 1; len <= state.length; len++) {
             const pattern = state.slice(state.length - len); 
             const matches = find(state.slice(0, -len), pattern.map(x => x[0]));
 
             ctx.n = len
 
-            if (matches.length === 1) {
+            if (matches.length <= target) {
+                if (matches.length === 0) return previousMany
                 return matches;
             }
 
-            if (matches.length > 1) {
+            if (matches.length > target) {
                 previousMany = matches;
                 continue;
             }
@@ -649,22 +664,22 @@ console.log("count = " + countVar(state2, [incs, decs]))
     function inlineTuring(next, state, output, ctx) {
         if (ctx.turing === undefined) ctx.turing = []
         if (ctx.unresolvedLabels === undefined) ctx.unresolvedLabels = {}
+        if (ctx.varCount === undefined) ctx.varCount = 0n
+        if (ctx.vars === undefined) ctx.vars = {}
+        if (ctx.varIdx === undefined) ctx.varIdx = {}
 
-        const predictCtx = {}
-        const branches = predict(state, predictCtx)
+        const predictCtx = {target: 2}
+        const branches = predict([...state, next], predictCtx)
 
         const lookForwardCtx = {order: true}
         
-        const found = zeroBranch(state, predictContinuously([...state, next], lookForwardCtx))
+        const found = zeroBranch([...state, next], predictContinuously([...state, next], lookForwardCtx))
 
         if (found !== undefined && branches.length > 1) {
 
-            if (ctx.varCount === undefined) ctx.varCount = 0n
-            if (ctx.vars === undefined) ctx.vars = {}
-            if (ctx.varIdx === undefined) ctx.varIdx = {}
+
 
             if (!ctx.vars[found.varName]) {
-                ctx.vars[found.varName]
                 ctx.varCount++
                 ctx.vars[found.varName] = found
                 ctx.varIdx[found.varName] = ctx.varCount
@@ -674,19 +689,29 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const labelSuffix = undefined
 
             const varIdx = ctx.varIdx[found.varName]
+            const label = state.slice(-predictCtx.n)
 
             if (labelSuffix) {
-                const label = state.slice(-predictCtx.n)
                 ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(labelSuffix))))
             } else {
-                ctx.turing.push(genStubJmp(turing, varIdx))
-                ctx.unresolvedLabels[label] = turing.length - 1
+                ctx.turing.push(genStubJmp(ctx.turing, varIdx))
+                ctx.unresolvedLabels[parse(label)] = ctx.turing.length - 1
             }
             
         } else {
             //check if previous sequence matches one of inc/dec tokens
-            const incIdx = undefined //
-            const decIdx = undefined //
+            
+            const getIdx = (incOrDec) => {
+                for (const [name, zero] of Object.entries(ctx.vars)) {
+                    if (checkIfEndsWithToken(output, zero[incOrDec])) {
+                        return ctx.varIdx[name]
+                    }
+                }
+                return undefined
+            }
+            
+            const incIdx = getIdx("incs")
+            const decIdx = getIdx("decs")
             if (incIdx) {
                 ctx.turing.push(genInc(incIdx))
             } 
@@ -774,7 +799,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0++l0-l:---l0--l0-l")
+    const state = render("0+-0++pl:---l0--l0-lp")
     //const state = render("+-0+++l-l0")
 
     console.log("N:" + state.slice(-1)[0][1])
@@ -783,6 +808,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const span2 = tg("span", "res")
     span2.textContent = parse(find(state, render("l").map(x => x[0])))
     span2.style.color = "green"
+
+    tg("br")
+
+    const span7 = tg("span", "res")
+    const ctx7 = {target:2}
+    span7.textContent = "" + parse(predict(state, ctx7))
+    span7.style.color = "green"
 
     tg("br")
 
@@ -798,8 +830,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
     //ctx2.order = true
     ctx2.inlineTuring = true
     const span4 = tg("span", "res")
-    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop
+    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing.length
     span4.style.color = "green"
+
+    console.log(ctx2)
+
 
     tg("br")
     tg("br")
