@@ -495,12 +495,46 @@ console.log("count = " + countVar(state2, [incs, decs]))
             counter++
             
 
-            const next = predictDeterministic(state);
+            let next = predictDeterministic(state);
 
             if (ctx.order && output.length > 0) {
                 if (next[1] !== output[output.length - 1][1] + 1) {
                     return output
                 }
+            }
+
+            if (ctx.inlineTuring) {
+  
+
+                const branches = predict(state)
+                const lookForwardCtx = {order: true}
+
+                let zeroNext = []
+                
+                const zeroBranches = branches.forEach(b => {
+                    zeroBranch(state, predictContinuously(initState, lookForwardCtx))
+                })
+
+
+
+                if (output.length > 0 && next[1] !== output[output.length - 1][1] + 1) {
+                    //add unconditional jmp
+                }
+
+                if (zeroNext.length !== 0 && branches.length > zeroNext.length) {
+                    //add conditional jmp
+                    //take last n-gram as a label
+                }
+
+                //process zeroes and infer variables with initial states
+
+                //everything in output should be [inc, dec, jmp, out]
+
+                //report machine into ctx
+
+
+                
+                
             }
        
             if (!next) break;
@@ -542,7 +576,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0++l0-l:---l0--l0-llo")
+    const state = render("0+-0++l0-l:---l0--l0-l")
     //const state = render("+-0+++l-l0")
 
     console.log("N:" + state.slice(-1)[0][1])
@@ -564,6 +598,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const ctx2 = {}
     //ctx2.order = true
+    ctx2.inlineTuring = true
     const span4 = tg("span", "res")
     span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop
     span4.style.color = "green"
