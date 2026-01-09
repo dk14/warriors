@@ -394,12 +394,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return false
     }
 
-    function executeTuring(turing) {
+    function executeTuring(turing, offset = 3n) {
         //input is sequence of [mem_address, instr_address]
         //instr_address 2 means increment
         //instr_address 1 means decrement
         //instr_address 0 means output character (mem_adress interpreted as char then)
-        //any other instr_address jmpnz mem_address instr_address
+        //any other (more than offset) instr_address jmpnz mem_address instr_address
 
         const membound = inferMembound(turing)
 
@@ -440,7 +440,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     if (!checkLoopSegment(coverage, turing[cursor], history)) {
                         return output
                     }
-                    cursor = instr - 2n
+                    cursor = instr - offset
                     if (!checkRepeatCfg(memory, cursor, history)) {
                         return output
                     }
