@@ -219,6 +219,7 @@
             if (inference[0].length > 0) {
                 const [incs, decs] = inference
                 return {
+                    varName:  parse(enrichSeqNo(candidate)),
                     zero: enrichSeqNo(candidate), 
                     incs: incs.map(x => enrichSeqNo(parseKey(x))), 
                     decs: decs.map(x => enrichSeqNo(parseKey(x)))
@@ -661,26 +662,36 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
 
             if (ctx.inlineTuring) {
+                if (ctx.turing === undefined) ctx.vars = {}
   
 
-                const branches = predict(state)
+                const predictCtx = {}
+                const branches = predict(state, predictCtx)
+
                 const lookForwardCtx = {order: true}
-
-                let zeroNext = []
                 
-                const zeroBranches = branches.forEach(b => {
-                    zeroBranch(state, predictContinuously(initState, lookForwardCtx))
-                })
+                const found = zeroBranch(state, predictContinuously([...state, next], lookForwardCtx))
+    
+                if (found !== undefined && branches.length > 1) {
 
+                    if (ctx.varCount === undefined) ctx.varCount = 0n
+                    if (ctx.vars === undefined) ctx.vars = {}
+                    if (ctx.varIdx === undefined) ctx.vars = {}
 
+                    if (!ctx.vars[found.varName]) {
+                        ctx.vars[found.varName]
+                        ctx.varCount++
+                        ctx.vars[found.varName] = found
+                        ctx.varIdx[found.varName] = ctx.varCount
+                    }
 
-                if (output.length > 0 && next[1] !== output[output.length - 1][1] + 1) {
-                    //add unconditional jmp
-                }
+                    //infer more sequential chars for label. predict them on non-zero branch
+                    const labelSuffix = undefined
+                    const label = state.slice(-predictCtx.n)
 
-                if (zeroNext.length !== 0 && branches.length > zeroNext.length) {
-                    //add conditional jmp
-                    //take last n-gram as a label
+                    const varIdx = ctx.varIdx[found.varName]
+
+                    turing.push(genJump(turing, varIdx, eraseSeqNo(label)))
                 }
 
                 //process zeroes and infer variables with initial states
@@ -690,7 +701,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 //report machine into ctx.turing
 
 
-                
+                //progress state with predict continously
                 
             }
        
