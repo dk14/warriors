@@ -479,11 +479,87 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return seen.size;
     }
 
-    function checkIntroSection(candidate, state) {
+
+    function inferMembound(turing) {
 
     }
 
+    function checkMembound(value, membound) {
+
+    }
+
+    function isInLoopSegment(coverage, turing, cursor) {
+
+    }
+
+    function accumulateCoverage(coverage, cursor, turing) {
+
+    }
+
+    function checkRepeatCfg(state, cursor, history) {
+
+    }
+
+    function executeTuring(turing) {
+        //input is sequence of [mem_address, instr_address]
+        //instr_address 2 means increment
+        //instr_address 1 means decrement
+        //instr_address 0 means output character (mem_adress interpreted as char then)
+        //any other instr_address jmpnz mem_address instr_address
+
+        const membound = inferMembound(turing)
+
+        let cursor = 0
+
+        const memory = []
+
+        const output = []
+
+        const history = []
+
+        const coverage = {}
+
+        while (cursor < turing.length) {
+
+            const [mem, instr] = turing[cursor]
+
+            if (instr === 0n) {
+                output.push(mem)
+                cursor++
+            } else if (instr === 1n) {
+                memory[mem]++
+                if(!checkMembound(memory[mem], membound)) {
+                    return output
+                }
+                cursor++
+            } else if (instr === 2n) {
+                memory[mem]--
+                cursor++
+            } else {
+                if (memory[mem] === 0n) {
+                    cursor++
+                } else {
+                    cursor = instr - 2n
+                }
+            }
+
+            history.push([cursor, memory])
+            if (!checkRepeatCfg(memory, cursor, history)) {
+                return output
+            }
+            accumulateCoverage(coverage, cursor, turing)
+
+            
+        }
+
+        return output
+    }
+
     function predictContinuously(initState, ctx = {}) {
+        if (ctx.turing) {
+            return enrichSeqNo(executeTuring(ctx.turing))
+        }
+
         let state = [...initState];
         const output = [];
 
@@ -530,7 +606,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
                 //everything in output should be [inc, dec, jmp, out]
 
-                //report machine into ctx
+                //report machine into ctx.turing
 
 
                 
@@ -564,6 +640,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
            
             state = [...state, next]; 
+        }
+
+        if (ctx.executeTuring && ctx.turing) {
+            return predictContinuously(initState, ctx)
         }
 
         return output  
