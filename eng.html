@@ -640,6 +640,58 @@ console.log("count = " + countVar(state2, [incs, decs]))
     }
 
 
+    function inlineTuring(next, state, output, ctx) {
+         if (ctx.turing === undefined) ctx.vars = {}
+
+        const predictCtx = {}
+        const branches = predict(state, predictCtx)
+
+        const lookForwardCtx = {order: true}
+        
+        const found = zeroBranch(state, predictContinuously([...state, next], lookForwardCtx))
+
+        if (found !== undefined && branches.length > 1) {
+
+            if (ctx.varCount === undefined) ctx.varCount = 0n
+            if (ctx.vars === undefined) ctx.vars = {}
+            if (ctx.varIdx === undefined) ctx.vars = {}
+
+            if (!ctx.vars[found.varName]) {
+                ctx.vars[found.varName]
+                ctx.varCount++
+                ctx.vars[found.varName] = found
+                ctx.varIdx[found.varName] = ctx.varCount
+            }
+
+            //infer more sequential chars for label. predict them on non-zero branch
+            const labelSuffix = undefined
+            const label = state.slice(-predictCtx.n)
+
+            const varIdx = ctx.varIdx[found.varName]
+
+            //todo: if label not found (forward label) - 
+            // point jump to next instruction and mark jmp as incomplete
+            //add it to registry of forward labels
+            //when label is found - the jump will resolve
+            turing.push(genJump(turing, varIdx, eraseSeqNo(label)))
+        } else {
+            //check if next sequence matches one of inc/dec tokens
+            const findInc = undefined //
+            const findDec = undefined //
+            if (findInc || findDec) {
+
+                //progress state past matched sequence if discovered (with respect to next)
+            } else {
+                turing.push(genOut(next))
+            }   
+
+        }
+
+        // check if next sequence matches one of unresolved labels
+        // progress state past matched sequence if discovered (with respect to next)
+
+
+    }
 
     function predictContinuously(initState, ctx = {}) {
         if (ctx.turing) {
@@ -666,56 +718,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
 
             if (ctx.inlineTuring) {
-                if (ctx.turing === undefined) ctx.vars = {}
-  
-
-                const predictCtx = {}
-                const branches = predict(state, predictCtx)
-
-                const lookForwardCtx = {order: true}
-                
-                const found = zeroBranch(state, predictContinuously([...state, next], lookForwardCtx))
-
-                if (found !== undefined && branches.length > 1) {
-
-                    if (ctx.varCount === undefined) ctx.varCount = 0n
-                    if (ctx.vars === undefined) ctx.vars = {}
-                    if (ctx.varIdx === undefined) ctx.vars = {}
-
-                    if (!ctx.vars[found.varName]) {
-                        ctx.vars[found.varName]
-                        ctx.varCount++
-                        ctx.vars[found.varName] = found
-                        ctx.varIdx[found.varName] = ctx.varCount
-                    }
-
-                    //infer more sequential chars for label. predict them on non-zero branch
-                    const labelSuffix = undefined
-                    const label = state.slice(-predictCtx.n)
-
-                    const varIdx = ctx.varIdx[found.varName]
-
-                    //todo: if label not found (forward label) - 
-                    // point jump to next instruction and mark jmp as incomplete
-                    //add it to registry of forward labels
-                    //when label is found - the jump will resolve
-                    turing.push(genJump(turing, varIdx, eraseSeqNo(label)))
-                } else {
-                    //check if next sequence matches one of inc/dec tokens
-                    const findInc = undefined //
-                    const findDec = undefined //
-                    if (findInc || findDec) {
-
-                        //progress state past matched sequence if discovered (with respect to next)
-                    } else {
-                        turing.push(genOut(next))
-                    }   
-
-                }
-
-                // check if next sequence matches one of unresolved labels
-                // progress state past matched sequence if discovered (with respect to next)
-
+               inlineTuring(next, state, output, ctx)
             }
        
             if (!next) break;
