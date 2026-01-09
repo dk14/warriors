@@ -474,16 +474,22 @@ console.log("count = " + countVar(state2, [incs, decs]))
             .filter(x => x[1] === 0n)
             .map(x => [x[0], x[2]]) //char, line_no
 
+            
         const instrPointer = find(outs, label)[0][1] //take first label
-        return [[varIdx, instrPointer + TURING_OFFSET], ...label.map(x => [0n, x])]
+        return [varIdx, instrPointer + TURING_OFFSET]
     }
 
-    function genInc(varIdx, incName) {
-        return [[varIdx, TURING_INC], ...incName.map(x => [0n, x])]
+    function genStubJmp(turing, varIdx) {
+        return [varIdx, BigInt(turing.length) + TURING_OFFSET]
     }
 
-    function genDec(varIdx, incName) {
-        return [[varIdx, TURING_DEC], ...incName.map(x => [0n, x])]
+
+    function genInc(varIdx) {
+        return [[varIdx, TURING_INC]]
+    }
+
+    function genDec(varIdx) {
+        return [[varIdx, TURING_DEC]]
     }
 
     function genOut(next) {
@@ -641,7 +647,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
     function inlineTuring(next, state, output, ctx) {
-         if (ctx.turing === undefined) ctx.vars = {}
+        if (ctx.turing === undefined) ctx.turing = []
+        if (ctx.unresolvedLabels === undefined) ctx.unresolvedLabels = {}
 
         const predictCtx = {}
         const branches = predict(state, predictCtx)
@@ -654,7 +661,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             if (ctx.varCount === undefined) ctx.varCount = 0n
             if (ctx.vars === undefined) ctx.vars = {}
-            if (ctx.varIdx === undefined) ctx.vars = {}
+            if (ctx.varIdx === undefined) ctx.varIdx = {}
 
             if (!ctx.vars[found.varName]) {
                 ctx.vars[found.varName]
@@ -663,32 +670,35 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 ctx.varIdx[found.varName] = ctx.varCount
             }
 
-            //infer more sequential chars for label. predict them on non-zero branch
+            //infer more sequential chars for unique label token (from output) not followed by zero
             const labelSuffix = undefined
-            const label = state.slice(-predictCtx.n)
 
             const varIdx = ctx.varIdx[found.varName]
 
-            //todo: if label not found (forward label) - 
-            // point jump to next instruction and mark jmp as incomplete
-            //add it to registry of forward labels
-            //when label is found - the jump will resolve
-            turing.push(genJump(turing, varIdx, eraseSeqNo(label)))
-        } else {
-            //check if next sequence matches one of inc/dec tokens
-            const findInc = undefined //
-            const findDec = undefined //
-            if (findInc || findDec) {
-
-                //progress state past matched sequence if discovered (with respect to next)
+            if (labelSuffix) {
+                const label = state.slice(-predictCtx.n)
+                ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(labelSuffix))))
             } else {
-                turing.push(genOut(next))
-            }   
-
+                ctx.turing.push(genStubJmp(turing, varIdx))
+                ctx.unresolvedLabels[label] = turing.length - 1
+            }
+            
+        } else {
+            //check if previous sequence matches one of inc/dec tokens
+            const incIdx = undefined //
+            const decIdx = undefined //
+            if (incIdx) {
+                ctx.turing.push(genInc(incIdx))
+            } 
+            if (decIdx) {
+                ctx.turing.push(genDec(decIdx))
+            }
         }
 
-        // check if next sequence matches one of unresolved labels
-        // progress state past matched sequence if discovered (with respect to next)
+        // TODO check if next sequence matches one of unresolved labels
+        // enrich corresponding jump with it
+
+        ctx.turing.push(genOut(next))
 
 
     }
