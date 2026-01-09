@@ -399,7 +399,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const turingOut = 0n //mem_adress interpreted as char then
 
     //input is sequence of [mem_address, instr_address]
-    //instr_address past offset jmpnz mem_address instr_address
+    //instr_address past offset jmpnz mem_address (instr_address - offset)
     //other instr_address as inc dec out
     function executeTuring(turing, offset = 10n) {
   
