@@ -486,6 +486,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return [[varIdx, TURING_DEC], ...incName.map(x => [0n, x])]
     }
 
+    function genOut(next) {
+        return [[next[0], 0n]]
+    }
+
 
 
 </script>
@@ -671,7 +675,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 const lookForwardCtx = {order: true}
                 
                 const found = zeroBranch(state, predictContinuously([...state, next], lookForwardCtx))
-    
+
                 if (found !== undefined && branches.length > 1) {
 
                     if (ctx.varCount === undefined) ctx.varCount = 0n
@@ -691,18 +695,27 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
                     const varIdx = ctx.varIdx[found.varName]
 
+                    //todo: if label not found (forward label) - 
+                    // point jump to next instruction and mark jmp as incomplete
+                    //add it to registry of forward labels
+                    //when label is found - the jump will resolve
                     turing.push(genJump(turing, varIdx, eraseSeqNo(label)))
+                } else {
+                    //check if next sequence matches one of inc/dec tokens
+                    const findInc = undefined //
+                    const findDec = undefined //
+                    if (findInc || findDec) {
+
+                        //progress state past matched sequence if discovered (with respect to next)
+                    } else {
+                        turing.push(genOut(next))
+                    }   
+
                 }
 
-                //process zeroes and infer variables with initial states
+                // check if next sequence matches one of unresolved labels
+                // progress state past matched sequence if discovered (with respect to next)
 
-                //everything in output should be [inc, dec, jmp, out]
-
-                //report machine into ctx.turing
-
-
-                //progress state with predict continously
-                
             }
        
             if (!next) break;
