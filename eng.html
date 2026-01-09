@@ -372,7 +372,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     }
 
-    function checkLoopSegment(coverage, jump, history) {
+    function checkLoopSegment(coverage, jump, cursor, history, lastCov) {
+        // detect current loop segment from jump
+        // check if loop var is not decreasing
+        // check 100% coverage in a segment -> nonterminate
+        // check repeated coverage (segment or whole program?) -> nonterminate
         return true
     }
 
@@ -417,6 +421,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const coverage = new Set()
 
+        const lastCoverageForJmp = {}
+
         while (cursor < turing.length) {
 
             const [mem, instr] = turing[cursor]
@@ -441,13 +447,16 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     cursor++
                 } else {
                     coverage.add(cursor)
-                    if (!checkLoopSegment(coverage, turing[cursor], history)) {
+                    const lastCov = lastCoverageForJmp[cursor.toString]
+                    
+                    if (!checkLoopSegment(coverage, turing[cursor], cursor, history, lastCov)) {
                         return output
                     }
                     cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
                         return output
                     }
+                    lastCoverageForJmp[cursor.toString] = coverage
                 }
             }
 
