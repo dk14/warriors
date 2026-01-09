@@ -466,6 +466,18 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         return output
     }
+
+    function genConditionalJump(turing, varIdx, label) {
+        const outs = turing
+            .map((x,i) => [x[0], x[1], i])
+            .filter(x => x[1] === 0n)
+            .map(x => [x[0], x[2]]) //char, line_no
+
+        const instrPointer = find(outs, label)[0][1] //take first label
+        return [varIdx, instrPointer + TURING_OFFSET]
+    }
+
+    
 </script>
 
 <script>
