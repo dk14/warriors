@@ -474,10 +474,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
             .map(x => [x[0], x[2]]) //char, line_no
 
         const instrPointer = find(outs, label)[0][1] //take first label
-        return [varIdx, instrPointer + TURING_OFFSET]
+        return [[varIdx, instrPointer + TURING_OFFSET], ...label.map(x => [0n, x])]
     }
 
-    
+
+
 </script>
 
 <script>
