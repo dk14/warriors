@@ -394,12 +394,15 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return false
     }
 
+    const turingInc = 2n
+    const turingDec = 1n
+    const turingOut = 0n //mem_adress interpreted as char then
+
+    //input is sequence of [mem_address, instr_address]
+    //instr_address past offset jmpnz mem_address instr_address
+    //other instr_address as inc dec out
     function executeTuring(turing, offset = 10n) {
-        //input is sequence of [mem_address, instr_address]
-        //instr_address 2 means increment
-        //instr_address 1 means decrement
-        //instr_address 0 means output character (mem_adress interpreted as char then)
-        //any other (more than offset) instr_address jmpnz mem_address instr_address
+  
 
         const membound = inferMembound(turing)
 
