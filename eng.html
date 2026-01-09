@@ -394,9 +394,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return false
     }
 
-    const turingInc = 2n
-    const turingDec = 1n
-    const turingOut = 0n //mem_adress interpreted as char then
+    const TURING_INC = 2n
+    const TURING_DEC = 1n
+    const TURING_OUT = 0n //mem_adress interpreted as char then
+    const TURING_OFFSET = 10n
 
     //input is sequence of [mem_address, instr_address]
     //instr_address past offset jmpnz mem_address (instr_address - offset)
@@ -420,18 +421,18 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             const [mem, instr] = turing[cursor]
 
-            if (instr === 0n) {
+            if (instr === TURING_OUT) {
                 output.push(mem)
                 coverage.add(cursor)
                 cursor++
-            } else if (instr === 1n) {
+            } else if (instr === TURING_INC) {
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
                     return output
                 }
                 coverage.add(cursor)
                 cursor++
-            } else if (instr === 2n) {
+            } else if (instr === TURING_DEC) {
                 memory[mem]--
                 coverage.add(cursor)
                 cursor++
@@ -443,7 +444,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     if (!checkLoopSegment(coverage, turing[cursor], history)) {
                         return output
                     }
-                    cursor = instr - offset
+                    cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
                         return output
                     }
