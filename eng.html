@@ -31,6 +31,8 @@
 <script>
     //free syntax turing parser
 
+    
+
     // find non-overlapping occurrences of pattern in state (left-to-right)
     function findNonOverlappingOccurrences(state, pattern) {
         const n = state.length, m = pattern.length;
@@ -149,6 +151,44 @@
 
         return result;
     }
+
+    const startsWith = (seq, pat) => {
+        if (pat.length > seq.length) return false;
+        for (let i = 0; i < pat.length; i++) { if (seq[i] !== pat[i]) return false;}
+        return true;
+    };
+
+    function findUniqueSuffix(space, label, stopAt) {
+        const candidates = [];
+        for (let i = 0; i <= space.length - label.length; i++) {
+            let match = true;
+            for (let j = 0; j < label.length; j++) {
+                if (space[i + j] !== label[j]) { match = false; break; }
+            }
+            if (!match) continue;
+            const suffix = [];
+            for (let k = i + label.length; k < space.length; k++) {
+            let isLabel = true;
+            for (let j = 0; j < label.length && k + j < space.length; j++) {
+                if (space[k + j] !== label[j]) { isLabel = false; break; }
+            }
+            if (isLabel) break;
+            if (stopAt.some(pat => startsWith(space.slice(k), pat))) break;
+                suffix.push(space[k]);
+            }
+            if (suffix.length > 0) candidates.push(suffix);
+        }
+        if (candidates.length === 1) return candidates[0];
+        return undefined;
+    }
+
+    const space = [1n,2n,3n,4n,5n,6n];
+    const label = [2n,3n];
+    const stopAt = [[5n]];
+
+    console.log("SUFFIX:" + findUniqueSuffix(space, label, stopAt))
+
+
 
 
     function inferIncDec(state, zeroToken) {
@@ -684,13 +724,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return seen.size;
     }
 
-
     function inlineTuring(next, state, output, ctx) {
         if (ctx.turing === undefined) ctx.turing = []
         if (ctx.unresolvedLabels === undefined) ctx.unresolvedLabels = {}
         if (ctx.varCount === undefined) ctx.varCount = 0n
         if (ctx.vars === undefined) ctx.vars = {}
         if (ctx.varIdx === undefined) ctx.varIdx = {}
+        if (ctx.allTokensErased === undefined) ctx.allTokensErased = []
 
         const predictCtx = {target: 2}
         const branches = predict([...state, next], predictCtx)
@@ -707,13 +747,21 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 ctx.varCount++
                 ctx.vars[found.varName] = found
                 ctx.varIdx[found.varName] = ctx.varCount
-            }
 
-            //infer more sequential chars for unique label token (from output) not followed by zero
-            const labelSuffix = undefined
+                ctx.allTokensErased.push(eraseSeqNo(found.zero))
+         
+                found.incs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
+                found.decs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
+            }
 
             const varIdx = ctx.varIdx[found.varName]
             const label = state.slice(-predictCtx.n)
+
+            const labelSearchSpace = output.slice(0, -predictCtx.n)
+
+            //infer more sequential chars for unique label token (from output) not followed by zero
+            
+            const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
 
             if (labelSuffix) {
                 ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(labelSuffix))))
@@ -723,7 +771,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
             
         } else {
-            //check if previous sequence matches one of inc/dec tokens
+        
             
             const getIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
@@ -744,8 +792,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
         }
 
-        // TODO check if next sequence matches one of unresolved labels
-        // enrich corresponding jump with it
+        //TODO try to infer labelSuffix for unresolved labels
 
         ctx.turing.push(genOut(next))
 
@@ -804,7 +851,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 ctx.loop = true
                 break;                                  
             }
-
            
             state = [...state, next]; 
         }
@@ -823,7 +869,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0++pl:---l0--l0-lp")
+    const state = render("0+-0++pl:---l0--l0-p")
     //const state = render("+-0+++l-l0")
 
     console.log("N:" + state.slice(-1)[0][1])
