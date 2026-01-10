@@ -1,6 +1,7 @@
 <html>
 <body style = "background-color: black"></body>
 <script>
+    console.clear()
     const tg = (name, id, attr = {}) => {
         const el = document.createElement(name)
         el.setAttribute("id", id)
@@ -393,9 +394,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function inferMembound(turing) {
         return {
-            currentExpansion: 0n,
+            currentExpansion: turing.length,
             currentHyperop: 0n,
-            hyperopBound: turing.filter(x => x[1] > 2).length,
+            hyperopBound: turing.filter(x => x[1] > TURING_OFFSET).length,
             baseBound: turing.length,
         }
 
@@ -416,8 +417,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function checkMembound(value, membound) {
 
-        while (membound.currentExpansion < value && currentHyperop <= membound.hyperopBound) {
-            membound.currentExpansion = powBigInt(membound.currentExpansion, baseBound)
+        let counter = 0n
+        while (membound.currentExpansion < value && membound.currentHyperop <= membound.hyperopBound) {
+            counter++
+            if (counter > 30n) {
+                console.log(membound)
+                throw "check mem overflow"
+            }
+            membound.currentExpansion = powBigInt(membound.currentExpansion, membound.baseBound)
             membound.hyperopBound++
         }
 
@@ -429,7 +436,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const getLoopVar = jump => jump[0]
 
-    const filterCov = (coverage, start, end) => coverage.filter(x => x > start && x < end)
+    const filterCov = (coverage, start, end) => new Set([...coverage].filter(x => x > start && x < end))
 
     function checkLoopSegment(coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
 
@@ -440,6 +447,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const loopVarIdx = getLoopVar(jump)
         const loopVar = memory[loopVarIdx]
+        console.log(coverage)
         const segmentCov = filterCov(coverage, loopStart, loopEnd)
         const segmentLastCov = filterCov(coverage, loopStart, loopEnd)
 
@@ -462,27 +470,32 @@ console.log("count = " + countVar(state2, [incs, decs]))
         for (const x of history){
             const [pastCursor, pastState] = x
             if (pastCursor === cursor && bigIntArraysEqual(pastState, state)) {
-                return true
+                return false
             }
         }
-        return false
+        return true
     }
 
     const TURING_INC = 2n
     const TURING_DEC = 1n
     const TURING_OUT = 0n //mem_adress interpreted as char then
-    const TURING_OFFSET = 10n
+    const TURING_OFFSET = 100n
+
+    const TURING_JMP = (instrPointer) => instrPointer + TURING_OFFSET
 
     //input is sequence of [mem_address, instr_address]
     //instr_address past offset jmpnz mem_address (instr_address - offset)
     //other instr_address as inc dec out
-    function executeTuring(turing, ctx = {}, offset = 10n) {
+    function executeTuring(turing, ctx = {}) {
   
-        const membound = inferMembound(turing)
+        ctx.trace = []
+        ctx.membound = inferMembound(turing)
+        const membound = ctx.membound
 
-        let cursor = 0
+        let cursor = 0n
 
-        const memory = []
+        ctx.memory = []
+        const memory = ctx.memory
 
         const output = []
 
@@ -495,7 +508,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const lastCoverageForJmp = {}
         const lastLoopVarStateForJmp = {}
 
+        let safeCounter = 0n
+
         while (cursor < turing.length) {
+            ctx.trace.push(cursor)
+            safeCounter++
+            if (safeCounter > 300n) throw "overflow"
 
             const [mem, instr] = turing[cursor]
 
@@ -504,18 +522,22 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 coverage.add(cursor)
                 cursor++
             } else if (instr === TURING_INC) {
+                if (memory[mem] === undefined) memory[mem] = 0n
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
-                    history.push([cursor, memory])
+                    console.log("LOOP HYPER: " + cursor)
                     return output
                 }
                 coverage.add(cursor)
                 cursor++
             } else if (instr === TURING_DEC) {
+                if (memory[mem] === undefined) memory[mem] = 0n
                 memory[mem]--
+                if (memory[mem] < 0n) memory[mem] = 0n
                 coverage.add(cursor)
                 cursor++
             } else {
+                if (memory[mem] === undefined) memory[mem] = 0n
                 if (memory[mem] === 0n) {
                     cursor++
                 } else {
@@ -524,20 +546,18 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
                     
                     if (!checkLoopSegment(coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
-                        history.push([cursor, memory])
+                        console.log("LOOP SEG: " + cursor)
                         return output
                     }
                     cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
-                        history.push([cursor, memory])
+                        console.log("LOOP REPEAT: " + cursor)
                         return output
                     }
                     lastCoverageForJmp[cursor.toString] = coverage
                     lastLoopVarStateForJmp[cursor.toString] = memory[mem]
                 }
             }
-
-            history.push([cursor, memory])
             
         }
 
@@ -571,6 +591,25 @@ console.log("count = " + countVar(state2, [incs, decs]))
     function genOut(next) {
         return [[next[0], 0n]]
     }
+
+    const ctxTuring = {}
+    const program = [
+        [0n, TURING_INC, 0n], 
+        [0n, TURING_INC, 1n], 
+        [0n, TURING_JMP(1n), 2n], 
+        [20n, TURING_OUT, 3n]
+    ]
+
+    console.log("\n\nTURING TEST")
+
+    const output = executeTuring(program, ctxTuring)
+
+    
+    console.log("TURING OUT: " + output)
+
+    console.log(ctxTuring)
+
+    console.log("TURING END\n\n\n")
 
 
 
@@ -740,8 +779,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const found = zeroBranch([...state, next], predictContinuously([...state, next], lookForwardCtx))
 
         if (found !== undefined && branches.length > 1) {
-
-
 
             if (!ctx.vars[found.varName]) {
                 ctx.varCount++
