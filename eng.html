@@ -393,9 +393,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function checkLoopSegment(coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
 
-        if (!lastLoopVarState || !lastCov) return undefined
+        if (!lastLoopVarState || !lastCov) return true
         const loopStart = getJumpDestination(jump)
         const loopEnd = cursor
+        if (loopStart >= loopEnd) return true
+
         const loopVarIdx = getLoopVar(jump)
         const loopVar = memory[loopVarIdx]
         const segmentCov = filterCov(coverage, loopStart, loopEnd)
@@ -474,7 +476,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
             } else {
                 if (memory[mem] === 0n) {
                     cursor++
-                    // erase lastCov and lastLoop state??
                 } else {
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
