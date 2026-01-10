@@ -769,7 +769,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
             
         } else {
-        
             const getIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
                     if (checkIfEndsWithToken(output, zero[incOrDec])) {
