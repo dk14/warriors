@@ -620,12 +620,15 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function genJump(turing, varIdx, label) {
         const outs = turing
-            .map((x,i) => [x[0], x[1], i])
+            .map((x,i) => [x[0], x[1], BigInt(i)])
             .filter(x => x[1] === 0n)
             .map(x => [x[0], x[2]]) //char, line_no
 
             
         const instrPointer = find(outs, label)[0][1] //take first label
+        if (instrPointer === undefined) {
+            return genStubJmp(turing, varIdx)
+        }
         return [varIdx, instrPointer + TURING_OFFSET]
     }
 
@@ -872,16 +875,15 @@ console.log("count = " + countVar(state2, [incs, decs]))
             if (found !== undefined && branches.length > 1) {
 
                 const varIdx = ctx.varIdx[found.varName]
-                const label = state.slice(-predictCtx.n)
+                const label = output.slice(i-predictCtx.n, i)
+                console.log(parse(label))
 
-                const labelSearchSpace = output.slice(0, -predictCtx.n)
+                const labelSearchSpace = output.slice(0, i-predictCtx.n)
 
                 const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
 
                 if (labelSuffix) {
-                    ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
-                } else {
-                    ctx.turing.push(genStubJmp(ctx.turing, varIdx))
+                    ctx.turing.push(genJump(ctx.turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
                 }
             } 
     
