@@ -385,11 +385,26 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     }
 
-    function checkLoopSegment(coverage, jump, cursor, history, lastCov) {
-        // detect current loop segment from jump
-        // check if loop var is not decreasing
-        // check 100% coverage in a segment -> nonterminate
-        // check repeated coverage (segment or whole program?) -> nonterminate
+    const getJumpDestination = jump => jump[1] - TURING_OFFSET
+
+    const getLoopVar = jump => jump[0]
+
+    const filterCov = (coverage, start, end) => coverage.filter(x => x > start && x < end)
+
+    function checkLoopSegment(coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
+
+        if (!lastLoopVarState || !lastCov) return undefined
+        const loopStart = getJumpDestination(jump)
+        const loopEnd = cursor
+        const loopVarIdx = getLoopVar(jump)
+        const loopVar = memory[loopVarIdx]
+        const segmentCov = filterCov(coverage, loopStart, loopEnd)
+        const segmentLastCov = filterCov(coverage, loopStart, loopEnd)
+
+        if (segmentCov.length === segmentLastCov.length && loopVar >= lastLoopVarState) {
+            return false
+        }
+
         return true
     }
 
@@ -435,6 +450,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const coverage = new Set()
 
         const lastCoverageForJmp = {}
+        const lastLoopVarStateForJmp = {}
 
         while (cursor < turing.length) {
 
@@ -458,11 +474,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
             } else {
                 if (memory[mem] === 0n) {
                     cursor++
+                    // erase lastCov and lastLoop state??
                 } else {
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
+                    const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
                     
-                    if (!checkLoopSegment(coverage, turing[cursor], cursor, history, lastCov)) {
+                    if (!checkLoopSegment(coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         return output
                     }
                     cursor = instr - TURING_OFFSET
@@ -470,6 +488,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                         return output
                     }
                     lastCoverageForJmp[cursor.toString] = coverage
+                    lastLoopVarStateForJmp[cursor.toString] = memory[mem]
                 }
             }
 
