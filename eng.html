@@ -465,7 +465,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const expandedStart = minDest === undefined ? loopStart : minBigInt([loopStart, minDest])
         const expandedEnd = maxDest === undefined ? loopEnd : minBigInt([loopStart, maxDest])
 
-        const expandedSegmentJumps = turing.slice(Number(expandedStart), Number(expandedEnd)).map(getJumpDestination).filter(x => x >= 0n)
+        const expandedSegmentJumps = turing.map((x, i) => [i, x])
+            .slice(Number(expandedStart), Number(expandedEnd))
+            .filter(x => getJumpDestination(x[1]) >= 0n)
+            .map(x => x[0])
         //todo check that all jumps are not halfway covered
 
         const segmentCov = filterCov(coverage, expandedStart, expandedEnd)
