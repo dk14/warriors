@@ -732,7 +732,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const predict = (state, ctx = {}) => {
         if (state.length === 0) return undefined;
 
-        let previousMany = null;
+        let previousMany = undefined;
 
         const target = ctx.target ?? 1
 
@@ -833,52 +833,62 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return seen.size;
     }
 
-    function inlineTuring(next, state, output, ctx) {
+    function inlineTuring(state, output, ctx) {
         if (ctx.turing === undefined) ctx.turing = []
-        if (ctx.unresolvedLabels === undefined) ctx.unresolvedLabels = {}
         if (ctx.varCount === undefined) ctx.varCount = 0n
         if (ctx.vars === undefined) ctx.vars = {}
         if (ctx.varIdx === undefined) ctx.varIdx = {}
         if (ctx.allTokensErased === undefined) ctx.allTokensErased = []
 
         const predictCtx = {target: 2}
-        const branches = predict([...state, next], predictCtx)
 
         const lookForwardCtx = {order: true}
-        
-        const found = zeroBranch([...state, next], predictContinuously([...state, next], lookForwardCtx))
 
-        if (found !== undefined && branches.length > 1) {
 
-            if (!ctx.vars[found.varName]) {
-                ctx.varCount++
-                ctx.vars[found.varName] = found
-                ctx.varIdx[found.varName] = ctx.varCount
+        for (let i = 0; i < output.length; i++) {
+            const branches = predict(output.slice(0, i), predictCtx) ?? []
+            const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
 
-                ctx.allTokensErased.push(eraseSeqNo(found.zero))
-         
-                found.incs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
-                found.decs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
-            }
+            if (found !== undefined && branches.length > 1) {
 
-            const varIdx = ctx.varIdx[found.varName]
-            const label = state.slice(-predictCtx.n)
+                if (!ctx.vars[found.varName]) {
+                    ctx.varCount++
+                    ctx.vars[found.varName] = found
+                    ctx.varIdx[found.varName] = ctx.varCount
 
-            const labelSearchSpace = output.slice(0, -predictCtx.n)
-
-            const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
-
-            if (labelSuffix) {
-                ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
-            } else {
-                ctx.turing.push(genStubJmp(ctx.turing, varIdx))
-                ctx.unresolvedLabels[parse(label)] = ctx.turing.length - 1
-            }
+                    ctx.allTokensErased.push(eraseSeqNo(found.zero))
             
-        } else {
+                    found.incs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
+                    found.decs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
+                }
+            } 
+        }    
+
+        for (let i = 0; i < output.length; i++) {
+            const branches = predict(output.slice(0, i), predictCtx) ?? []
+            const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
+
+
+            if (found !== undefined && branches.length > 1) {
+
+                const varIdx = ctx.varIdx[found.varName]
+                const label = state.slice(-predictCtx.n)
+
+                const labelSearchSpace = output.slice(0, -predictCtx.n)
+
+                const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
+
+                if (labelSuffix) {
+                    ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
+                } else {
+                    ctx.turing.push(genStubJmp(ctx.turing, varIdx))
+                }
+            } 
+    
+            
             const getIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
-                    if (checkIfEndsWithToken(output, zero[incOrDec])) {
+                    if (checkIfEndsWithToken(output.slice(0, i), zero[incOrDec])) {
                         return ctx.varIdx[name]
                     }
                 }
@@ -893,25 +903,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
             if (decIdx) {
                 ctx.turing.push(genDec(decIdx))
             }
+            
+
+            ctx.turing.push([output[i][0], 0n])
         }
-
-        for (const [label, cur] of Object.entries(ctx.unresolvedLabels)) {
-            const labelSuffix = findUniqueSuffix(eraseSeqNo(output), render(label), ctx.allTokensErased)
-            if (labelSuffix) {
-                const [varIdx, _] = turing[cur]
-                turing[cur] = genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix))))
-            }
-        }
-
-        ctx.turing.push(genOut(next))
-
-
     }
 
     function predictContinuously(initState, ctx = {}) {
-        if (ctx.turing) {
-            return enrichSeqNo(executeTuring(ctx.turing, ctx))
-        }
 
         let state = [...initState];
         const output = [];
@@ -930,10 +928,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 if (next[1] !== output[output.length - 1][1] + 1) {
                     return output
                 }
-            }
-
-            if (ctx.inlineTuring) {
-               inlineTuring(next, state, output, ctx)
             }
        
             if (!next) break;
@@ -967,8 +961,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
             state = [...state, next]; 
         }
 
+        if (ctx.inlineTuring) {
+            inlineTuring(state, output, ctx)
+        }
+
         if (ctx.executeTuring && ctx.turing) {
-            return predictContinuously(initState, ctx)
+            return enrichSeqNo(executeTuring(ctx.turing, ctx))
         }
 
         return output  
