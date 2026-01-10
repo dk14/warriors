@@ -594,10 +594,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const ctxTuring = {}
     const program = [
-        [0n,   TURING_INC,        0n], 
-        [0n,   TURING_INC,        1n], 
-        [0n,   TURING_JMP(1n),    2n], 
-        [20n,  TURING_OUT,        3n]
+        [0n,   TURING_INC], 
+        [0n,   TURING_INC], 
+        [0n,   TURING_JMP(1n)], 
+        [20n,  TURING_OUT]
     ]
 
     console.log("\n\nTURING TEST")
