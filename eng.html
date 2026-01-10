@@ -770,7 +770,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
             
         } else {
         
-            
             const getIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
                     if (checkIfEndsWithToken(output, zero[incOrDec])) {
@@ -790,7 +789,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
         }
 
-        //TODO try to infer labelSuffix for unresolved labels
+        for (const [label, cur] of Object.entries(ctx.unresolvedLabels)) {
+            const labelSuffix = findUniqueSuffix(eraseSeqNo(output), render(label), ctx.allTokensErased)
+            if (labelSuffix) {
+                const [varIdx, _] = turing[cur]
+                turing[cur] = genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix))))
+            }
+        }
 
         ctx.turing.push(genOut(next))
 
