@@ -436,9 +436,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
     //input is sequence of [mem_address, instr_address]
     //instr_address past offset jmpnz mem_address (instr_address - offset)
     //other instr_address as inc dec out
-    function executeTuring(turing, offset = 10n) {
+    function executeTuring(turing, ctx = {}, offset = 10n) {
   
-
         const membound = inferMembound(turing)
 
         let cursor = 0
@@ -447,9 +446,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const output = []
 
-        const history = []
+        ctx.history = []
+        const history = ctx.history
 
-        const coverage = new Set()
+        ctx.coverage = new Set()
+        const coverage = ctx.coverage
 
         const lastCoverageForJmp = {}
         const lastLoopVarStateForJmp = {}
@@ -465,6 +466,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             } else if (instr === TURING_INC) {
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
+                    history.push([cursor, memory])
                     return output
                 }
                 coverage.add(cursor)
@@ -482,10 +484,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
                     
                     if (!checkLoopSegment(coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
+                        history.push([cursor, memory])
                         return output
                     }
                     cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
+                        history.push([cursor, memory])
                         return output
                     }
                     lastCoverageForJmp[cursor.toString] = coverage
