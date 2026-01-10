@@ -432,13 +432,23 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     }
 
+    function minBigInt(arr) {
+        if (arr.length === 0) return undefined
+        return arr.reduce((a, b) => (a < b ? a : b));
+    }
+
+    function maxBigInt(arr) {
+        if (arr.length === 0) return undefined
+        return arr.reduce((a, b) => (a > b ? a : b));
+    }
+
     const getJumpDestination = jump => jump[1] - TURING_OFFSET
 
     const getLoopVar = jump => jump[0]
 
     const filterCov = (coverage, start, end) => new Set([...coverage].filter(x => x > start && x < end))
 
-    function checkLoopSegment(coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
+    function checkLoopSegment(turing, coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
 
         if (!lastLoopVarState || !lastCov) return true
         const loopStart = getJumpDestination(jump)
@@ -448,8 +458,16 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const loopVarIdx = getLoopVar(jump)
         const loopVar = memory[loopVarIdx]
         console.log(coverage)
-        const segmentCov = filterCov(coverage, loopStart, loopEnd)
-        const segmentLastCov = filterCov(coverage, loopStart, loopEnd)
+
+        const segmentJumps = turing.slice(Number(loopStart), Number(loopEnd)).map(getJumpDestination).filter(x => x >= 0n)
+        const minDest = minBigInt(segmentJumps)
+        const maxDest = maxBigInt(segmentJumps)
+
+        const expandedStart = minDest === undefined ? loopStart : minBigInt([loopStart, minDest])
+        const expandedEnd = maxDest === undefined ? loopEnd : minBigInt([loopStart, maxDest])
+
+        const segmentCov = filterCov(coverage, expandedStart, expandedEnd)
+        const segmentLastCov = filterCov(coverage, expandedStart, expandedEnd)
 
         if (segmentCov.length === segmentLastCov.length && loopVar >= lastLoopVarState) {
             return false
@@ -545,7 +563,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
                     
-                    if (!checkLoopSegment(coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
+                    if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         console.log("LOOP SEG: " + cursor)
                         return output
                     }
