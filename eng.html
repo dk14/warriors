@@ -457,7 +457,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const loopVarIdx = getLoopVar(jump)
         const loopVar = memory[loopVarIdx]
-        console.log(coverage)
 
         const segmentJumps = turing.slice(Number(loopStart), Number(loopEnd)).map(getJumpDestination).filter(x => x >= 0n)
         const minDest = minBigInt(segmentJumps)
