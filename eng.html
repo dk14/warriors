@@ -630,7 +630,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     }
 
     function genStubJmp(turing, varIdx) {
-        return [varIdx, BigInt(turing.length) + TURING_OFFSET]
+        return [varIdx, BigInt(turing.length) + TURING_OFFSET + 1n]
     }
 
 
@@ -910,7 +910,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function predictContinuously(initState, ctx = {}) {
         if (ctx.turing) {
-            return enrichSeqNo(executeTuring(ctx.turing))
+            return enrichSeqNo(executeTuring(ctx.turing, ctx))
         }
 
         let state = [...initState];
@@ -957,6 +957,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 
                 const keep = output.length - repeatLen; 
                 output.splice(keep, repeatLen);
+                if (ctx.turing) {
+                    ctx.turing.splice(ctx.turing.length / 2, ctx.turing.length / 2)
+                }
                 ctx.loop = true
                 break;                                  
             }
@@ -1008,7 +1011,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctx2 = {}
     //ctx2.order = true
     ctx2.inlineTuring = true
-    //ctx2.executeTuring = true
+    ctx2.executeTuring = true
     console.log("STREAM")
     const span4 = tg("span", "res")
     span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing.length
