@@ -635,15 +635,29 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
     function genInc(varIdx) {
-        return [[varIdx, TURING_INC]]
+        return [varIdx, TURING_INC]
     }
 
     function genDec(varIdx) {
-        return [[varIdx, TURING_DEC]]
+        return [varIdx, TURING_DEC]
     }
 
     function genOut(next) {
-        return [[next[0], 0n]]
+        return [next[0], 0n]
+    }
+
+    function printTuring(turing, parseOut=true) {
+        return turing.map((x, i) => {
+            if (x[1] === TURING_INC) {
+                return `${i}: inc \$${x[0]}`
+            } else if (x[1] === TURING_DEC) {
+                return `${i}: dec \$${x[0]}`
+            } else if (x[1] === TURING_OUT) {
+                return `${i}: out ${parseOut ? parse([[x[0], 0]]):x[0]}`
+            } else {
+                return `${i}: jmp \$${x[0]} -> ${getJumpDestination(x)}`
+            }
+        }).join("\n")
     }
 
     const ctxTuring = {}
@@ -655,6 +669,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
     ]
 
     console.log("\n\nTURING TEST")
+
+    console.log(printTuring(program, false))
 
     const output = executeTuring(program, ctxTuring)
 
@@ -992,11 +1008,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctx2 = {}
     //ctx2.order = true
     ctx2.inlineTuring = true
+    //ctx2.executeTuring = true
+    console.log("STREAM")
     const span4 = tg("span", "res")
     span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing.length
     span4.style.color = "green"
 
     console.log(ctx2)
+    console.log(printTuring(ctx2.turing))
 
 
     tg("br")
