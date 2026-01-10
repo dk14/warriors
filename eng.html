@@ -845,9 +845,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const predictCtx = {target: 2}
 
-        const lookForwardCtx = {order: true}
-
-
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
             const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
@@ -871,8 +868,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const branches = predict(output.slice(0, i), predictCtx) ?? []
             const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
 
-
             if (found !== undefined && branches.length > 1) {
+                
 
                 const varIdx = ctx.varIdx[found.varName]
                 const label = output.slice(i-predictCtx.n, i)
