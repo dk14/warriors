@@ -759,12 +759,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             const labelSearchSpace = output.slice(0, -predictCtx.n)
 
-            //infer more sequential chars for unique label token (from output) not followed by zero
-            
             const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
 
             if (labelSuffix) {
-                ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(labelSuffix))))
+                ctx.turing.push(genJump(turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
             } else {
                 ctx.turing.push(genStubJmp(ctx.turing, varIdx))
                 ctx.unresolvedLabels[parse(label)] = ctx.turing.length - 1
