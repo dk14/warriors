@@ -504,6 +504,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         //check if all var == 0 branches triggered for forward jumps
         const branchCoverage = isSubset(freeAfterRuns(expandedSegmentJumps), segmentCov)
+
+        //todo check if variables from original segment are used in expanded - if not revert to original
+
+        //todo if variables are used (but loop variable isn't) - check if original segment is fully covered
         
         if (branchCoverage && segmentCov.length === segmentLastCov.length && loopVar >= lastLoopVarState) {
             return false
