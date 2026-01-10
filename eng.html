@@ -502,6 +502,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const segmentCov = filterCov(coverage, expandedStart, expandedEnd)
         const segmentLastCov = filterCov(coverage, expandedStart, expandedEnd)
 
+        //check if all var == 0 branches triggered for forward jumps
         const branchCoverage = isSubset(freeAfterRuns(expandedSegmentJumps), segmentCov)
         
         if (branchCoverage && segmentCov.length === segmentLastCov.length && loopVar >= lastLoopVarState) {
