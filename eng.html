@@ -897,6 +897,43 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return result;
     }
 
+    function filterVars(vars) {
+        // ---- step 1: keep max secCount ----
+        const maxSec = Math.max(...Object.values(vars).map(v => v.secCount));
+        const candidates = Object.entries(vars).filter(([, v]) => v.secCount === maxSec);
+
+        // ---- step 2: drop vars whose sections are nested inside another var ----
+        const survive = {};
+
+        // helper: does any section of a appear inside any section of b ?
+        const isNested = (a, b) => {
+            for (const secA of a.sections) {
+            for (const secB of b.sections) {
+                if (secA.start >= secB.start && secA.end <= secB.end) {
+                return true; // a's section lies within b's
+                }
+            }
+            }
+            return false;
+        };
+
+        // compare each candidate against the others
+        for (const [nameA, varA] of candidates) {
+            let discard = false;
+            for (const [nameB, varB] of candidates) {
+            if (nameA === nameB) continue;
+            if (isNested(varA, varB)) {
+                discard = true;          // A is inside B → remove A
+                break;
+            }
+            }
+            if (!discard) survive[nameA] = varA;
+        }
+
+        return survive;
+    }
+
+
     function inlineTuring(state, output, ctx) {
         if (ctx.turing === undefined) ctx.turing = []
         if (ctx.varCount === undefined) ctx.varCount = 0n
@@ -925,6 +962,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 }
             } 
         }    
+
+        ctx.vars = ctx.vars ? filterVars(ctx.vars) : undefined
 
         for (let i = 0; i < output.length; i++) {
             const found = zeroBranch(state, output.slice(i))
@@ -1049,7 +1088,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return output  
     }
 
+    
 
+    function stringifyWithBigInt(obj) {
+        return JSON.stringify(obj, (_, value) =>
+            typeof value === "bigint" ? value.toString() : value
+        );
+    }
 </script>
 
 
@@ -1107,6 +1152,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing.length
     span4.style.color = "green"
 
+    //span4.textContent = stringifyWithBigInt(ctx2)
     console.log(ctx2)
     console.log(printTuring(ctx2.turing))
 
