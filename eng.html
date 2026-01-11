@@ -265,7 +265,9 @@
                     varName:  parse(enrichSeqNo(candidate)),
                     zero: enrichSeqNo(candidate), 
                     incs: incs.map(x => enrichSeqNo(parseKey(x))), 
-                    decs: decs.map(x => enrichSeqNo(parseKey(x)))
+                    decs: decs.map(x => enrichSeqNo(parseKey(x))),
+                    incNames: incs.map(x => parse(enrichSeqNo(parseKey(x)))),
+                    decNames: decs.map(x => parse(enrichSeqNo(parseKey(x))))
                 }
             }
         }
@@ -428,10 +430,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 throw "check mem overflow"
             }
             membound.currentExpansion = powBigInt(membound.currentExpansion, membound.baseBound)
-            membound.hyperopBound++
+            membound.currentHyperop++
         }
 
-        return membound.currentExpansion > value
+        return membound.currentExpansion >= value
 
     }
 
@@ -479,7 +481,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const segmentLastCov = filterCov(coverage, expandedStart, expandedEnd)
 
 
-        if (BigInt(segmentCov.size) === expandedEnd - expandedStart + 1n && loopVar >= lastLoopVarState && loopVar !== 0n) {
+        console.log(segmentCov)
+        console.log(expandedEnd - expandedStart)
+        if (BigInt(segmentCov.size) >= expandedEnd - expandedStart && loopVar >= lastLoopVarState && loopVar !== 0n) {
             return false
         }
 
@@ -541,7 +545,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
         while (cursor < turing.length) {
             ctx.trace.push(cursor)
             safeCounter++
-            if (safeCounter > 300n) throw "overflow"
+            if (safeCounter > 30000n) {
+                console.log(ctx)
+                console.log(printTuring(turing))
+                throw "overflow"
+            }
 
             const [mem, instr] = turing[cursor]
 
@@ -640,7 +648,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctxTuring = {}
     const program = [
         [0n,   TURING_INC], 
-        [0n,   TURING_INC], 
+        [0n,   TURING_DEC], 
         [0n,   TURING_JMP(1n)], 
         [20n,  TURING_OUT]
     ]
@@ -848,7 +856,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
                 const varIdx = ctx.varIdx[found.varName]
                 const label = output.slice(i-predictCtx.n, i)
-                console.log(parse(label))
 
                 const labelSearchSpace = output.slice(0, i-predictCtx.n)
 
@@ -860,23 +867,21 @@ console.log("count = " + countVar(state2, [incs, decs]))
             } 
     
             
-            const getIdx = (incOrDec) => {
+            const genIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
                     if (checkIfEndsWithToken(output.slice(0, i), zero[incOrDec])) {
-                        return ctx.varIdx[name]
+                        if (incOrDec = "incs") {
+                            ctx.turing.push(genInc(ctx.varIdx[name]))
+                        } else {
+                            ctx.turing.push(genDec(ctx.varIdx[name]))
+                        }
                     }
                 }
-                return undefined
             }
             
-            const incIdx = getIdx("incs")
-            const decIdx = getIdx("decs")
-            if (incIdx) {
-                ctx.turing.push(genInc(incIdx))
-            } 
-            if (decIdx) {
-                ctx.turing.push(genDec(decIdx))
-            }
+            genIdx("incs")
+            genIdx("decs")
+       
             
 
             ctx.turing.push([output[i][0], 0n])
@@ -951,9 +956,18 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
 <script>
-    
+
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0+ -pl:+l0p")
+    const state = render(`
+    0plusplusminusminus0
+    plus 
+    minus
+    program
+    label:
+    plus 
+    label0
+    
+    program`)
 
     console.log("N:" + state.slice(-1)[0][1])
     tg("br")
@@ -999,7 +1013,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
     
-    const st2 = eraseSeqNo(render("0+-0+ -pl:l0p"))
+    const st2 = eraseSeqNo(render("0plusminus0plus minuspl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
     span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
