@@ -59,7 +59,7 @@
         for (let k = 0; k < occ.length - 1; k++) {
             const s = occ[k] + m;       // first index after k-th match
             const e = occ[k + 1] - 1;   // last index before (k+1)-th match
-            if (s <= e) sections.push({ start: s, end: e, slice: state.slice(s, e + 1) });
+            if (s <= e + 1) sections.push({ start: s, end: e, slice: state.slice(s, e + 1) });
         }
         return sections;
     }
@@ -194,7 +194,9 @@
 
     function inferIncDec(state, zeroToken) {
         const sections = getPossibleIntroSections(state, zeroToken);
-        if (sections.length === 0) return [[], []]
+
+        const emptySections = sections.some(x => x.end - x.start == -1)
+        if (sections.length === 0 || emptySections) return [[], []]
         const sec = sections[0]
 
         const intro = sec.slice;
@@ -298,14 +300,15 @@
 
 console.log("HELLO")
 const intro = [1n,2n,3n,2n,3n];
-const state2 = [0n, 0n,    1n,2n,3n,2n,3n, 0n, 0n, 4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
+const state2 = [0n, 1n,3n,0n,4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
 const map = tokenize(intro, state2);
 for (const [k,v] of map) console.log(k, '->', v);
 
-const zeroToken = [0n, 0n];
+const zeroToken = [0n];
 const [incs, decs] = inferIncDec(state2, zeroToken);
 console.log('incs =', incs);
 console.log('decs =', decs);
+
 
 console.log("count = " + countVar(state2, [incs, decs]))
 
@@ -818,9 +821,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
-            const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
+            
+            const found = zeroBranch(state, output.slice(i))
 
-            if (found !== undefined && branches.length > 1) {
+            console.log(parse(output.slice(0, i)) + "   " + branches + "   " + found)
+
+            if (found !== undefined && branches.length > 0) {
 
                 if (!ctx.vars[found.varName]) {
                     ctx.varCount++
@@ -837,7 +843,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
-            const found = zeroBranch([...state, ...output.slice(0, i)], output.slice(i+1))
+            const found = zeroBranch([...state], output.slice(i+1))
 
             if (found !== undefined && branches.length > 1) {
                 
@@ -932,7 +938,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         }
 
         if (ctx.inlineTuring) {
-            inlineTuring(state, output, ctx)
+            inlineTuring(initState, output, ctx)
         }
 
         if (ctx.executeTuring && ctx.turing) {
@@ -949,7 +955,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0++pl:---l0--l0-p")
+    const state = render("0+-0-pl:+l0p")
     //const state = render("+-0+++l-l0")
 
     console.log("N:" + state.slice(-1)[0][1])
