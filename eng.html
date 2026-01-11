@@ -824,8 +824,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
             
             const found = zeroBranch(state, output.slice(i))
 
-            console.log(parse(output.slice(0, i)) + "   " + branches + "   " + found)
-
             if (found !== undefined && branches.length > 0) {
 
                 if (!ctx.vars[found.varName]) {
