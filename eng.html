@@ -972,7 +972,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const branches = predict(prepend.concat(output.slice(0, i)), predictCtx) ?? []
             
 
-            if (found !== undefined && branches.length > 0) {
+            if (found !== undefined && branches.length > 0 && ctx.varIdx[found.varName]) {
                 
 
                 const varIdx = ctx.varIdx[found.varName]
