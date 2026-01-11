@@ -227,39 +227,49 @@
 
         const emptySections = sections.some(x => x.end - x.start == -1)
         if (sections.length === 0 || emptySections) return [[], []]
-        const sec = sections[0]
 
-        const intro = sec.slice;
-        const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
-        if (tokens.size < 2) return [[], []] ;
+        const acc = [[], []]
 
-        const entries = Array.from(tokens.entries());
-        const incSet = new Set(), decSet = new Set();
-        for (let i = 0; i < entries.length; i++) {
-            for (let j = i + 1; j < entries.length; j++) {
-                const [ki, vi] = entries[i];
-                const [kj, vj] = entries[j];
-                if (vi.count > 0 && vi.count === vj.count) {
-                    if (vi.firstStart <= vj.firstStart) { incSet.add(ki); decSet.add(kj); }
-                    else { incSet.add(kj); decSet.add(ki); }
+        for(let i = 0; i < sections.length; i++) {
+            const sec = sections[0]
+
+            const intro = sec.slice;
+            const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
+            if (tokens.size < 2) return [[], []] ;
+
+            const entries = Array.from(tokens.entries());
+            const incSet = new Set(), decSet = new Set();
+            for (let i = 0; i < entries.length; i++) {
+                for (let j = i + 1; j < entries.length; j++) {
+                    const [ki, vi] = entries[i];
+                    const [kj, vj] = entries[j];
+                    if (vi.count > 0 && vi.count === vj.count) {
+                        if (vi.firstStart <= vj.firstStart) { incSet.add(ki); decSet.add(kj); }
+                        else { incSet.add(kj); decSet.add(ki); }
+                    }
                 }
             }
-        }
-        if (incSet.size > 0) {
-            for (const t of Array.from(incSet)) {
-                if (decSet.has(t)) { incSet.delete(t); decSet.delete(t); }
+            if (incSet.size > 0 && decSet.size > 0) {
+                for (const t of Array.from(incSet)) {
+                    if (decSet.has(t)) { incSet.delete(t); decSet.delete(t); }
+                }
+
+                const merged = [...(new Set([...incSet, ...decSet]))].map(parseKey)
+                if (!tokensCoverSection(merged, intro)){
+                    return acc
+                }
+
+                acc[0] = Array.from(new Set([...(new Set(acc[0])), ...incSet]))
+                acc[1] =  Array.from(new Set([...(new Set(acc[1])), ...decSet]))
+                acc[2] = i
+                
+            } else {
+                return acc
             }
 
-            const merged = [...(new Set([...incSet, ...decSet]))].map(parseKey)
-            if (!tokensCoverSection(merged, intro)){
-                return [[],[]]
-            }
-
-           
-            return [Array.from(incSet), Array.from(decSet)];
         }
 
-        return [[], []];
+        return acc;
     }
 
         // tokenisation: [incsArray, decsArray] where each element is token key (comma-joined BigInt string)
@@ -297,14 +307,15 @@
             const candidate = eraseSeqNo(seq.slice(0, i))
             const inference = inferIncDec(eraseSeqNo(state), candidate)
             if (inference[0].length > 0) {
-                const [incs, decs] = inference
+                const [incs, decs, secCount] = inference
                 return {
                     varName:  parse(enrichSeqNo(candidate)),
                     zero: enrichSeqNo(candidate), 
                     incs: incs.map(x => enrichSeqNo(parseKey(x))), 
                     decs: decs.map(x => enrichSeqNo(parseKey(x))),
                     incNames: incs.map(x => parse(enrichSeqNo(parseKey(x)))),
-                    decNames: decs.map(x => parse(enrichSeqNo(parseKey(x))))
+                    decNames: decs.map(x => parse(enrichSeqNo(parseKey(x)))),
+                    secCount: secCount 
                 }
             }
         }
