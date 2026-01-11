@@ -481,8 +481,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const segmentLastCov = filterCov(coverage, expandedStart, expandedEnd)
 
 
-        console.log(segmentCov)
-        console.log(expandedEnd - expandedStart)
         if (BigInt(segmentCov.size) >= expandedEnd - expandedStart && loopVar >= lastLoopVarState && loopVar !== 0n) {
             return false
         }
