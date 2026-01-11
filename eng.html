@@ -228,10 +228,10 @@
         const emptySections = sections.some(x => x.end - x.start == -1)
         if (sections.length === 0 || emptySections) return [[], []]
 
-        const acc = [[], []]
+        const acc = [[], [], 0, []]
 
         for(let i = 0; i < sections.length; i++) {
-            const sec = sections[0]
+            const sec = sections[i]
 
             const intro = sec.slice;
             const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
@@ -262,6 +262,8 @@
                 acc[0] = Array.from(new Set([...(new Set(acc[0])), ...incSet]))
                 acc[1] =  Array.from(new Set([...(new Set(acc[1])), ...decSet]))
                 acc[2] = i
+                acc[3].push(sec)
+
                 
             } else {
                 return acc
@@ -307,7 +309,7 @@
             const candidate = eraseSeqNo(seq.slice(0, i))
             const inference = inferIncDec(eraseSeqNo(state), candidate)
             if (inference[0].length > 0) {
-                const [incs, decs, secCount] = inference
+                const [incs, decs, secCount, sections] = inference
                 return {
                     varName:  parse(enrichSeqNo(candidate)),
                     zero: enrichSeqNo(candidate), 
@@ -315,7 +317,8 @@
                     decs: decs.map(x => enrichSeqNo(parseKey(x))),
                     incNames: incs.map(x => parse(enrichSeqNo(parseKey(x)))),
                     decNames: decs.map(x => parse(enrichSeqNo(parseKey(x)))),
-                    secCount: secCount 
+                    secCount: secCount, 
+                    sections: sections
                 }
             }
         }
