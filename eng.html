@@ -189,8 +189,38 @@
 
     console.log("SUFFIX:" + findUniqueSuffix(space, label, stopAt))
 
+    function tokensCoverSection(tokens, section) {
+        const startMap = new Map();
+        tokens.forEach((tok, idx) => {
+            const first = tok[0];
+            if (!startMap.has(first)) startMap.set(first, new Set());
+            startMap.get(first).add(idx);
+        });
 
+        let i = 0;                     
+        const used = new Set();       
 
+        while (i < section.length) {
+            const candidates = startMap.get(section[i]);
+            if (!candidates) return false;
+            let matched = false;
+            for (const idx of candidates) {
+            const tok = tokens[idx];
+            if (i + tok.length > section.length) continue;
+            let ok = true;
+            for (let j = 0; j < tok.length; j++) {
+                if (section[i + j] !== tok[j]) { ok = false; break; }
+            }
+            if (!ok) continue;
+            matched = true;
+            i += tok.length;          
+            break;                   
+            }
+
+            if (!matched) return false; 
+        }
+        return i === section.length;
+    }
 
     function inferIncDec(state, zeroToken) {
         const sections = getPossibleIntroSections(state, zeroToken);
@@ -219,6 +249,13 @@
             for (const t of Array.from(incSet)) {
                 if (decSet.has(t)) { incSet.delete(t); decSet.delete(t); }
             }
+
+            const merged = [...(new Set([...incSet, ...decSet]))].map(parseKey)
+            if (!tokensCoverSection(merged, intro)){
+                return [[],[]]
+            }
+
+           
             return [Array.from(incSet), Array.from(decSet)];
         }
 
@@ -449,6 +486,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const getJumpDestination = jump => jump[1] - TURING_OFFSET
 
+    const createJumpDestination = cur => cur + TURING_OFFSET
+
     const getLoopVar = jump => jump[0]
 
     const filterCov = (coverage, start, end) => new Set([...coverage].filter(x => x >= start && x <= end))
@@ -605,11 +644,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
             .map(x => [x[0], x[2]]) //char, line_no
 
             
-        const instrPointer = find(outs, label)[0][1] //take first label
+        const instrPointer = find(outs, label)[0] //take first label
         if (instrPointer === undefined) {
-            return genStubJmp(turing, varIdx)
+            return undefined
         }
-        return [varIdx, instrPointer + TURING_OFFSET]
+        return [varIdx, instrPointer[1] + TURING_OFFSET]
     }
 
     function genStubJmp(turing, varIdx) {
@@ -822,6 +861,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         if (ctx.vars === undefined) ctx.vars = {}
         if (ctx.varIdx === undefined) ctx.varIdx = {}
         if (ctx.allTokensErased === undefined) ctx.allTokensErased = []
+        if (ctx.unboundLabels === undefined) ctx.unboundLabels = {}
 
         const predictCtx = {target: 2}
 
@@ -855,12 +895,20 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 const varIdx = ctx.varIdx[found.varName]
                 const label = output.slice(i-predictCtx.n, i)
 
-                const labelSearchSpace = output.slice(0, i-predictCtx.n)
+                const labelSearchSpace = output.slice(0, i-predictCtx.n).concat(output.slice(i))
 
                 const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
 
                 if (labelSuffix) {
-                    ctx.turing.push(genJump(ctx.turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix)))))
+                    const jump = genJump(ctx.turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix))))
+                    if (!jump) {
+                        ctx.unboundLabels[ctx.turing.length] = label.concat(enrichSeqNo(labelSuffix))
+                        ctx.turing.push(genStubJmp(ctx.turing, varIdx))
+                        
+                    } else {
+                        ctx.turing.push(jump)
+                    }
+                    
                 }
             } 
     
@@ -879,9 +927,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
             
             genIdx("incs")
             genIdx("decs")
-       
-            
 
+            for (const [cur, label] of Object.entries(ctx.unboundLabels)) {
+                if (checkIfEndsWithToken(output.slice(0, i), label)) {
+                    turing[cur][1] = createJumpDestination(turing.length)
+                }
+            }
+       
             ctx.turing.push([output[i][0], 0n])
         }
     }
@@ -957,13 +1009,17 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
     const state = render(`
-    0plusplusminusminus0
+    0plusminus0
     plus 
     minus
     program
-    label:
+
+    --label:
+    plus
+    --label0
+
     plus 
-    label0
+    
     
     program`)
 
@@ -1011,7 +1067,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
     
-    const st2 = eraseSeqNo(render("0plusminus0plus minuspl:plusl0p"))
+    const st2 = eraseSeqNo(render("0plusminus0plus minus pl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
     span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
