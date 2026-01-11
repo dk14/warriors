@@ -442,34 +442,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return arr.reduce((a, b) => (a > b ? a : b));
     }
 
-    function freeAfterRuns(seq) {
-        const uniq = Array.from(new Set(seq)).sort((x, y) => x - y);
-        const occupied = new Set(uniq);
-        const result = new Set();
-        let i = 0;
-        while (i < uniq.length) {
-            let start = uniq[i];
-            let end = start;
-            while (i + 1 < uniq.length && uniq[i + 1] === end + 1) {
-                i++;
-                end = uniq[i];
-        }
-        let candidate = end + 1;
-        while (occupied.has(candidate)) candidate++;
-            result.add(candidate);
-            occupied.add(candidate);
-            i++;
-        }
-        return result;
-    }
-
-    function isSubset(subset, superset) {
-        for (const v of subset) {
-            if (!superset.has(v)) return false;
-        }
-        return true;
-    }
-
     const getJumpDestination = jump => jump[1] - TURING_OFFSET
 
     const getLoopVar = jump => jump[0]
