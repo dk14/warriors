@@ -953,7 +953,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render("0+-0-pl:+l0p")
+    const state = render("0+-0+ -pl:+l0p")
 
     console.log("N:" + state.slice(-1)[0][1])
     tg("br")
@@ -998,7 +998,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctx3 = {}
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
-    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0-pl:+l0p")), eraseSeqNo(render("0"))))
+    
+    const st2 = eraseSeqNo(render("0+-0+ -pl:l0p"))
+    const p2 = eraseSeqNo(render("0"))
+    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
 </script>
 
