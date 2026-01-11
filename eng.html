@@ -843,9 +843,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
-            const found = zeroBranch([...state], output.slice(i+1))
+            const found = zeroBranch(state, output.slice(i))
 
-            if (found !== undefined && branches.length > 1) {
+            if (found !== undefined && branches.length > 0) {
                 
 
                 const varIdx = ctx.varIdx[found.varName]
@@ -1001,7 +1001,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctx3 = {}
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
-    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0++l:-l0l")), eraseSeqNo(render("0"))))
+    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(eraseSeqNo(render("0+-0-pl:+l0p")), eraseSeqNo(render("0"))))
     span5.style.color = "green"
 </script>
 
