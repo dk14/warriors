@@ -855,6 +855,32 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return seen.size;
     }
 
+    function deleteAllOccurrences(arr, token) {
+        if (token.length === 0) return [...arr];
+        const result = [];
+        for (let i = 0; i < arr.length; ) {
+            let match = true;
+            if (i + token.length <= arr.length) {
+            for (let j = 0; j < token.length; j++) {
+                if (arr[i + j] !== token[j]) {
+                match = false;
+                break;
+                }
+            }
+            } else {
+                match = false;
+            }
+
+            if (match) {
+                i += token.length;
+            } else {
+                result.push(arr[i]);
+                i += 1;
+            }
+        }
+        return result;
+    }
+
     function inlineTuring(state, output, ctx) {
         if (ctx.turing === undefined) ctx.turing = []
         if (ctx.varCount === undefined) ctx.varCount = 0n
@@ -867,7 +893,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
-            
             const found = zeroBranch(state, output.slice(i))
 
             if (found !== undefined && branches.length > 0) {
@@ -886,8 +911,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
         }    
 
         for (let i = 0; i < output.length; i++) {
-            const branches = predict(output.slice(0, i), predictCtx) ?? []
             const found = zeroBranch(state, output.slice(i))
+
+            const prepend = found ? enrichSeqNo(deleteAllOccurrences(eraseSeqNo(output.slice(i)), eraseSeqNo(found.zero))) : []
+            const branches = predict(prepend.concat(output.slice(0, i)), predictCtx) ?? []
+            
 
             if (found !== undefined && branches.length > 0) {
                 
@@ -900,6 +928,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
 
                 if (labelSuffix) {
+        
                     const jump = genJump(ctx.turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix))))
                     if (!jump) {
                         ctx.unboundLabels[ctx.turing.length] = label.concat(enrichSeqNo(labelSuffix))
@@ -929,8 +958,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
             genIdx("decs")
 
             for (const [cur, label] of Object.entries(ctx.unboundLabels)) {
-                if (checkIfEndsWithToken(output.slice(0, i), label)) {
-                    turing[cur][1] = createJumpDestination(turing.length)
+                //console.log("+++" + parse(label) + " " + ctx.turing.length + "(((()))) " + parse(output.slice(0, i)))
+                if (checkIfEndsWithToken(output.slice(0, i), [label])) {
+                    
+
+                    ctx.turing[cur][1] = createJumpDestination(BigInt(ctx.turing.length))
                 }
             }
        
@@ -1014,11 +1046,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
     minus
     program
 
+    --label0
     --label:
     plus
-    --label0
 
-    plus 
+
+    plus
     
     
     program`)
