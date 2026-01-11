@@ -399,7 +399,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function inferMembound(turing) {
         return {
-            currentExpansion: turing.length,
+            currentExpansion: turing.filter(x => x[1] !== 0n && x[1] < TURING_OFFSET).length,
             currentHyperop: 0n,
             hyperopBound: turing.filter(x => x[1] > TURING_OFFSET).length,
             baseBound: turing.length,
