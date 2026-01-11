@@ -474,7 +474,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const getLoopVar = jump => jump[0]
 
-    const filterCov = (coverage, start, end) => new Set([...coverage].filter(x => x > start && x < end))
+    const filterCov = (coverage, start, end) => new Set([...coverage].filter(x => x >= start && x <= end))
 
     function checkLoopSegment(turing, coverage, jump, cursor, memory, lastLoopVarState, lastCov) {
 
@@ -494,23 +494,17 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const expandedStart = minDest === undefined ? loopStart : minBigInt([loopStart, minDest])
         const expandedEnd = maxDest === undefined ? loopEnd : maxBigInt([loopStart, maxDest])
 
-        const expandedSegmentJumps = turing.map((x, i) => [i, x])
-            .slice(Number(expandedStart), Number(expandedEnd))
-            .filter(x => getJumpDestination(x[1]) >= 0n && getJumpDestination(x[1]) > x[0])
-            .map(x => x[0])
+        //todo check if expanded segment refers to variables in current segment
 
+        //todo check if dec extruction mentioned for loopvar at all
+
+        //todo exclude unreachable segments - no dec instruction for forward jmp
         
         const segmentCov = filterCov(coverage, expandedStart, expandedEnd)
         const segmentLastCov = filterCov(coverage, expandedStart, expandedEnd)
 
-        //check if all var == 0 branches triggered for forward jumps
-        const branchCoverage = isSubset(freeAfterRuns(expandedSegmentJumps), segmentCov)
 
-        //todo check if variables from original segment are used in expanded - if not revert to original
-
-        //todo if variables are used (but loop variable isn't) - check if original segment is fully covered
-        
-        if (branchCoverage && segmentCov.length === segmentLastCov.length && loopVar >= lastLoopVarState) {
+        if (BigInt(segmentCov.size) === expandedEnd - expandedStart + 1n && loopVar >= lastLoopVarState && loopVar !== 0n) {
             return false
         }
 
