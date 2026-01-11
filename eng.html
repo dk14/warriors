@@ -488,7 +488,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         const segmentJumps = turing.slice(Number(loopStart), Number(loopEnd)).map(getJumpDestination).filter(x => x >= 0n)
         const minDest = minBigInt(segmentJumps)
-        const maxDest = maxBigInt(segmentJumps)
+        const maxDest = BigInt(turing.length-1)//todo improve up to any instruction that jumps above loopEnd
 
         const expandedStart = minDest === undefined ? loopStart : minBigInt([loopStart, minDest])
         const expandedEnd = maxDest === undefined ? loopEnd : minBigInt([loopStart, maxDest])
