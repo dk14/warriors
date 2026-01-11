@@ -615,6 +615,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
                     console.log("LOOP HYPER: " + cursor)
+                    ctx.loopHyper = cursor
                     return output
                 }
                 coverage.add(cursor)
@@ -636,11 +637,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         console.log("LOOP SEG: " + cursor)
+                        ctx.loopHSeq = cursor
                         return output
                     }
                     cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
                         console.log("LOOP REPEAT: " + cursor)
+                        ctx.loopRepeat = cursor
                         return output
                     }
                     lastCoverageForJmp[cursor.toString] = coverage
