@@ -301,8 +301,10 @@
     }
 
     const enrichSeqNo = (seq) => {
-        return seq.map(x => [x, 0])
+        return seq.map((x, i) => [x, i])
     }
+
+    //todo enrich original token seqNo into turing machine
 
     const zeroBranch = (state, seq) => {
         for (let i = 0; i < seq.length; i++) {
