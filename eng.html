@@ -729,30 +729,36 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     //prediction
 
-
     const range = limit => Array.from({ length: limit + 1 }, (_, i) => i);
 
     const createMask = (length, maskCfg) => {
         return new Set()
     }
 
-    const find = (state, pattern, stateMask, patternMask, blurMask) => {
-        const sMask = stateMask   instanceof Set ? stateMask   : new Set();
-        const pMask = patternMask instanceof Set ? patternMask : new Set();
-        const bMask = blurMask    instanceof Set ? blurMask    : new Set();
+    const find = (state, pattern, ctx = { transform: new Map() }) => {
+        const masks = ctx.masks || {};
+        const sMask = masks.stateMask   instanceof Set ? masks.stateMask   : new Set();
+        const pMask = masks.patternMask instanceof Set ? masks.patternMask : new Set();
+        const bMask = masks.blurMask    instanceof Set ? masks.blurMask    : new Set();
+
+        ctx.currentMasks = {
+            stateMask:   new Set(sMask),
+            patternMask: new Set(pMask),
+            blurMask:    new Set(bMask)
+        };
+
+        if (!ctx.transform) ctx.transform = new Map();
 
         const blurredPattern = blurArray(pattern, bMask);
-
         if (blurredPattern.length === 0) return [];
 
         const effectivePatLen = blurredPattern.length - pMask.size;
-
         const result = [];
 
         for (let start = 0; start <= state.length - effectivePatLen; start++) {
             const windowSlice = state
                 .slice(start, start + blurredPattern.length)
-                .map(cell => cell[0]);
+                .map(cell => cell[0]); 
 
             const blurredWindow = blurArray(windowSlice, bMask);
 
@@ -761,26 +767,66 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             let ok = true;
             while (patIdx < blurredPattern.length) {
-                if (pMask.has(patIdx)) {
-                    patIdx++;
-                    continue;
-                }
+            if (pMask.has(patIdx)) {
+                patIdx++;
+                continue;
+            }
 
-                while (sMask.has(start + winIdx)) winIdx++;
-
+            while (sMask.has(start + winIdx)) winIdx++;
                 const stateVal = blurredWindow[winIdx];
                 const patVal   = blurredPattern[patIdx];
-
                 if (stateVal !== patVal) {
                     ok = false;
                     break;
                 }
-
                 patIdx++;
                 winIdx++;
             }
 
             if (ok) {
+                const origStateSeg   = state
+                    .slice(start, start + pattern.length)
+                    .map(cell => cell[0]);
+
+                const origPatternSeg = pattern.slice(); 
+
+                const emitRules = (stateArr, patternArr) => {
+                    let i = 0;
+                    let j = 0; 
+
+                    while (i < patternArr.length || j < stateArr.length) {
+                    const stateMasked   = sMask.has(start + j);
+                    const patternMasked = pMask.has(i);
+
+                    if (stateMasked || patternMasked) {
+                        const stateRun   = [];
+                        const patternRun = [];
+
+                        while (j < stateArr.length && sMask.has(start + j)) {
+                            stateRun.push(stateArr[j]);
+                            j++;
+                        }
+
+                        while (i < patternArr.length && pMask.has(i)) {
+                            patternRun.push(patternArr[i]);
+                            i++;
+                        }
+
+                        const stateRule   = stateRun.map(v => v.toString()).join('');
+                        const patternRule = patternRun.map(v => v.toString()).join('');
+
+                        if (!ctx.transform.has(stateRule)) {
+                        ctx.transform.set(stateRule, new Set());
+                        }
+                        ctx.transform.get(stateRule).add(patternRule);
+                    } else {
+                        if (i < patternArr.length) i++;
+                        if (j < stateArr.length)   j++;
+                    }
+                    }
+                };
+
+                emitRules(origStateSeg, origPatternSeg);
                 const nextIdx = start + winIdx;
                 const next = state[nextIdx];
                 if (next) result.push(next);
@@ -788,26 +834,27 @@ console.log("count = " + countVar(state2, [incs, decs]))
         }
 
         return result;
-    };
+    }
 
     function blurArray(arr, blurMask) {
         const out = [];
         let i = 0;
         while (i < arr.length) {
             if (!blurMask.has(i)) {
-                out.push(arr[i]);
-                i++;
-                continue;
+            out.push(arr[i]);
+            i++;
+            continue;
             }
             let sum = 0n;
             while (i < arr.length && blurMask.has(i)) {
-                sum += arr[i];
-                i++;
+            sum += arr[i];
+            i++;
             }
             out.push(sum);
         }
         return out;
     }
+
 
     const unique = (state, pattern) => {
        return find(state, pattern).length === 1
