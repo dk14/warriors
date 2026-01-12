@@ -735,7 +735,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return new Set()
     }
 
-    const find = (state, pattern, ctx = { transform: new Map() }) => {
+    const find = (state, pattern, ctx = { }) => {
+        if (!ctx.transform) ctx.transform = new Map();
         const masks = ctx.masks || {};
         const sMask = masks.stateMask   instanceof Set ? masks.stateMask   : new Set();
         const pMask = masks.patternMask instanceof Set ? masks.patternMask : new Set();
