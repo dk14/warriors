@@ -729,30 +729,61 @@ console.log("count = " + countVar(state2, [incs, decs]))
 <script>
     //prediction
 
-    const find = (state, pattern) => {
-        const result = [];
-        if (pattern.length === 0) {
-            return state.map(() => undefined);
-        }
 
-        for (let i = 0; i <= state.length - pattern.length; i++) {
-            let match = true;
-            for (let j = 0; j < pattern.length; j++) {
-                if (state[i + j][0] !== pattern[j]) {
-                    match = false;
-                    break;
-                }
+    const range = limit => Array.from({ length: limit + 1 }, (_, i) => i);
+
+    const createMask = (length, maskCfg) => {
+        return new Set()
+    }
+
+
+    const find = (state, pattern, stateMask, patternMask) => {
+        const sMask = stateMask   instanceof Set ? stateMask   : new Set();
+        const pMask = patternMask instanceof Set ? patternMask : new Set();
+
+        const result = [];
+
+        if (pattern.length === 0) return state.map(() => undefined);
+
+        // effective length after deleting masked pattern positions
+        const effectivePatLen = pattern.length - pMask.size;
+
+        for (let start = 0; start <= state.length - effectivePatLen; start++) {
+            let patIdx = 0;   // index in original pattern
+            let winIdx = 0;   // index inside the current window (after stateMask)
+
+            let ok = true;
+            while (patIdx < pattern.length) {
+
+            if (pMask.has(patIdx)) {
+                patIdx++;
+                continue;
             }
-            if (match) {
-                const nextCh = state[i + pattern.length]
-                if (nextCh) {
-                    result.push(nextCh);
-                }
+
+            // skip inserted state positions
+            while (sMask.has(start + winIdx)) winIdx++;
+
+            const stateChar = state[start + winIdx]?.[0];
+            const patChar   = pattern[patIdx];
+
+            if (stateChar !== patChar) {
+                ok = false;
+                break;
+            }
+
+            patIdx++;
+            winIdx++;
+            }
+
+            if (ok) {
+            const next = state[start + winIdx];
+            if (next) result.push(next);
             }
         }
 
         return result;
-    }
+    };
+
 
     const unique = (state, pattern) => {
        return find(state, pattern).length === 1
