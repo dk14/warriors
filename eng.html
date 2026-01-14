@@ -886,7 +886,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         for (let len = 1; len <= state.length; len++) {
             const pattern = state.slice(state.length - len); 
-            const matches = find(state.slice(0, -len), pattern.map(x => x[0]));
+            const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
+
+            //todo try fuzzy match
+            //todo bound fuzzy match by ambiguity of non-fuzzy match
 
             ctx.n = len
 
@@ -1144,6 +1147,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         let counter = 0
 
+        //todo outer loop to rewrite tranformations (ensure termination)
         while (true) {
             counter++
             
