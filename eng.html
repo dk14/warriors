@@ -878,7 +878,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     }
 
     const applyAttentionMask = (state, len, ctx) => {
-        //todo use ctx.masks.attention
+        //todo use ctx.masks.attentionPattern or ctx.masks.attention
         //it will be map from index in pattern to the shift of this index backwards in state
 
         return state.slice(state.length - len)
