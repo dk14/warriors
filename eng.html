@@ -358,7 +358,6 @@
 
         return `incs: ${incsData}; decs: ${decsData}; sections=${count}`
 
-
     }
 
 
@@ -382,7 +381,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
 <script>
-    const MAX_UNICODE = 0x10FFFFn;          // highest defined Unicode scalar value
+    const MAX_UNICODE = 0x10FFFFn;
 
     function entityToBigInt(fragment) {
         const decMatch = fragment.match(/^&#(\d+);$/);
@@ -396,10 +395,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     function cpToString(cp) {
         if (cp <= MAX_UNICODE) {
-            // String.fromCodePoint works with Numbers, so we cast safely
             return String.fromCodePoint(Number(cp));
         }
-        // otherwise emit a decimal numeric entity
         return `&#${cp.toString()};`;
     }
 
@@ -418,26 +415,22 @@ console.log("count = " + countVar(state2, [incs, decs]))
         let i = 0;
 
         while (i < input.length) {
-            // Look ahead for an entity starting with '&'
             if (input[i] === '&') {
-            // Find the terminating ';' (if any)
-            const semi = input.indexOf(';', i + 1);
-            if (semi !== -1) {
-                const candidate = input.slice(i, semi + 1);
-                const big = entityToBigInt(candidate);
-                if (big !== null) {
-                result.push([big, pos++]);
-                i = semi + 1;
-                continue;
+                const semi = input.indexOf(';', i + 1);
+                if (semi !== -1) {
+                    const candidate = input.slice(i, semi + 1);
+                    const big = entityToBigInt(candidate);
+                    if (big !== null) {
+                    result.push([big, pos++]);
+                    i = semi + 1;
+                    continue;
+                    }
                 }
             }
-            }
 
-            // Normal character (may be a surrogate pair → use codePointAt)
             const cp = input.codePointAt(i);
             result.push([BigInt(cp), pos++]);
 
-            // Advance by 1 code unit for BMP chars, 2 for surrogate pairs
             i += cp > 0xFFFF ? 2 : 1;
         }
 
@@ -573,7 +566,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const TURING_INC = 2n
     const TURING_DEC = 1n
-    const TURING_OUT = 0n //mem_adress interpreted as char then
+    const TURING_OUT = 0n
     const TURING_OFFSET = 100n
 
     const TURING_JMP = (instrPointer) => instrPointer + TURING_OFFSET
@@ -892,19 +885,28 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         let previousMany = undefined;
 
+        let fuzzyBound = 0n
+
         const target = ctx.target ?? 1
 
         for (let len = 1; len <= state.length; len++) {
             const pattern = state.slice(state.length - len); 
             const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
-            //todo try fuzzy match
-            //todo bound fuzzy match by ambiguity of non-fuzzy match
-
             ctx.n = len
 
+            //for fuzzy find
+            if (previousMany && previousMany.length < matches.length) {
+                return previousMany
+            }
+
             if (matches.length <= target) {
-                if (matches.length === 0) return previousMany
+                if (matches.length === 0) {
+                    fuzzyBound = previousMany?.length
+                    //todo try fuzzy match
+                    //todo bound fuzzy match by ambiguity of non-fuzzy match
+                    return previousMany
+                }
                 return matches;
             }
 
