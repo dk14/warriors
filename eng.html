@@ -641,17 +641,26 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
-                    
+                    const nonTerminationRecovery = turing[cursor + 1n] && turing[cursor + 1n][1] > TURING_OFFSET && turing[cursor + 1n][0] === mem //for theorem provers
+
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         console.log("LOOP SEG: " + cursor)
-                        ctx.loopSegment = cursor
-                        return output
+                        if (nonTerminationRecovery) {
+                            cursor++
+                        } else {
+                            ctx.loopSegment = cursor
+                            return output
+                        }  
                     }
                     cursor = instr - TURING_OFFSET
                     if (!checkRepeatCfg(memory, cursor, history)) {
                         console.log("LOOP REPEAT: " + cursor)
-                        ctx.loopRepeat = cursor
-                        return output
+                        if (nonTerminationRecovery) {
+                            cursor++
+                        } else {
+                            ctx.loopRepeat = cursor
+                            return output
+                        }
                     }
                     lastCoverageForJmp[cursor.toString] = coverage
                     lastLoopVarStateForJmp[cursor.toString] = memory[mem]
