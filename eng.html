@@ -873,12 +873,23 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return 2
     }
 
-    const findFuzzy = (state, pattern, ctx, fuzzyBound, len, previousMany) => {
+    const applyAttentionMask = (state, len, ctx) => {
+        //todo use ctx.masks.attention
+
+        return state.slice(state.length - len)
+    }
+
+
+
+    const findFuzzy = (state, ctx, fuzzyBound, len, previousMany) => {
 
         //todo enumerate masks
         //increase ctx.maskNo until inferMaskingBound
         //pick first least ambigous match
 
+        inferMasking(len, ctx)
+
+        const pattern = applyAttentionMask(state, len, ctx);   
         const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
         //todo make sure only successful match transforms added to context
@@ -897,9 +908,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const target = ctx.target ?? 1
 
         for (let len = 1; len <= state.length; len++) {
-            const pattern = state.slice(state.length - len);   
 
-            const matches = findFuzzy(state, pattern, ctx, fuzzyBound, len, previousMany)
+            const matches = findFuzzy(state, ctx, fuzzyBound, len, previousMany)
    
             ctx.n = len
 
