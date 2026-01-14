@@ -1183,16 +1183,21 @@ console.log("count = " + countVar(state2, [incs, decs]))
         }
     }
 
+    function inlineMacroses(output, ctx) {
+        //todo: use ctx.transform rules (ensure termination)
+
+        return output
+    }
+
     function predictContinuously(initState, ctx = {}) {
 
         let state = [...initState];
-        const output = [];
+        let output = [];
 
         ctx.loop = false
 
         let counter = 0
 
-        //todo outer loop to rewrite tranformations (ensure termination)
         while (true) {
             counter++
             
@@ -1204,9 +1209,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     return output
                 }
             }
-       
+    
             if (!next) break;
             output.push(next);
+            
+            if (ctx.expandMacroses) {
+                output = inlineMacroses(output, ctx)
+            }
 
             const limit = countUniqueBy(output, x => x[1])
 
@@ -1232,9 +1241,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 ctx.loop = true
                 break;                                  
             }
-           
+        
             state = [...state, next]; 
         }
+        
 
         if (ctx.inlineTuring) {
             inlineTuring(initState, output, ctx)
