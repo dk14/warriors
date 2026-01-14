@@ -312,6 +312,9 @@
             const inference = inferIncDec(eraseSeqNo(state), candidate)
             if (inference[0].length > 0) {
                 const [incs, decs, secCount, sections] = inference
+                if (incs.length > 1 || decs.length > 1) {
+                    continue
+                }
                 return {
                     varName:  parse(enrichSeqNo(candidate)),
                     zero: enrichSeqNo(candidate), 
@@ -637,7 +640,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         console.log("LOOP SEG: " + cursor)
-                        ctx.loopHSeq = cursor
+                        ctx.loopSegment = cursor
                         return output
                     }
                     cursor = instr - TURING_OFFSET
@@ -1060,8 +1063,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
 
-            // todo consider searching for intro sections in predicted 
-            // const found = zeroBranch(output, output.slice(i))
+            //todo consider searching for intro sections in predicted 
             const found = zeroBranch(state, output.slice(i))
 
             if (found !== undefined && branches.length > 0) {
@@ -1225,9 +1227,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
     program
 label:
     plus
+
     labelzero
+
     plus
-     
+    
+    
     program`)
 
     console.log("N:" + state.slice(-1)[0][1])
