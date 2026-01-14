@@ -81,6 +81,8 @@
     // output: Map<string, {count: number, firstStart: number}>
 
     // TODO: does not work
+
+    //TODO: EXCLUDE OTHER INTROSECTIONS FROM STATE!!!
     function tokenize(introSection, state) {
         const nIntro = introSection.length, nState = state.length;
         const serialize = (arr, start, len) => {
@@ -226,7 +228,8 @@
         const sections = getPossibleIntroSections(state, zeroToken);
 
         const emptySections = sections.some(x => x.end - x.start == -1)
-        if (sections.length === 0 || emptySections) return [[], [], -1, []]
+
+        if (sections.length === 0 || emptySections) return [[], [], 0, []]
 
         const acc = [[], [], 0, []]
 
@@ -235,7 +238,11 @@
 
             const intro = sec.slice;
             const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
-            if (tokens.size < 2) return [[], []] ;
+            if (tokens.size < 2) {
+                //console.log(parse(enrichSeqNo(intro)))
+                //console.log([...tokens.keys()].map(tk => parse(enrichSeqNo(parseKey(tk)))))
+                return [[], [], -(i+1), []]
+            }
 
             const entries = Array.from(tokens.entries());
             const incSet = new Set(), decSet = new Set();
@@ -349,7 +356,7 @@
         const incsData = incs.map(inc => parse(enrichSeqNo(parseKey(inc))))
         const decsData = decs.map(dec => parse(enrichSeqNo(parseKey(dec))))
 
-        return `incs: ${incsData}; decs: ${decsData}; ${count}`
+        return `incs: ${incsData}; decs: ${decsData}; sections=${count}`
 
 
     }
