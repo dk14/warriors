@@ -819,7 +819,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
                             if (!ctx.transform.has(stateRule)) {
                                 ctx.transform.set(stateRule, new Map());
                             }
-                            ctx.transform.get(stateRule)[next] = patternRule;
+                            if (ctx.transform.get(stateRule)[next] === undefined) {
+                                ctx.transform.get(stateRule)[next] = []
+                            }
+                            ctx.transform.get(stateRule)[next].push(patternRule)
                         } else {
                             if (i < patternArr.length) i++;
                             if (j < stateArr.length)   j++;
