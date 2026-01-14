@@ -864,10 +864,25 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return out;
     }
 
+
+    const inferMasking = (len, ctx) => {
+
+    }
+
+    const inferMaskingBound = (len) => {
+        return len
+    }
+
     const findFuzzy = (state, pattern, ctx, fuzzyBound, len, previousMany) => {
+
+        //todo enumerate masks
+        //increase ctx.maskNo until inferMaskingBound
+        //pick first least ambigous match
 
         const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
+        //todo make sure only successful match transforms added to context
+        //todo erase ctx.maskNo
         return matches
 
     }
@@ -884,7 +899,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
         for (let len = 1; len <= state.length; len++) {
             const pattern = state.slice(state.length - len);   
 
-            
             const matches = findFuzzy(state, pattern, ctx, fuzzyBound, len, previousMany)
    
             ctx.n = len
