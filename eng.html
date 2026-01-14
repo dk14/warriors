@@ -864,20 +864,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return out;
     }
 
-    const unique = (state, pattern) => {
-       return find(state, pattern).length === 1
-    }
+    const findFuzzy = (state, pattern, ctx, fuzzyBound, len, previousMany) => {
 
-    const exists = (state, pattern) => {
-        return find(state, pattern).length >= 1
-    }
+        const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
-    const many = (state, pattern) => {
-        return find(state, pattern).length > 1
-    }
+        return matches
 
-    const none = (state, pattern) => {
-        return find(state, pattern).length === 0
     }
 
     const predict = (state, ctx = {}) => {
@@ -890,9 +882,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const target = ctx.target ?? 1
 
         for (let len = 1; len <= state.length; len++) {
-            const pattern = state.slice(state.length - len); 
-            const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
+            const pattern = state.slice(state.length - len);   
 
+            
+            const matches = findFuzzy(state, pattern, ctx, fuzzyBound, len, previousMany)
+   
             ctx.n = len
 
             //for fuzzy find
@@ -902,9 +896,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             if (matches.length <= target) {
                 if (matches.length === 0) {
-                    fuzzyBound = previousMany?.length
-                    //todo try fuzzy match
-                    //todo bound fuzzy match by ambiguity of non-fuzzy match
+
                     return previousMany
                 }
                 return matches;
@@ -912,6 +904,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             if (matches.length > target) {
                 previousMany = matches;
+                fuzzyBound = previousMany?.length
                 continue;
             }
 
