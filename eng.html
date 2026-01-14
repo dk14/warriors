@@ -226,7 +226,7 @@
         const sections = getPossibleIntroSections(state, zeroToken);
 
         const emptySections = sections.some(x => x.end - x.start == -1)
-        if (sections.length === 0 || emptySections) return [[], []]
+        if (sections.length === 0 || emptySections) return [[], [], -1, []]
 
         const acc = [[], [], 0, []]
 
