@@ -744,11 +744,13 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const sMask = masks.stateMask   instanceof Set ? masks.stateMask   : new Set();
         const pMask = masks.patternMask instanceof Set ? masks.patternMask : new Set();
         const bMask = masks.blurMask    instanceof Set ? masks.blurMask    : new Set();
+        const aMask = masks.attention ?? []
 
         ctx.currentMasks = {
             stateMask:   new Set(sMask),
             patternMask: new Set(pMask),
-            blurMask:    new Set(bMask)
+            blurMask:    new Set(bMask),
+            attention:   aMask
         };
 
         if (!ctx.transform) ctx.transform = new Map();
@@ -762,6 +764,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         for (let start = 0; start <= state.length - effectivePatLen; start++) {
             const windowSlice = state
                 .slice(start, start + blurredPattern.length)
+                .map((x, i) => aMask[i] ? state[start + i - aMask[i]] : x)
                 .map(cell => cell[0]); 
 
             const blurredWindow = blurArray(windowSlice, bMask);
@@ -771,12 +774,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
             let ok = true;
             while (patIdx < blurredPattern.length) {
-            if (pMask.has(patIdx)) {
-                patIdx++;
-                continue;
-            }
+                if (pMask.has(patIdx)) {
+                    patIdx++;
+                    continue;
+                }
 
-            while (sMask.has(start + winIdx)) winIdx++;
+                while (sMask.has(start + winIdx)) winIdx++;
                 const stateVal = blurredWindow[winIdx];
                 const patVal   = blurredPattern[patIdx];
                 if (stateVal !== patVal) {
@@ -866,6 +869,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
     const inferMasking = (len, ctx) => {
+        //todo account for blurred indecies in blurMask when inferring attention mask
 
     }
 
@@ -875,6 +879,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const applyAttentionMask = (state, len, ctx) => {
         //todo use ctx.masks.attention
+        //it will be map from index in pattern to the shift of this index backwards in state
 
         return state.slice(state.length - len)
     }
