@@ -1060,7 +1060,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
 
-            //todo consider searching for intro sections in predicted 
+            // todo consider searching for intro sections in predicted 
+            // const found = zeroBranch(output, output.slice(i))
             const found = zeroBranch(state, output.slice(i))
 
             if (found !== undefined && branches.length > 0) {
@@ -1222,17 +1223,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
     plus 
     minus
     program
-
-
-    label:
+label:
     plus
-
     labelzero
-
-
     plus
-    
-    
+     
     program`)
 
     console.log("N:" + state.slice(-1)[0][1])
