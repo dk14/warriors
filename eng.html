@@ -261,7 +261,7 @@
 
                 acc[0] = Array.from(new Set([...(new Set(acc[0])), ...incSet]))
                 acc[1] =  Array.from(new Set([...(new Set(acc[1])), ...decSet]))
-                acc[2] = i
+                acc[2] = i + 1
                 acc[3].push(sec)
 
                 
@@ -345,11 +345,11 @@
     }
 
     const parseIncDec = (inference) => {
-        const [incs, decs] = inference
+        const [incs, decs, count] = inference
         const incsData = incs.map(inc => parse(enrichSeqNo(parseKey(inc))))
         const decsData = decs.map(dec => parse(enrichSeqNo(parseKey(dec))))
 
-        return `incs: ${incsData}; decs: ${decsData}`
+        return `incs: ${incsData}; decs: ${decsData}; ${count}`
 
 
     }
@@ -1280,7 +1280,9 @@ label:
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
     
-    const st2 = eraseSeqNo(render("0plusminus0plus minus pl:plusl0p"))
+    //todo fix repeated sections not recognized
+    //todo move sections to the output scope
+    const st2 = eraseSeqNo(render("0plusminus0 plus minus pl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
     span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
