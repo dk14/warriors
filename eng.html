@@ -894,10 +894,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
     const findFuzzy = (state, ctx, fuzzyBound, len, previousMany) => {
+        ctx.maskNo = 0n
 
         //todo enumerate masks
-        //increase ctx.maskNo until inferMaskingBound
-        //pick first least ambigous match
+        //todo increase ctx.maskNo until fuzzyBound
+        //todo pick first least ambigous match
+        //todo if least ambigous is more ambigous than previosMany (unless it is empty) - pick previousMany instead
 
         inferMasking(len, ctx)
 
@@ -905,7 +907,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
         //todo make sure only successful match transforms added to context
-        //todo erase ctx.maskNo
+        //todo if previousMany was picked - do not add transforms
         return matches
 
     }
