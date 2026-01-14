@@ -869,7 +869,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
 
     const inferMasking = (len, ctx) => {
-        //todo account for blurred indecies in blurMask when inferring attention mask
+        // stateMask:   set of indicies
+        // patternMask: set of ondicies
+        // blurMask:    set of indicies
+        // attention:   array as remap to shifts
+        // attentionPattern: array as remap to shifts
+
+
+        // todo account for blurred indecies in blurMask when inferring attention masks
 
     }
 
