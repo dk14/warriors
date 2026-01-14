@@ -791,45 +791,47 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
                 const origPatternSeg = pattern.slice(); 
 
-                const emitRules = (stateArr, patternArr) => {
+                const emitRules = (stateArr, patternArr, next) => {
                     let i = 0;
                     let j = 0; 
 
                     while (i < patternArr.length || j < stateArr.length) {
-                    const stateMasked   = sMask.has(start + j);
-                    const patternMasked = pMask.has(i);
+                        const stateMasked   = sMask.has(start + j);
+                        const patternMasked = pMask.has(i);
 
-                    if (stateMasked || patternMasked) {
-                        const stateRun   = [];
-                        const patternRun = [];
+                        if (stateMasked || patternMasked) {
+                            const stateRun   = [];
+                            const patternRun = [];
 
-                        while (j < stateArr.length && sMask.has(start + j)) {
-                            stateRun.push(stateArr[j]);
-                            j++;
+                            while (j < stateArr.length && sMask.has(start + j)) {
+                                stateRun.push(stateArr[j]);
+                                j++;
+                            }
+
+                            while (i < patternArr.length && pMask.has(i)) {
+                                patternRun.push(patternArr[i]);
+                                i++;
+                            }
+
+                            const stateRule   = stateRun.map(v => v.toString()).join('');
+                            const patternRule = patternRun.map(v => v.toString()).join('');
+
+                            if (!ctx.transform.has(stateRule)) {
+                                ctx.transform.set(stateRule, new Map());
+                            }
+                            ctx.transform.get(stateRule)[next] = patternRule;
+                        } else {
+                            if (i < patternArr.length) i++;
+                            if (j < stateArr.length)   j++;
                         }
-
-                        while (i < patternArr.length && pMask.has(i)) {
-                            patternRun.push(patternArr[i]);
-                            i++;
-                        }
-
-                        const stateRule   = stateRun.map(v => v.toString()).join('');
-                        const patternRule = patternRun.map(v => v.toString()).join('');
-
-                        if (!ctx.transform.has(stateRule)) {
-                        ctx.transform.set(stateRule, new Set());
-                        }
-                        ctx.transform.get(stateRule).add(patternRule);
-                    } else {
-                        if (i < patternArr.length) i++;
-                        if (j < stateArr.length)   j++;
-                    }
                     }
                 };
 
-                emitRules(origStateSeg, origPatternSeg);
                 const nextIdx = start + winIdx;
                 const next = state[nextIdx];
+
+                emitRules(origStateSeg, origPatternSeg, next);
+ 
                 if (next) result.push(next);
             }
         }
