@@ -483,7 +483,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     function checkMembound(value, membound) {
 
         let counter = 0n
-        while (membound.currentExpansion < value && membound.currentHyperop <= membound.hyperopBound) {
+        while (membound.currentExpansion < value && membound.currentHyperop < membound.hyperopBound) {
             counter++
             if (counter > 30n) {
                 console.log(membound)
@@ -520,7 +520,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         if (!lastLoopVarState || !lastCov) return true
         const loopStart = getJumpDestination(jump)
         const loopEnd = cursor
-        if (loopStart >= loopEnd) return true
+        if (loopStart > loopEnd) return true
 
         const loopVarIdx = getLoopVar(jump)
         const loopVar = memory[loopVarIdx]
@@ -605,10 +605,10 @@ console.log("count = " + countVar(state2, [incs, decs]))
         while (cursor < turing.length) {
             ctx.trace.push(cursor)
             safeCounter++
-            if (safeCounter > 30000n) {
+            if (safeCounter > 3000n) {
                 console.log(ctx)
                 console.log(printTuring(turing))
-                throw "overflow"
+                throw "overflow " + cursor
             }
 
             const [mem, instr] = turing[cursor]
@@ -638,32 +638,38 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 if (memory[mem] === 0n) {
                     cursor++
                 } else {
+
+                    const nextCursor = cursor + 1n
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
-                    const nonTerminationRecovery = turing[cursor + 1n] && turing[cursor + 1n][1] > TURING_OFFSET && turing[cursor + 1n][0] === mem //for theorem provers
+                    const nonTerminationRecovery = turing[nextCursor] && turing[nextCursor][1] - TURING_OFFSET !== cursor && turing[cursor + 1n][1] > TURING_OFFSET && turing[cursor + 1n][0] === mem //for theorem provers
 
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
-                        console.log("LOOP SEG: " + cursor)
                         if (nonTerminationRecovery) {
-                            cursor++
+                            cursor = nextCursor
                         } else {
+                            console.log("LOOP SEG: " + cursor)
                             ctx.loopSegment = cursor
                             return output
                         }  
-                    }
-                    cursor = instr - TURING_OFFSET
-                    if (!checkRepeatCfg(memory, cursor, history)) {
-                        console.log("LOOP REPEAT: " + cursor)
-                        if (nonTerminationRecovery) {
-                            cursor++
-                        } else {
-                            ctx.loopRepeat = cursor
-                            return output
+                    } else {
+                        cursor = instr - TURING_OFFSET
+                        if (!checkRepeatCfg(memory, cursor, history)) {
+                        
+                            if (nonTerminationRecovery) {
+                                cursor = nextCursor
+                            } else {
+                                console.log("LOOP REPEAT: " + cursor)
+                                ctx.loopRepeat = cursor
+                                return output
+                            }
                         }
+                        lastCoverageForJmp[cursor.toString] = coverage
+                        lastLoopVarStateForJmp[cursor.toString] = memory[mem]
+
                     }
-                    lastCoverageForJmp[cursor.toString] = coverage
-                    lastLoopVarStateForJmp[cursor.toString] = memory[mem]
+                    
                 }
             }
             
@@ -720,9 +726,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const ctxTuring = {}
     const program = [
         [0n,   TURING_INC], 
-        [0n,   TURING_DEC], 
-        [0n,   TURING_JMP(1n)], 
-        [20n,  TURING_OUT]
+        [0n,   TURING_JMP(0n)], 
+        [0n,   TURING_JMP(4n)], 
+        [20n,  TURING_OUT],
+        [-1n,   TURING_OUT], 
+        [0n,   TURING_INC], 
     ]
 
     console.log("\n\nTURING TEST")
