@@ -1272,6 +1272,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         }
 
         if (ctx.executeTuring && ctx.turing) {
+            //todo macro post-processing: invoke repeat continously but with current output and turing off
             return enrichSeqNo(executeTuring(ctx.turing, ctx))
         }
 
