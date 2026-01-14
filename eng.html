@@ -233,13 +233,16 @@
 
         const acc = [[], [], 0, []]
 
+        const incDecTokenIntro = state.slice(0, sections[0].start - zeroToken.length)
+
         for(let i = 0; i < sections.length; i++) {
             const sec = sections[i]
 
             const intro = sec.slice;
-            const tokens = tokenize(intro, state); // Map key -> {count, firstStart}
+
+            const tokens = tokenize(intro, incDecTokenIntro.concat(intro)); // Map key -> {count, firstStart}
             if (tokens.size < 2) {
-                //console.log(parse(enrichSeqNo(intro)))
+                //console.log(")))))" + parse(enrichSeqNo(incDecTokenIntro)))
                 //console.log([...tokens.keys()].map(tk => parse(enrichSeqNo(parseKey(tk)))))
                 return [[], [], -(i+1), []]
             }
@@ -271,6 +274,9 @@
                 acc[2] = i + 1
                 acc[3].push(sec)
 
+                //console.log("-----" + parse(enrichSeqNo(zeroToken)))
+                //console.log("++++++" + parse(enrichSeqNo(incDecTokenIntro)))
+
                 
             } else {
                 return acc
@@ -281,8 +287,6 @@
         return acc;
     }
 
-        // tokenisation: [incsArray, decsArray] where each element is token key (comma-joined BigInt string)
-    // state: BigInt[]
     function parseKey(key) {
         return key.split(',').map(s => BigInt(s));
     }
@@ -1212,7 +1216,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
     
             if (!next) break;
             output.push(next);
-            
+
             if (ctx.expandMacroses) {
                 output = inlineMacroses(output, ctx)
             }
@@ -1271,9 +1275,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
     const state = render(`
+    plus minus
     zeroplusminuszero
-    plus 
-    minus
+
     program
 label:
     plus
@@ -1332,7 +1336,7 @@ label:
     
     //todo fix repeated sections not recognized
     //todo move sections to the output scope
-    const st2 = eraseSeqNo(render("0plusminus0 plus minus pl:plusl0p"))
+    const st2 = eraseSeqNo(render("plus minus0plusminus0 pl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
     span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
