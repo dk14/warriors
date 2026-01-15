@@ -615,9 +615,10 @@ for (const [k,v] of map) console.log(k, '->', v);
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
 
-                    const loopJmp = turing.findLastIndex(x => x[1] >= TURING_OFFSET)
+                    const loopJmp = turing.findLastIndex(x => x[1] >= TURING_OFFSET + BigInt(turing.length))
                     
-                    if (loopJmp !== -1 && turing[loopJmp][1] > TURING_OFFSET + BigInt(turing.length)) {
+                    const noOuterJumps = loopJmp && !turing.slice(loopJmp).some(x => x[1] > TURING_OFFSET && x[1] < TURING_OFFSET + BigInt(loopJmp))
+                    if (noOuterJumps) {
                         memory[turing[loopJmp][0]] = mem
                         cursor = loopJmp
                     } else {
@@ -753,7 +754,6 @@ for (const [k,v] of map) console.log(k, '->', v);
 
     const output = executeTuring(program, ctxTuring)
 
-    
     console.log("TURING OUT: " + output)
 
     console.log(ctxTuring)
