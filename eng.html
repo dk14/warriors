@@ -1365,8 +1365,8 @@ label:
     console.log("BRANCHING")
     //span5.textContent = "BRANCHING: " + parse(predictContinuously(render("0+-0+++l -l0l"), ctx3)) + "  ;; branches = " + ctx3.branch
     
-    //todo fix repeated sections not recognized
     //todo move sections to the output scope
+    //require jmp to be after section
     const st2 = eraseSeqNo(render("plus minus0plusminus0 pl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
     span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
