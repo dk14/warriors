@@ -759,6 +759,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return new Set()
     }
 
+    const makeKey = (arr) => arr.map(x => x.toString()).join(",")
+
     const find = (state, pattern, ctx = { }) => {
         if (!ctx.transform) ctx.transform = new Map();
         const masks = ctx.masks || {};
@@ -844,12 +846,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
                             const patternRule = patternRun.map(v => v.toString()).join('');
 
                             if (!ctx.transform.has(stateRule)) {
-                                ctx.transform.set(stateRule, new Map());
+                                ctx.transform.set(stateRule, {});
                             }
-                            if (ctx.transform.get(stateRule)[next] === undefined) {
-                                ctx.transform.get(stateRule)[next] = []
+                            if (ctx.transform.get(stateRule)[makeKey(next)] === undefined) {
+                                ctx.transform.get(stateRule)[makeKey(next)] = []
                             }
-                            ctx.transform.get(stateRule)[next].push(patternRule)
+                            ctx.transform.get(stateRule)[makeKey(next)].push(patternRule)
                         } else {
                             if (i < patternArr.length) i++;
                             if (j < stateArr.length)   j++;
@@ -912,8 +914,6 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return state.slice(state.length - len)
     }
 
-
-
     const findFuzzy = (state, ctx, fuzzyBound, len, previousMany) => {
         ctx.maskNo = 0n
 
@@ -975,6 +975,18 @@ console.log("count = " + countVar(state2, [incs, decs]))
         return undefined;
     }
 
+    function pickRelevantTransform(next, ctx) {
+        if (!ctx.transform) return;
+        ctx.currentTransform = {}
+        for (const [ruleIn, ruleOutMulti] of ctx.transform.entries()) {
+            for (const [el, ruleOut] of ruleOutMulti) {
+                if (next[0] === parseKey(el)[0]) {
+                    ctx.currentTransform[ruleIn] = ruleOut[ruleOut.length - 1]
+                }
+            } 
+        }
+    }
+
     function predictDeterministic(state, ctx = {}) {
         let result = predict(state, ctx); 
         ctx.roll = false 
@@ -982,6 +994,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
         if (!result || result.length === 1) {
             ctx.nores = true
+            pickRelevantTransform(result[0], ctx)
             return result?.[0] ?? result;
         }
 
@@ -1000,6 +1013,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             ctx.roll = true
         }
 
+        pickRelevantTransform(result[0], ctx)
         return result[0]
     }
 
@@ -1251,7 +1265,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             }
 
             const repeatLen = checkRepeat(output)
-            //const repeatLen = checkRepeat(output.map(x => [x[0], 0]));
+            
             if (repeatLen > 0) {
                 
                 const keep = output.length - repeatLen; 
@@ -1275,6 +1289,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
             //todo macro post-processing: invoke repeat continously but with current output and turing off
             return enrichSeqNo(executeTuring(ctx.turing, ctx))
         }
+
+        ctx.transform = undefined
+        ctx.currentTransform = undefined
 
         return output  
     }
