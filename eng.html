@@ -635,9 +635,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
                         return output
                     }
                     
+                } else {
+                    coverage.add(cursor)
+                    cursor++
                 }
-                coverage.add(cursor)
-                cursor++
+                
             } else if (instr === TURING_DEC) {
                 if (memory[mem] === undefined) memory[mem] = 0n
                 memory[mem]--
@@ -654,7 +656,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
-                    const nonTerminationRecovery = turing[nextCursor] && turing[nextCursor][1] - TURING_OFFSET !== cursor && turing[nextCursor][1] > TURING_OFFSET && turing[nextCursor + 1n][0] === mem //for theorem provers
+                    const nonTerminationRecovery = turing[nextCursor] && turing[nextCursor][1] - TURING_OFFSET !== cursor && turing[nextCursor][1] > TURING_OFFSET && turing[nextCursor][0] === mem //for theorem provers
 
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         if (nonTerminationRecovery) {
@@ -742,6 +744,14 @@ console.log("count = " + countVar(state2, [incs, decs]))
         [20n,  TURING_OUT],
         [-1n,   TURING_OUT], 
         [0n,   TURING_INC], 
+    ]
+
+    const program2 = [
+        [0n,   TURING_INC], 
+        [0n,   TURING_JMP(0n)], 
+        [0n,   TURING_JMP(4n)], 
+        [20n,  TURING_OUT],
+        [-1n,   TURING_OUT], 
     ]
 
     console.log("\n\nTURING TEST")
