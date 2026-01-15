@@ -458,11 +458,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
     //turing executor and termination oracle
 
     function inferMembound(turing) {
+        const base = turing.filter(x => x[1] !== 0n && x[1] < TURING_OFFSET).length
         return {
-            currentExpansion: turing.filter(x => x[1] !== 0n && x[1] < TURING_OFFSET).length,
+            currentExpansion: base,
             currentHyperop: 0n,
             hyperopBound: turing.filter(x => x[1] > TURING_OFFSET).length,
-            baseBound: turing.length,
+            baseBound: base,
         }
 
     }
@@ -623,6 +624,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 if(!checkMembound(memory[mem], membound)) {
                     console.log("LOOP HYPER: " + cursor)
                     ctx.loopHyper = cursor
+                    ctx.loopState = memory[mem]
                     return output
                 }
                 coverage.add(cursor)
@@ -1195,7 +1197,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const genIdx = (incOrDec) => {
                 for (const [name, zero] of Object.entries(ctx.vars)) {
                     if (checkIfEndsWithToken(output.slice(0, i), zero[incOrDec])) {
-                        if (incOrDec = "incs") {
+                        if (incOrDec === "incs") {
                             ctx.turing.push(genInc(ctx.varIdx[name]))
                         } else {
                             ctx.turing.push(genDec(ctx.varIdx[name]))
@@ -1316,7 +1318,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
     zeroplusminuszero
     program
 label:
-    plus
+    
+    minus
     labelzero
     program`)
 
