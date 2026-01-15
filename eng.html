@@ -368,17 +368,9 @@
 
 console.log("HELLO")
 const intro = [1n,2n,3n,2n,3n];
-const state2 = [0n, 1n,3n,0n,4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
+const state2 = [1n,3n,0n,4n,1n,2n,0n, 3n,2n,1n,2n,1n,2n];
 const map = tokenize(intro, state2);
 for (const [k,v] of map) console.log(k, '->', v);
-
-const zeroToken = [0n];
-const [incs, decs] = inferIncDec(state2, zeroToken);
-console.log('incs =', incs);
-console.log('decs =', decs);
-
-
-console.log("count = " + countVar(state2, [incs, decs]))
 
 
 </script>
@@ -623,11 +615,11 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
 
-                    const loopJmp = ctx.trace.findLast(x => x > cursor)
-                    const nonTerminationRecovery = loopJmp && turing[loopJmp + 1n] && turing[loopJmp + 1n][1] - TURING_OFFSET !== loopJmp && turing[loopJmp + 1n][1] > TURING_OFFSET && turing[loopJmp + 1n][0] === turing[loopJmp][0]
+                    const loopJmp = turing.findLastIndex(x => x[1] >= TURING_OFFSET + BigInt(turing.length))
                     
-                    if (nonTerminationRecovery) {
-                        cursor = turing[loopJmp + 1n][1] - TURING_OFFSET
+                    if (loopJmp !== -1) {
+                        memory[turing[loopJmp][0]] = mem
+                        cursor = loopJmp
                     } else {
                         console.log("LOOP HYPER: " + cursor)
                         ctx.loopHyper = cursor
@@ -750,8 +742,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
     const program2 = [
         [0n,   TURING_INC], 
         [0n,   TURING_JMP(0n)], 
-        [0n,   TURING_JMP(4n)], 
-        [20n,  TURING_OUT],
+        [0n,  TURING_OUT],
+        [0n,   TURING_JMP(100n)], 
         [-1n,   TURING_OUT], 
     ]
 
@@ -1368,7 +1360,7 @@ lab2:
     ctx2.executeTuring = true
     console.log("STREAM")
     const span4 = tg("span", "res")
-    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing.length
+    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing?.length
     span4.style.color = "green"
 
     //span4.textContent = stringifyWithBigInt(ctx2)
