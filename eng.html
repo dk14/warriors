@@ -652,7 +652,8 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     cursor++
                 } else {
 
-                    const nextCursor = cursor + 1n
+                    const nextCursorShift = turing.slice(Number(cursor) + 1).findIndex(x => x[1] !== TURING_OUT)
+                    const nextCursor = nextCursorShift === -1 ? turing.length + 1 : cursor + BigInt(nextCursorShift) + 1n
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
@@ -1138,6 +1139,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
         if (ctx.varIdx === undefined) ctx.varIdx = {}
         if (ctx.allTokensErased === undefined) ctx.allTokensErased = []
         if (ctx.unboundLabels === undefined) ctx.unboundLabels = {}
+        if (ctx.unboundLabelNames === undefined) ctx.unboundLabelNames = {}
         if (ctx.labels === undefined) ctx.labels = {}
 
         const predictCtx = {}
@@ -1172,7 +1174,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const space = prepend.concat(output.slice(0, i))
             const branches = predict(space, predictCtx) ?? []
             
-            if (found !== undefined && branches.length > 0 && ctx.varIdx[found.varName]) {
+            if (found !== undefined && branches.length > 0 && ctx.vars[found.varName]) {
                 //console.log(parse(space))
   
 
@@ -1189,7 +1191,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     
                     const jump = genJump(ctx.turing, varIdx, eraseSeqNo(labelName))
                     if (!jump) {
-                        ctx.unboundLabels[ctx.turing.length] = label.concat(enrichSeqNo(labelSuffix))
+                        const fullLabel = label.concat(enrichSeqNo(labelSuffix))
+                        ctx.unboundLabels[ctx.turing.length] = fullLabel
+                        ctx.unboundLabelNames[parse(fullLabel)] = ctx.turing.length
                         ctx.turing.push(genStubJmp(ctx.turing, varIdx))
                         
                     } else {
@@ -1219,7 +1223,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             for (const [cur, label] of Object.entries(ctx.unboundLabels)) {
                 //console.log("+++" + parse(label) + " " + ctx.turing.length + "(((()))) " + parse(output.slice(0, i)))
                 if (checkIfEndsWithToken(output.slice(0, i), [label])) {
-                    ctx.labels[parse(labelName)] = BigInt(ctx.turing.length)
+                    ctx.labels[parse(label)] = BigInt(ctx.turing.length)
 
                     ctx.turing[cur][1] = createJumpDestination(BigInt(ctx.turing.length))
                 }
@@ -1322,12 +1326,16 @@ console.log("count = " + countVar(state2, [incs, decs]))
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
     const state = render(`
     plus minus
-    zeroplusminuszero
+    zeroplusminuszeroplusminuszero
     program
 label:
     
     plus
     labelzero
+    lab2zero
+    hello
+lab2:
+    minus
     program`)
 
     console.log("N:" + state.slice(-1)[0][1])
