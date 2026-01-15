@@ -920,7 +920,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
         //todo enumerate masks
         //todo increase ctx.maskNo until fuzzyBound
         //todo pick first least ambigous match
-        //todo if least ambigous is more ambigous than previosMany (unless it is empty) - pick previousMany instead
+        //todo if least ambigous match is more ambigous than previosMany (unless it is empty) - pick previousMany instead
+
+        //todo use fuzzyBound + similarityScore as a final bound
 
         inferMasking(len, ctx)
 
