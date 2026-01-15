@@ -622,10 +622,19 @@ console.log("count = " + countVar(state2, [incs, decs]))
                 if (memory[mem] === undefined) memory[mem] = 0n
                 memory[mem]++
                 if(!checkMembound(memory[mem], membound)) {
-                    console.log("LOOP HYPER: " + cursor)
-                    ctx.loopHyper = cursor
-                    ctx.loopState = memory[mem]
-                    return output
+
+                    const loopJmp = ctx.trace.findLast(x => x > cursor)
+                    const nonTerminationRecovery = loopJmp && turing[loopJmp + 1n] && turing[loopJmp + 1n][1] - TURING_OFFSET !== loopJmp && turing[loopJmp + 1n][1] > TURING_OFFSET && turing[loopJmp + 1n][0] === turing[loopJmp][0]
+                    
+                    if (nonTerminationRecovery) {
+                        cursor = turing[loopJmp + 1n][1] - TURING_OFFSET
+                    } else {
+                        console.log("LOOP HYPER: " + cursor)
+                        ctx.loopHyper = cursor
+                        ctx.loopState = memory[mem]
+                        return output
+                    }
+                    
                 }
                 coverage.add(cursor)
                 cursor++
@@ -645,7 +654,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
                     coverage.add(cursor)
                     const lastCov = lastCoverageForJmp[cursor.toString]
                     const lastLoopVarState = lastLoopVarStateForJmp[cursor.toString]
-                    const nonTerminationRecovery = turing[nextCursor] && turing[nextCursor][1] - TURING_OFFSET !== cursor && turing[cursor + 1n][1] > TURING_OFFSET && turing[cursor + 1n][0] === mem //for theorem provers
+                    const nonTerminationRecovery = turing[nextCursor] && turing[nextCursor][1] - TURING_OFFSET !== cursor && turing[nextCursor][1] > TURING_OFFSET && turing[nextCursor + 1n][0] === mem //for theorem provers
 
                     if (!checkLoopSegment(turing, coverage, turing[cursor], cursor, memory, lastLoopVarState, lastCov)) {
                         if (nonTerminationRecovery) {
@@ -940,39 +949,22 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
     const predict = (state, ctx = {}) => {
         if (state.length === 0) return undefined;
-
         let previousMany = undefined;
-
         let fuzzyBound = 0n
-
-        const target = ctx.target ?? 1
+        ctx.noMatchesAtLen = false
 
         for (let len = 1; len <= state.length; len++) {
 
             const matches = findFuzzy(state, ctx, fuzzyBound, len, previousMany)
-   
-            ctx.n = len
 
-            //for fuzzy find
-            if (previousMany && previousMany.length < matches.length) {
+            ctx.n = len - 1
+
+            if (matches.length === 0) {
                 return previousMany
-            }
-
-            if (matches.length <= target) {
-                if (matches.length === 0) {
-                    return previousMany
-                }
-                return matches;
-            }
-
-            if (matches.length > target) {
+            } else {
                 previousMany = matches;
                 fuzzyBound = previousMany?.length
                 continue;
-            }
-
-            if (previousMany) {
-                return previousMany
             }
         }
 
@@ -1136,8 +1128,9 @@ console.log("count = " + countVar(state2, [incs, decs]))
         if (ctx.varIdx === undefined) ctx.varIdx = {}
         if (ctx.allTokensErased === undefined) ctx.allTokensErased = []
         if (ctx.unboundLabels === undefined) ctx.unboundLabels = {}
+        if (ctx.labels === undefined) ctx.labels = {}
 
-        const predictCtx = {target: 2}
+        const predictCtx = {}
 
         for (let i = 0; i < output.length; i++) {
             const branches = predict(output.slice(0, i), predictCtx) ?? []
@@ -1166,11 +1159,12 @@ console.log("count = " + countVar(state2, [incs, decs]))
             const found = zeroBranch(state, output.slice(i))
 
             const prepend = found ? enrichSeqNo(deleteAllOccurrences(eraseSeqNo(output.slice(i)), eraseSeqNo(found.zero))) : []
-            const branches = predict(prepend.concat(output.slice(0, i)), predictCtx) ?? []
+            const space = prepend.concat(output.slice(0, i))
+            const branches = predict(space, predictCtx) ?? []
             
-
             if (found !== undefined && branches.length > 0 && ctx.varIdx[found.varName]) {
-                
+                //console.log(parse(space))
+  
 
                 const varIdx = ctx.varIdx[found.varName]
                 const label = output.slice(i-predictCtx.n, i)
@@ -1181,12 +1175,15 @@ console.log("count = " + countVar(state2, [incs, decs]))
 
                 if (labelSuffix) {
         
-                    const jump = genJump(ctx.turing, varIdx, eraseSeqNo(label.concat(enrichSeqNo(labelSuffix))))
+                    const labelName = label.concat(enrichSeqNo(labelSuffix))
+                    
+                    const jump = genJump(ctx.turing, varIdx, eraseSeqNo(labelName))
                     if (!jump) {
                         ctx.unboundLabels[ctx.turing.length] = label.concat(enrichSeqNo(labelSuffix))
                         ctx.turing.push(genStubJmp(ctx.turing, varIdx))
                         
                     } else {
+                        ctx.labels[parse(labelName)] = jump[1] - TURING_OFFSET
                         ctx.turing.push(jump)
                     }
                     
@@ -1212,7 +1209,7 @@ console.log("count = " + countVar(state2, [incs, decs]))
             for (const [cur, label] of Object.entries(ctx.unboundLabels)) {
                 //console.log("+++" + parse(label) + " " + ctx.turing.length + "(((()))) " + parse(output.slice(0, i)))
                 if (checkIfEndsWithToken(output.slice(0, i), [label])) {
-                    
+                    ctx.labels[parse(labelName)] = BigInt(ctx.turing.length)
 
                     ctx.turing[cur][1] = createJumpDestination(BigInt(ctx.turing.length))
                 }
