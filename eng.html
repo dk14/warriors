@@ -814,22 +814,21 @@ for (const [k,v] of map) console.log(k, '->', v);
         }
     };
 
-    const find = (state, pattern, ctx = { }) => {
-
-        
+    const find = (state, pattern, ctx = { }, fuzzy = false) => {
+  
         if (!ctx.transform) ctx.transform = new Map();
-        const masks = ctx.masks || {};
-        const sMask = masks.stateMask   instanceof Set ? masks.stateMask   : new Set();
-        const pMask = masks.patternMask instanceof Set ? masks.patternMask : new Set();
-        const bMask = masks.blurMask    instanceof Set ? masks.blurMask    : new Set();
-        const aMask = masks.attention ?? []
 
-        ctx.currentMasks = {
-            stateMask:   new Set(sMask),
-            patternMask: new Set(pMask),
-            blurMask:    new Set(bMask),
-            attention:   aMask
+        ctx.masks = {
+            stateMask:   new Set(),
+            patternMask: new Set(),
+            blurMask:    new Set(),
+            attention:   ctx.masks?.attention ?? []
         };
+        const masks = ctx.masks || {};
+        const sMask = masks.stateMask ?? new Set();
+        const pMask = masks.patternMask ?? new Set();
+        const bMask = masks.blurMask ?? new Set();
+        const aMask = masks.attention
 
         if (!ctx.transform) ctx.transform = new Map();
 
@@ -838,6 +837,8 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         const effectivePatLen = blurredPattern.length - pMask.size;
         const result = [];
+
+        const scores = []
 
         for (let start = 0; start <= state.length - effectivePatLen; start++) {
             const windowSlice = state
@@ -850,8 +851,9 @@ for (const [k,v] of map) console.log(k, '->', v);
             let patIdx = 0;
             let winIdx = 0;
 
+            let simillarity = 0n
 
-            //todo infer sMask and bMask from pattern vs window simillarity
+            //todo infer sMask and pMask from pattern vs window simillarity
             //todo try different insertions/deletions/blurs and attentions to maximize simillarity
             //but only applied them to mismatched parts (symmetrically if mismatch is in the middle)
 
@@ -882,7 +884,9 @@ for (const [k,v] of map) console.log(k, '->', v);
                 //todo report similarity score for a match
                 //maxout simillarity score in result
 
-                const origStateSeg   = state
+                ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
+
+                const origStateSeg = state
                     .slice(start, start + pattern.length)
                     .map(cell => cell[0]);
 
@@ -893,7 +897,10 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
  
-                if (next) result.push(next);
+                if (next) {
+                    scores.push(simillarity)
+                    result.push(next);
+                }
             }
         }
 
@@ -905,14 +912,14 @@ for (const [k,v] of map) console.log(k, '->', v);
         let i = 0;
         while (i < arr.length) {
             if (!blurMask.has(i)) {
-            out.push(arr[i]);
-            i++;
-            continue;
+                out.push(arr[i]);
+                i++;
+                continue;
             }
             let sum = 0n;
-            while (i < arr.length && blurMask.has(i)) {
-            sum += arr[i];
-            i++;
+                while (i < arr.length && blurMask.has(i)) {
+                sum += arr[i];
+                i++;
             }
             out.push(sum);
         }
@@ -925,10 +932,25 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     const findFuzzy = (state, ctx, len, previousMany) => {
-        ctx.fuzzyBound = previousMany?.length
+        
 
-        const pattern = state.slice(state.length - len)  
-        const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
+        const pattern = state.slice(state.length - len).map(x => x[0]) 
+        const space = state.slice(0, -len)
+        const matches = find(space, pattern, ctx);
+
+        if (matches.length === 0n) {
+            
+            if (!ctx.fuzzyBound) {
+                ctx.fuzzyBound = previousMany?.length
+            }
+
+            if (len > ctx.simillarity + ctx.fuzzyBound) {
+                return []
+            }
+            
+            const fuzzyMatches = find(space, pattern, ctx, true);
+            return fuzzyMatches
+        }
 
         return matches
 
@@ -937,6 +959,8 @@ for (const [k,v] of map) console.log(k, '->', v);
     const predict = (state, ctx = {}) => {
         if (state.length === 0) return undefined;
         let previousMany = undefined;
+        ctx.fuzzyBound = undefined
+        ctx.simillarity = 0n
 
         for (let len = 1; len <= state.length; len++) {
 
@@ -948,7 +972,6 @@ for (const [k,v] of map) console.log(k, '->', v);
                 return previousMany
             } else {
                 previousMany = matches;
-               
                 continue;
             }
         }
