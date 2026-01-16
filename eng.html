@@ -814,7 +814,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
             //todo infer sMask and bMask from pattern vs window simillarity
             //todo try different insertions/deletions/blurs and attentions to maximize simillarity
-            //but only applied them to mismatched parts (symmetrically)
+            //but only applied them to mismatched parts (symmetrically if mismatch is in the middle)
 
             //todo use ctx.masks.attentionPattern or ctx.masks.attention
             //it will be map from index in pattern to the shift of this index backwards in state
