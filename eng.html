@@ -915,8 +915,8 @@ for (const [k,v] of map) console.log(k, '->', v);
             }
         }
 
-        const maxScore = Math.max(scores)
-        return result//.filter((x, i) => scores[i] === maxScore);
+        const maxScore = Math.max(...scores)
+        return result.filter((x, i) => scores[i] === maxScore);
     }
 
     function blurArray(arr, blurMask) {
