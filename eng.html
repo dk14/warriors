@@ -825,22 +825,41 @@ for (const [k,v] of map) console.log(k, '->', v);
             attention:   ctx.masks?.attention ?? []
         };
         const masks = ctx.masks || {};
-        const sMask = masks.stateMask ?? new Set();
-        const pMask = masks.patternMask ?? new Set();
+        let sMask = masks.stateMask ?? new Set();
+        let pMask = masks.patternMask ?? new Set();
         const bMask = masks.blurMask ?? new Set();
         const aMask = masks.attention
 
         if (!ctx.transform) ctx.transform = new Map();
-
-        const blurredPattern = blurArray(pattern, bMask);
-        if (blurredPattern.length === 0) return [];
-
-        const effectivePatLen = blurredPattern.length - pMask.size;
+    
         const result = [];
 
         const scores = []
 
-        for (let start = 0; start <= state.length - effectivePatLen; start++) {
+        for (let start = 0; start <= state.length - pattern.length; start++) {
+
+            //todo infer sMask and pMask from pattern vs window simillarity
+
+            let simillarity = 0
+
+            if (fuzzy) {
+                const inferredMask = pattern.map((x, i) => x === state[start + i][0] ? i : undefined)
+                    .filter(x => x !== undefined)
+                pMask = sMask = new Set(inferredMask)
+                simillarity = inferredMask.length
+            } else {
+                simillarity = pattern.length
+            }
+
+            //todo try different insertions/deletions/blurs and attentions to maximize simillarity
+            //but only applied them to mismatched parts (symmetrically if mismatch is in the middle)
+
+            //todo use ctx.masks.attentionPattern or ctx.masks.attention
+            //it will be map from index in pattern to the shift of this index backwards in state
+
+            //ctx.fuzzyBound + ctx.simllarityScore is a limit for search of modifications and blurs
+
+            const blurredPattern = blurArray(pattern, bMask);
             const windowSlice = state
                 .slice(start, start + blurredPattern.length)
                 .map((x, i) => aMask[i] ? state[start + i - aMask[i]] : x)
@@ -851,17 +870,9 @@ for (const [k,v] of map) console.log(k, '->', v);
             let patIdx = 0;
             let winIdx = 0;
 
-            let simillarity = 0n
+            
 
-            //todo infer sMask and pMask from pattern vs window simillarity
-            //todo try different insertions/deletions/blurs and attentions to maximize simillarity
-            //but only applied them to mismatched parts (symmetrically if mismatch is in the middle)
-
-            //todo use ctx.masks.attentionPattern or ctx.masks.attention
-            //it will be map from index in pattern to the shift of this index backwards in state
-
-            //ctx.fuzzyBound + ctx.simllarityScore is a limit for search of modifications and blurs
-
+            
             let ok = true;
             while (patIdx < blurredPattern.length) {
                 if (pMask.has(patIdx)) {
@@ -904,7 +915,8 @@ for (const [k,v] of map) console.log(k, '->', v);
             }
         }
 
-        return result;
+        const maxScore = Math.max(scores)
+        return result//.filter((x, i) => scores[i] === maxScore);
     }
 
     function blurArray(arr, blurMask) {
@@ -960,7 +972,7 @@ for (const [k,v] of map) console.log(k, '->', v);
         if (state.length === 0) return undefined;
         let previousMany = undefined;
         ctx.fuzzyBound = undefined
-        ctx.simillarity = 0n
+        ctx.simillarity = 0
 
         for (let len = 1; len <= state.length; len++) {
 
