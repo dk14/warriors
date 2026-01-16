@@ -776,6 +776,8 @@ for (const [k,v] of map) console.log(k, '->', v);
     const makeKey = (arr) => arr.map(x => x.toString()).join(",")
 
     const find = (state, pattern, ctx = { }) => {
+
+        
         if (!ctx.transform) ctx.transform = new Map();
         const masks = ctx.masks || {};
         const sMask = masks.stateMask   instanceof Set ? masks.stateMask   : new Set();
@@ -809,6 +811,16 @@ for (const [k,v] of map) console.log(k, '->', v);
             let patIdx = 0;
             let winIdx = 0;
 
+
+            //todo infer sMask and bMask from pattern vs window simillarity
+            //todo try different insertions/deletions/blurs and attentions to maximize simillarity
+            //but only applied them to mismatched parts
+
+            //todo use ctx.masks.attentionPattern or ctx.masks.attention
+            //it will be map from index in pattern to the shift of this index backwards in state
+
+            //ctx.fuzzyBound + ctx.simllarityScore is a limit for search
+
             let ok = true;
             while (patIdx < blurredPattern.length) {
                 if (pMask.has(patIdx)) {
@@ -829,6 +841,8 @@ for (const [k,v] of map) console.log(k, '->', v);
 
             if (ok) {
                 //todo report similarity score for a match
+                //maxout simillarity score in result
+
                 const origStateSeg   = state
                     .slice(start, start + pattern.length)
                     .map(cell => cell[0]);
@@ -906,46 +920,16 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
 
-    const inferMasking = (len, ctx) => {
-        // stateMask:   set of indicies
-        // patternMask: set of ondicies
-        // blurMask:    set of indicies
-        // attention:   array as remap to shifts
-        // attentionPattern: array as remap to shifts
-
-
-        // todo account for blurred indecies in blurMask when inferring attention masks
-
-    }
-
     const inferMaskingBound = (len) => {
         return 2
     }
 
-    const applyAttentionMask = (state, len, ctx) => {
-        //todo use ctx.masks.attentionPattern or ctx.masks.attention
-        //it will be map from index in pattern to the shift of this index backwards in state
+    const findFuzzy = (state, ctx, len, previousMany) => {
+        ctx.fuzzyBound = previousMany?.length
 
-        return state.slice(state.length - len)
-    }
-
-    const findFuzzy = (state, ctx, fuzzyBound, len, previousMany) => {
-        ctx.maskNo = 0n
-
-        //todo enumerate masks
-        //todo increase ctx.maskNo until fuzzyBound
-        //todo pick first least ambigous match
-        //todo if least ambigous match is more ambigous than previosMany (unless it is empty) - pick previousMany instead
-
-        //todo use fuzzyBound + similarityScore (maxout) as a final bound
-
-        inferMasking(len, ctx)
-
-        const pattern = applyAttentionMask(state, len, ctx);   
+        const pattern = state.slice(state.length - len)  
         const matches = find(state.slice(0, -len), pattern.map(x => x[0]), ctx);
 
-        //todo make sure only successful match transforms added to context
-        //todo if previousMany was picked - do not add transforms
         return matches
 
     }
@@ -958,7 +942,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         for (let len = 1; len <= state.length; len++) {
 
-            const matches = findFuzzy(state, ctx, fuzzyBound, len, previousMany)
+            const matches = findFuzzy(state, ctx, len, previousMany)
 
             ctx.n = len - 1
 
@@ -966,7 +950,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 return previousMany
             } else {
                 previousMany = matches;
-                fuzzyBound = previousMany?.length
+               
                 continue;
             }
         }
