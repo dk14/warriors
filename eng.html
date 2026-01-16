@@ -937,8 +937,6 @@ for (const [k,v] of map) console.log(k, '->', v);
     const predict = (state, ctx = {}) => {
         if (state.length === 0) return undefined;
         let previousMany = undefined;
-        let fuzzyBound = 0n
-        ctx.noMatchesAtLen = false
 
         for (let len = 1; len <= state.length; len++) {
 
