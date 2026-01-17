@@ -797,8 +797,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                     i++;
                 }
 
-                const stateRule   = stateRun.map(v => v.toString()).join('');
-                const patternRule = patternRun.map(v => v.toString()).join('');
+                const stateRule   = stateRun.map(v => v.toString()).join(',');
+                const patternRule = patternRun.map(v => v.toString()).join(',');
 
                 if (!ctx.transform.has(stateRule)) {
                     ctx.transform.set(stateRule, {});
@@ -824,17 +824,19 @@ for (const [k,v] of map) console.log(k, '->', v);
             blurMask:    new Set(),
             attention:   ctx.masks?.attention ?? []
         };
-        const masks = ctx.masks || {};
-        let sMask = masks.stateMask ?? new Set();
-        let pMask = masks.patternMask ?? new Set();
-        const bMask = masks.blurMask ?? new Set();
+        const masks = ctx.masks 
+        let sMask = masks.stateMask 
+        let pMask = masks.patternMask 
+        const bMask = masks.blurMask
         const aMask = masks.attention
+
+        ctx.maskTrace = []
 
         if (!ctx.transform) ctx.transform = new Map();
     
         const result = [];
 
-        const scores = []
+        ctx.scores = []
 
         for (let start = 0; start <= state.length - pattern.length; start++) {
 
@@ -843,10 +845,10 @@ for (const [k,v] of map) console.log(k, '->', v);
             let simillarity = 0
 
             if (fuzzy) {
-                const inferredMask = pattern.map((x, i) => x === state[start + i][0] ? i : undefined)
+                const inferredMask = pattern.map((x, i) => x !== state[start + i][0] ? i : undefined)
                     .filter(x => x !== undefined)
                 pMask = sMask = new Set(inferredMask)
-                simillarity = inferredMask.length
+                simillarity = pattern.length - inferredMask.length
             } else {
                 simillarity = pattern.length
             }
@@ -869,9 +871,6 @@ for (const [k,v] of map) console.log(k, '->', v);
 
             let patIdx = 0;
             let winIdx = 0;
-
-            
-
             
             let ok = true;
             while (patIdx < blurredPattern.length) {
@@ -880,7 +879,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                     continue;
                 }
 
-                while (sMask.has(start + winIdx)) winIdx++;
+                while (sMask.has(winIdx)) winIdx++;
                 const stateVal = blurredWindow[winIdx];
                 const patVal   = blurredPattern[patIdx];
                 if (stateVal !== patVal) {
@@ -909,14 +908,14 @@ for (const [k,v] of map) console.log(k, '->', v);
                 emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
  
                 if (next) {
-                    scores.push(simillarity)
+                    ctx.scores.push(simillarity)
                     result.push(next);
                 }
             }
         }
 
-        const maxScore = Math.max(...scores)
-        return result.filter((x, i) => scores[i] === maxScore);
+        const maxScore = Math.max(...ctx.scores)
+        return result.filter((x, i) => ctx.scores[i] === maxScore);
     }
 
     function blurArray(arr, blurMask) {
@@ -950,8 +949,9 @@ for (const [k,v] of map) console.log(k, '->', v);
         const space = state.slice(0, -len)
         const matches = find(space, pattern, ctx);
 
-        if (matches.length === 0n) {
+        if (matches.length === 999) {
             
+            //return matches
             if (!ctx.fuzzyBound) {
                 ctx.fuzzyBound = previousMany?.length
             }
@@ -992,10 +992,13 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     function pickRelevantTransform(next, ctx) {
+        return;
         if (!ctx.transform) return;
+        if (!next) return;
         ctx.currentTransform = {}
         for (const [ruleIn, ruleOutMulti] of ctx.transform.entries()) {
-            for (const [el, ruleOut] of ruleOutMulti) {
+            //console.log(ruleOutMulti)
+            for (const [el, ruleOut] of Object.entries(ruleOutMulti)) {
                 if (next[0] === parseKey(el)[0]) {
                     ctx.currentTransform[ruleIn] = ruleOut[ruleOut.length - 1]
                 }
@@ -1010,7 +1013,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         if (!result || result.length === 1) {
             ctx.nores = true
-            pickRelevantTransform(result[0], ctx)
+            pickRelevantTransform((result ?? [])[0], ctx)
             return result?.[0] ?? result;
         }
 
@@ -1157,7 +1160,7 @@ for (const [k,v] of map) console.log(k, '->', v);
             const branches = predict(output.slice(0, i), predictCtx) ?? []
 
             //todo consider searching for intro sections in predicted 
-            const found = zeroBranch(state, output.slice(i))
+            const found = zeroBranch(output, output.slice(i))
 
             if (found !== undefined && branches.length > 0) {
 
@@ -1177,7 +1180,7 @@ for (const [k,v] of map) console.log(k, '->', v);
         ctx.vars = ctx.vars ? filterVars(ctx.vars) : undefined
 
         for (let i = 0; i < output.length; i++) {
-            const found = zeroBranch(state, output.slice(i))
+            const found = zeroBranch(output, output.slice(i))
 
             const prepend = found ? enrichSeqNo(deleteAllOccurrences(eraseSeqNo(output.slice(i)), eraseSeqNo(found.zero))) : []
             const space = prepend.concat(output.slice(0, i))
@@ -1261,7 +1264,7 @@ for (const [k,v] of map) console.log(k, '->', v);
             counter++
             
 
-            let next = predictDeterministic(state);
+            let next = predictDeterministic(state, ctx);
 
             if (ctx.order && output.length > 0) {
                 if (next[1] !== output[output.length - 1][1] + 1) {
@@ -1333,10 +1336,13 @@ for (const [k,v] of map) console.log(k, '->', v);
 <script>
 
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    const state = render(`
+    
+    
+    const state3 = render(`
+    program
     plus minus
     zeroplusminuszeroplusminuszero
-    program
+    
 label:
     
     plus
@@ -1347,25 +1353,41 @@ lab2:
     minus
     program`)
 
+    const state4 = render(`
+    99999999
+    program
+    label
+    program
+    label2
+    program`)
+
+    const state = state4
+
     console.log("N:" + state.slice(-1)[0][1])
     tg("br")
 
     const span2 = tg("span", "res")
-    span2.textContent = parse(find(state, render("l").map(x => x[0])))
+    const ctxf = {}
+    span2.textContent = "FIND: " + parse(find(state, render(
+    `prog8a`
+    ).map(x => x[0]), ctxf, true))
     span2.style.color = "green"
+
+    console.log('CTXF')
+    console.log(ctxf)
 
     tg("br")
 
     const span7 = tg("span", "res")
     const ctx7 = {target:2}
-    span7.textContent = "" + parse(predict(state, ctx7))
+    span7.textContent = "PREDICT: " + parse(predict(state, ctx7))
     span7.style.color = "green"
 
     tg("br")
 
     const span3 = tg("span", "res")
     const ctx = {}
-    span3.textContent = "PREDICT: " + parse([predictDeterministic(state, ctx)]) + "; n = " + ctx.n + "; roll = " + ctx.roll + "; nores = " + ctx.nores
+    span3.textContent = "PREDICT_D: " + parse([predictDeterministic(state, ctx)]) + "; n = " + ctx.n + "; roll = " + ctx.roll + "; nores = " + ctx.nores
     span3.style.color = "green"
 
     tg("br")
