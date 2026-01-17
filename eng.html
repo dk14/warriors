@@ -830,8 +830,6 @@ for (const [k,v] of map) console.log(k, '->', v);
         const bMask = masks.blurMask
         const aMask = masks.attention
 
-        ctx.maskTrace = []
-
         if (!ctx.transform) ctx.transform = new Map();
     
         const result = [];
@@ -894,7 +892,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 //todo report similarity score for a match
                 //maxout simillarity score in result
 
-                ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
+                
 
                 const origStateSeg = state
                     .slice(start, start + pattern.length)
@@ -905,17 +903,17 @@ for (const [k,v] of map) console.log(k, '->', v);
                 const nextIdx = start + winIdx;
                 const next = state[nextIdx];
 
-                emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
- 
                 if (next) {
+                    ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
+                    emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
                     ctx.scores.push(simillarity)
                     result.push(next);
                 }
             }
         }
 
-        const maxScore = Math.max(...ctx.scores)
-        return result.filter((x, i) => ctx.scores[i] === maxScore);
+        //const maxScore = Math.max(...ctx.scores)
+        return result.filter((x, i) => ctx.scores[i] === ctx.simillarity);
     }
 
     function blurArray(arr, blurMask) {
@@ -949,18 +947,33 @@ for (const [k,v] of map) console.log(k, '->', v);
         const space = state.slice(0, -len)
         const matches = find(space, pattern, ctx);
 
-        if (matches.length === 999) {
+        if (!matches || matches.length === 0) {
             
             //return matches
             if (!ctx.fuzzyBound) {
                 ctx.fuzzyBound = previousMany?.length
             }
 
-            if (len > ctx.simillarity + ctx.fuzzyBound) {
+            if (BigInt(len) > ctx.simillarity + ctx.fuzzyBound) {
                 return []
             }
+
+            
             
             const fuzzyMatches = find(space, pattern, ctx, true);
+            //console.log(`${len} > ${ctx.simillarity + ctx.fuzzyBound}`)
+            //console.log(parse(state) + "\n\n")
+
+            //console.log(parse(fuzzyMatches))
+
+            //return []
+
+            if (previousMany === undefined || fuzzyMatches === undefined) {
+                return previousMany ?? []
+            }
+            if (fuzzyMatches.length > previousMany.length) {
+                return previousMany
+            }
             return fuzzyMatches
         }
 
@@ -969,6 +982,7 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     const predict = (state, ctx = {}) => {
+        //console.log("---------")
         if (state.length === 0) return undefined;
         let previousMany = undefined;
         ctx.fuzzyBound = undefined
@@ -1262,7 +1276,6 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         while (true) {
             counter++
-            
 
             let next = predictDeterministic(state, ctx);
 
@@ -1287,8 +1300,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                 })
             }
 
-            if (counter > 1000) {
-                throw "overflow " + parse(state) + "\n" + output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
+            if (counter > 200) {
+                throw "overflow\n\n" + parse(output) + "\n" //+ output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
             }
 
             const repeatLen = checkRepeat(output)
@@ -1303,6 +1316,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                 ctx.loop = true
                 break;                                  
             }
+
+            //if (counter > 1000) return output.concat(render("...overflow"))
         
             state = [...state, next]; 
         }
@@ -1353,13 +1368,7 @@ lab2:
     minus
     program`)
 
-    const state4 = render(`
-    99999999
-    program
-    label
-    program
-    label2
-    program`)
+    const state4 = render(`ran ran ran program pro8ra`)
 
     const state = state4
 
@@ -1369,7 +1378,7 @@ lab2:
     const span2 = tg("span", "res")
     const ctxf = {}
     span2.textContent = "FIND: " + parse(find(state, render(
-    `prog8a`
+    `pro8ra`
     ).map(x => x[0]), ctxf, true))
     span2.style.color = "green"
 
