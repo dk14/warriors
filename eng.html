@@ -802,11 +802,14 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 if (!ctx.transform.has(patternRule)) {
                     ctx.transform.set(patternRule, {});
+                    ctx.transformStr.set(parse(enrichSeqNo(patternRun)), {});
                 }
                 if (ctx.transform.get(patternRule)[makeKey(next)] === undefined) {
                     ctx.transform.get(patternRule)[makeKey(next)] = []
+                    ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])] = [];
                 }
                 ctx.transform.get(patternRule)[makeKey(next)].push(stateRule)
+                ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])].push(parse(enrichSeqNo(stateRun)));
             } else {
                 if (i < patternArr.length) i++;
                 if (j < stateArr.length)   j++;
@@ -817,6 +820,7 @@ for (const [k,v] of map) console.log(k, '->', v);
     const find = (state, pattern, ctx = { }, fuzzy = false) => {
   
         if (!ctx.transform) ctx.transform = new Map();
+        if (!ctx.transformStr) ctx.transformStr = new Map();
 
         ctx.masks = {
             stateMask:   new Set(),
@@ -830,7 +834,6 @@ for (const [k,v] of map) console.log(k, '->', v);
         const bMask = masks.blurMask
         const aMask = masks.attention
 
-        if (!ctx.transform) ctx.transform = new Map();
     
         const result = [];
 
@@ -1011,8 +1014,9 @@ for (const [k,v] of map) console.log(k, '->', v);
     function pickRelevantTransform(next, ctx) {
         if (!ctx.transform) return;
         if (!next) return;
-        ctx.currentTransform = {}
-        ctx.currentTransformStr = {}
+
+        if (!ctx.currentTransform) ctx.currentTransform = {}
+        if (!ctx.currentTransformStr) ctx.currentTransformStr = {}
         for (const [ruleIn, ruleOutMulti] of ctx.transform.entries()) {
             //console.log(ruleOutMulti)
             for (const [el, ruleOut] of Object.entries(ruleOutMulti)) {
@@ -1372,7 +1376,7 @@ lab2:
     minus
     program`)
 
-    const state4 = render(`ran ran ran program pro8ra`)
+    const state4 = render(`ran ran ran program pr78ra`)
 
     const state = state4
 
