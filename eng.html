@@ -780,14 +780,14 @@ for (const [k,v] of map) console.log(k, '->', v);
         let j = 0; 
 
         while (i < patternArr.length || j < stateArr.length) {
-            const stateMasked   = sMask.has(start + j);
+            const stateMasked   = sMask.has(j);
             const patternMasked = pMask.has(i);
 
             if (stateMasked || patternMasked) {
                 const stateRun   = [];
                 const patternRun = [];
 
-                while (j < stateArr.length && sMask.has(start + j)) {
+                while (j < stateArr.length && sMask.has(j)) {
                     stateRun.push(stateArr[j]);
                     j++;
                 }
@@ -800,13 +800,13 @@ for (const [k,v] of map) console.log(k, '->', v);
                 const stateRule   = stateRun.map(v => v.toString()).join(',');
                 const patternRule = patternRun.map(v => v.toString()).join(',');
 
-                if (!ctx.transform.has(stateRule)) {
-                    ctx.transform.set(stateRule, {});
+                if (!ctx.transform.has(patternRule)) {
+                    ctx.transform.set(patternRule, {});
                 }
-                if (ctx.transform.get(stateRule)[makeKey(next)] === undefined) {
-                    ctx.transform.get(stateRule)[makeKey(next)] = []
+                if (ctx.transform.get(patternRule)[makeKey(next)] === undefined) {
+                    ctx.transform.get(patternRule)[makeKey(next)] = []
                 }
-                ctx.transform.get(stateRule)[makeKey(next)].push(patternRule)
+                ctx.transform.get(patternRule)[makeKey(next)].push(stateRule)
             } else {
                 if (i < patternArr.length) i++;
                 if (j < stateArr.length)   j++;
@@ -905,7 +905,10 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 if (next) {
                     ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
-                    emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
+                    if (simillarity >= ctx.simillarity) {
+                        emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
+                    }
+                    
                     ctx.scores.push(simillarity)
                     result.push(next);
                 }
@@ -1006,15 +1009,16 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     function pickRelevantTransform(next, ctx) {
-        return;
         if (!ctx.transform) return;
         if (!next) return;
         ctx.currentTransform = {}
+        ctx.currentTransformStr = {}
         for (const [ruleIn, ruleOutMulti] of ctx.transform.entries()) {
             //console.log(ruleOutMulti)
             for (const [el, ruleOut] of Object.entries(ruleOutMulti)) {
                 if (next[0] === parseKey(el)[0]) {
                     ctx.currentTransform[ruleIn] = ruleOut[ruleOut.length - 1]
+                    ctx.currentTransformStr[parse(enrichSeqNo(parseKey(ruleIn)))] = parse(enrichSeqNo(parseKey(ruleOut[ruleOut.length - 1])))
                 }
             } 
         }
