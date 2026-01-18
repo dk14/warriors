@@ -1263,16 +1263,18 @@ for (const [k,v] of map) console.log(k, '->', v);
         }
     }
 
-    function replaceAllSequences(arr, targetSeq, replacementSeq) {
+    function replaceAllSequences(arr, targetSeq, replacementSeq, ctx) {
         const n = targetSeq.length;
         const result = [];
         let i = 0;
+        ctx.found = false
 
         while (i < arr.length) {
             const match = i <= arr.length - n &&
                         arr.slice(i, i + n).every((v, j) => v[0] === targetSeq[j]);
 
             if (match) {
+                ctx.found = true
                 result.push(...replacementSeq);
                 i += n;               
             } else {
@@ -1284,20 +1286,32 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
 
-    function applyMacroses(output, ctx) {
-        //todo: apply recursively (ensure termination)
-
-        
+    function applyMacroses(output, ctx) { 
         const sorted = Object.entries(ctx.currentTransform)
             .map(x => [parseKey(x[0]), x[1]])
         
         sorted.sort(
             (a, b) => a[0].length < b[0].length ? 1 : -1)
 
-        for ([from, to] of sorted) {
-            output = replaceAllSequences(output, from, to)
-        }
+        const replaced = new Set()   
+        let foundOnce = true
 
+        while (foundOnce) {
+            let i = 0
+            foundOnce = false
+            for ([from, to] of sorted) {
+                if (!replaced.has(i)) {
+                    output = replaceAllSequences(output, from, to, ctx)
+                    if (ctx.found) {
+                        replaced.add(i)
+                        foundOnce = true
+                    }
+                }
+                i++
+            }
+        }
+            
+        delete ctx.found
         return output
     }
 
