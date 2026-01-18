@@ -808,8 +808,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                     ctx.transform.get(patternRule)[makeKey(next)] = []
                     ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])] = [];
                 }
-                ctx.transform.get(patternRule)[makeKey(next)].push(stateRule)
-                ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])].push(parse(enrichSeqNo(stateRun)));
+                ctx.transform.get(patternRule)[makeKey(next)].push(stateRun)
+                ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])].push(parse(stateRun));
             } else {
                 if (i < patternArr.length) i++;
                 if (j < stateArr.length)   j++;
@@ -899,7 +899,6 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 const origStateSeg = state
                     .slice(start, start + pattern.length)
-                    .map(cell => cell[0]);
 
                 const origPatternSeg = pattern.slice(); 
 
@@ -1022,7 +1021,7 @@ for (const [k,v] of map) console.log(k, '->', v);
             for (const [el, ruleOut] of Object.entries(ruleOutMulti)) {
                 if (next[0] === parseKey(el)[0]) {
                     ctx.currentTransform[ruleIn] = ruleOut[ruleOut.length - 1]
-                    ctx.currentTransformStr[parse(enrichSeqNo(parseKey(ruleIn)))] = parse(enrichSeqNo(parseKey(ruleOut[ruleOut.length - 1])))
+                    ctx.currentTransformStr[parse(enrichSeqNo(parseKey(ruleIn)))] = parse(ruleOut[ruleOut.length - 1])
                 }
             } 
         }
@@ -1267,8 +1266,40 @@ for (const [k,v] of map) console.log(k, '->', v);
         }
     }
 
-    function inlineMacroses(output, ctx) {
-        //todo: use ctx.transform rules (ensure termination)
+    function replaceAllSequences(arr, targetSeq, replacementSeq) {
+        const n = targetSeq.length;
+        const result = [];
+        let i = 0;
+
+        while (i < arr.length) {
+            const match = i <= arr.length - n &&
+                        arr.slice(i, i + n).every((v, j) => v[0] === targetSeq[j]);
+
+            if (match) {
+                result.push(...replacementSeq);
+                i += n;               
+            } else {
+                result.push(arr[i]);
+                i += 1;
+            }
+        }
+        return result;
+    }
+
+
+    function applyMacroses(output, ctx) {
+        //todo: apply recursively (ensure termination)
+
+        
+        const sorted = Object.entries(ctx.currentTransform)
+            .map(x => [parseKey(x[0]), x[1]])
+        
+        sorted.sort(
+            (a, b) => a[0].length < b[0].length ? 1 : -1)
+
+        for ([from, to] of sorted) {
+            output = replaceAllSequences(output, from, to)
+        }
 
         return output
     }
@@ -1296,8 +1327,8 @@ for (const [k,v] of map) console.log(k, '->', v);
             if (!next) break;
             output.push(next);
 
-            if (ctx.expandMacroses) {
-                output = inlineMacroses(output, ctx)
+            if (ctx.applyMacroses) {
+                output = applyMacroses(output, ctx)
             }
 
             const limit = countUniqueBy(output, x => x[1])
@@ -1381,6 +1412,12 @@ lab2:
     const state = state4
 
     console.log("N:" + state.slice(-1)[0][1])
+
+    tg("br")
+    const span99 = tg("span", "res")
+    span99.textContent = "INPUT: " + parse(state)
+    span99.style.color = "green"
+    tg("br")
     tg("br")
 
     const span2 = tg("span", "res")
@@ -1408,12 +1445,14 @@ lab2:
     span3.style.color = "green"
 
     tg("br")
+    tg("br")
 
 
     const ctx2 = {}
     //ctx2.order = true
     ctx2.inlineTuring = true //todo slow
     ctx2.executeTuring = true
+    ctx2.applyMacroses = true
     console.log("STREAM")
     const span4 = tg("span", "res")
     span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing?.length
@@ -1435,7 +1474,7 @@ lab2:
     //require jmp to be after section
     const st2 = eraseSeqNo(render("plus minus0plusminus0 pl:plusl0p"))
     const p2 = eraseSeqNo(render("0"))
-    span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
+    //span5.textContent = "BRANCHING: " + parseIncDec(inferIncDec(st2, p2))
     span5.style.color = "green"
 </script>
 
