@@ -883,7 +883,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 while (sMask.has(winIdx)) winIdx++;
                 const stateVal = blurredWindow[winIdx];
                 const patVal   = blurredPattern[patIdx];
-                if (stateVal !== patVal) {
+                if (stateVal !== patVal || stateVal === undefined || patVal === undefined) {
                     ok = false;
                     break;
                 }
@@ -905,11 +905,15 @@ for (const [k,v] of map) console.log(k, '->', v);
                 const nextIdx = start + winIdx;
                 const next = state[nextIdx];
 
-                if (next) {
-                    ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
-                    if (simillarity >= ctx.simillarity) {
-                        emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
+                if (next && simillarity > 0) {
+                    //console.log(parse(enrichSeqNo(pattern)))
+                    
+                    if (simillarity > ctx.simillarity && fuzzy) {
+                        //emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
+                        emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, sMask, pMask, start);
+                        
                     }
+                    ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
                     
                     ctx.scores.push(simillarity)
                     result.push(next);
@@ -956,12 +960,15 @@ for (const [k,v] of map) console.log(k, '->', v);
             
             //return matches
             if (!ctx.fuzzyBound) {
-                ctx.fuzzyBound = previousMany?.length
+                ctx.fuzzyBound = previousMany?.length ?? 0
             }
 
-            if (BigInt(len) > ctx.simillarity + ctx.fuzzyBound) {
+            if (len > ctx.simillarity + ctx.fuzzyBound) {
                 return []
             }
+
+            //console.log(ctx.fuzzyBound)
+            //console.log(len)
 
             
             
@@ -1064,7 +1071,14 @@ for (const [k,v] of map) console.log(k, '->', v);
     function checkRepeat(output) {
         const n = output.length;
         const period = n / 2
-        if (bigIntArraysEqual(output.slice(0, period), output.slice(period))) {
+        const l = output.slice(0, period)
+        const r = output.slice(period)
+        //console.log(parse(l))
+        //console.log(parse(r))
+        //console.log("----")
+        const c1 = bigIntArraysEqual(l.map(x => x[0]), r.map(x => x[0]))
+        const c2 = bigIntArraysEqual(l.map(x => x[1]), r.map(x => x[1]))
+        if (c1 && c2) {
             return period
         }
         return 0;
@@ -1287,6 +1301,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
 
     function applyMacroses(output, ctx) { 
+        if (!ctx.currentTransform) return output
         const sorted = Object.entries(ctx.currentTransform)
             .map(x => [parseKey(x[0]), x[1]])
         
@@ -1340,10 +1355,6 @@ for (const [k,v] of map) console.log(k, '->', v);
             if (!next) break;
             output.push(next);
 
-            if (ctx.applyMacroses) {
-                output = applyMacroses(output, ctx)
-            }
-
             const limit = countUniqueBy(output, x => x[1])
 
             if (counter > limit) {
@@ -1352,8 +1363,9 @@ for (const [k,v] of map) console.log(k, '->', v);
                 })
             }
 
-            if (counter > 500) {
-                throw "overflow\n\n" + parse(output) + "\n" //+ output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
+            if (counter > 200) {
+                console.log(ctx)
+                throw "overflow\n\n" + parse(output)// + "\n" + output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
             }
 
             const repeatLen = checkRepeat(output)
@@ -1369,10 +1381,16 @@ for (const [k,v] of map) console.log(k, '->', v);
                 break;                                  
             }
 
+            if (ctx.applyMacroses) {
+                output = applyMacroses(output, ctx)
+            }
+
             //if (counter > 1000) return output.concat(render("...overflow"))
         
             state = [...state, next]; 
         }
+
+        
         
 
         if (ctx.inlineTuring) {
@@ -1426,7 +1444,9 @@ label:
 
     const state4 = render(`ran ran ran program + -0+-0 7 9+++i999-i0999999999999 777 pr78ra`)
 
-    const state = state4
+    const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is ddd! name? ddd! name is aaa! name?`)
+
+    const state = state5
 
     console.log("N:" + state.slice(-1)[0][1])
 
@@ -1443,7 +1463,7 @@ label:
     const span2 = tg("span", "res")
     const ctxf = {}
     span2.textContent = "FIND: " + parse(find(state, render(
-    `pro8ra`
+    `name is ddd! name? `
     ).map(x => x[0]), ctxf, true))
     span2.style.color = "green"
 
