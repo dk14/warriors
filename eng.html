@@ -1450,9 +1450,9 @@ label:
 
     const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is ddd! name? `)
 
-    const state6 = render(` -> -> -> `)
+    const lambda = render(` -> -> -> -> -> -> ; x.yyyyy x -> yyyyy; x.l.l x 5 -> `)
 
-    const state = state5
+    const state = lambda
 
     console.log("N:" + state.slice(-1)[0][1])
 
