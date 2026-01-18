@@ -1063,22 +1063,9 @@ for (const [k,v] of map) console.log(k, '->', v);
 
     function checkRepeat(output) {
         const n = output.length;
-        if (n === 0) return false;
-
-        const pi = new Array(n).fill(0);
-
-        for (let i = 1; i < n; i++) {
-            let j = pi[i - 1];
-            while (j > 0 && !pairEquals(output[i], output[j])) {
-                j = pi[j - 1];
-            }
-            if (pairEquals(output[i], output[j])) j++;
-            pi[i] = j;
-        }
-
-        const period = n - pi[n - 1];
-        if (pi[n - 1] > 0 && n % period === 0) {
-            return period;          // length of the minimal repeating block
+        const period = n / 2
+        if (bigIntArraysEqual(output.slice(0, period), output.slice(period))) {
+            return period
         }
         return 0;
     }
@@ -1196,7 +1183,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                     found.decs.forEach(x => ctx.allTokensErased.push(eraseSeqNo(x)))
                 }
             } 
-        }    
+        }
 
         ctx.vars = ctx.vars ? filterVars(ctx.vars) : undefined
 
@@ -1417,7 +1404,7 @@ lab2:
     minus
     program`)
 
-        const state33 = render(`program
+    const state33 = render(`program
     plus minus zeroplusminuszero
 label:
     plus
