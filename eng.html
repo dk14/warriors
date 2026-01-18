@@ -1316,6 +1316,8 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     function predictContinuously(initState, ctx = {}) {
+        ctx.transform = undefined
+        ctx.currentTransform = undefined
 
         let state = [...initState];
         let output = [];
@@ -1381,9 +1383,6 @@ for (const [k,v] of map) console.log(k, '->', v);
             //todo macro post-processing: invoke repeat continously but with current output and turing off
             return enrichSeqNo(executeTuring(ctx.turing, ctx))
         }
-
-        ctx.transform = undefined
-        ctx.currentTransform = undefined
 
         return output  
     }
