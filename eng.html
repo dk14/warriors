@@ -1024,11 +1024,18 @@ for (const [k,v] of map) console.log(k, '->', v);
         if (!ctx.currentTransform) ctx.currentTransform = {}
         if (!ctx.currentTransformStr) ctx.currentTransformStr = {}
         for (const [ruleIn, ruleOutMulti] of ctx.transform.entries()) {
-            //console.log(ruleOutMulti)
             for (const [el, ruleOut] of Object.entries(ruleOutMulti)) {
                 if (next[0] === parseKey(el)[0]) {
-                    ctx.currentTransform[ruleIn] = ruleOut[ruleOut.length - 1]
-                    ctx.currentTransformStr[parse(enrichSeqNo(parseKey(ruleIn)))] = parse(ruleOut[ruleOut.length - 1])
+                    const to = ruleOut[ruleOut.length - 1]
+                    ctx.currentTransform[ruleIn] = to
+                    ctx.currentTransformStr[parse(enrichSeqNo(parseKey(ruleIn)))] = parse(to)
+
+                    ruleOut.forEach(r => {
+                        if (parse(to) !== parse(r)) {
+                            ctx.currentTransform[makeKey(eraseSeqNo(r))] = to
+                            ctx.currentTransformStr[parse(r)] = parse(to)
+                        }
+                    })
                 }
             } 
         }
@@ -1450,7 +1457,7 @@ label:
 
     const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is ddd! name? `)
 
-    const lambda = render(` -> -> -> -> -> -> ; x.yyyyy x -> yyyyy; x.l.l x 5 -> `)
+    const lambda = render(` -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> ; x.yyyyy x -> yyyyy; h.l.l h 5 -> `)
 
     const state = lambda
 
