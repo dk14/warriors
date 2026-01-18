@@ -1210,7 +1210,11 @@ for (const [k,v] of map) console.log(k, '->', v);
             }
         }
 
-        for (let i = start; i < output.length; i++) {
+        for (let i = 0; i < output.length; i++) {
+            if (i < start) {
+                ctx.turing.push([output[i][0], 0n])
+                continue
+            }
             const found = zeroBranch(output, output.slice(i))
 
             const prepend = found ? enrichSeqNo(deleteAllOccurrences(eraseSeqNo(output.slice(i)), eraseSeqNo(found.zero))) : []
@@ -1363,7 +1367,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 })
             }
 
-            if (counter > 200) {
+            if (counter > 150) {
                 console.log(ctx)
                 throw "overflow\n\n" + parse(output)// + "\n" + output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
             }
@@ -1381,13 +1385,13 @@ for (const [k,v] of map) console.log(k, '->', v);
                 break;                                  
             }
 
-            if (ctx.applyMacroses) {
-                output = applyMacroses(output, ctx)
-            }
-
             //if (counter > 1000) return output.concat(render("...overflow"))
         
             state = [...state, next]; 
+        }
+
+        if (ctx.applyMacroses) {
+            output = applyMacroses(output, ctx)
         }
 
         
@@ -1446,6 +1450,8 @@ label:
 
     const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is ddd! name? `)
 
+    const state6 = render(` -> -> -> `)
+
     const state = state5
 
     console.log("N:" + state.slice(-1)[0][1])
@@ -1463,7 +1469,7 @@ label:
     const span2 = tg("span", "res")
     const ctxf = {}
     span2.textContent = "FIND: " + parse(find(state, render(
-    `name is ddd! name? `
+    `inc 0 = `
     ).map(x => x[0]), ctxf, true))
     span2.style.color = "green"
 
@@ -1491,7 +1497,7 @@ label:
 
     const ctx2 = {}
     //ctx2.order = true
-    ctx2.inlineTuring = true //todo slow
+    ctx2.inlineTuring = true
     ctx2.executeTuring = true
     ctx2.applyMacroses = true
     console.log("STREAM")
