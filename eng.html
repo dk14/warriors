@@ -617,7 +617,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                     const loopJmp = turing.findLastIndex(x => x[1] >= TURING_OFFSET + BigInt(turing.length))
                     
-                    const noOuterJumps = loopJmp && !turing.slice(loopJmp).some(x => x[1] > TURING_OFFSET && x[1] < TURING_OFFSET + BigInt(loopJmp))
+                    const noOuterJumps = loopJmp !== -1 && !turing.slice(loopJmp).some(x => x[1] > TURING_OFFSET && x[1] < TURING_OFFSET + BigInt(loopJmp))
                     if (noOuterJumps) {
                         memory[turing[loopJmp][0]] = mem
                         cursor = loopJmp
@@ -1200,7 +1200,16 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         ctx.vars = ctx.vars ? filterVars(ctx.vars) : undefined
 
-        for (let i = 0; i < output.length; i++) {
+        let start = 0
+        for (const [name, zero] of Object.entries(ctx.vars)) {
+            for (const sec of zero.sections) {
+                if (sec.end > start) {           
+                    start = sec.end + zero.zero.length + 1
+                }
+            }
+        }
+
+        for (let i = start; i < output.length; i++) {
             const found = zeroBranch(output, output.slice(i))
 
             const prepend = found ? enrichSeqNo(deleteAllOccurrences(eraseSeqNo(output.slice(i)), eraseSeqNo(found.zero))) : []
@@ -1212,11 +1221,12 @@ for (const [k,v] of map) console.log(k, '->', v);
   
 
                 const varIdx = ctx.varIdx[found.varName]
-                const label = output.slice(i-predictCtx.n, i)
+                const label = output.slice(i-predictCtx.n +1, i)
 
                 const labelSearchSpace = output.slice(0, i-predictCtx.n).concat(output.slice(i))
 
                 const labelSuffix = findUniqueSuffix(eraseSeqNo(labelSearchSpace), eraseSeqNo(label), ctx.allTokensErased)
+
 
                 if (labelSuffix) {
         
@@ -1339,7 +1349,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 })
             }
 
-            if (counter > 200) {
+            if (counter > 500) {
                 throw "overflow\n\n" + parse(output) + "\n" //+ output.map(x => `${x[1]}: ${parse([x])}\n`).join('')
             }
 
@@ -1390,7 +1400,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 <script>
 
     //const state = render(" Welcome to the terminal! Welcome to the world! Welcome to the terminal! Welcome to the world! Welcome")
-    
+    const hrstyle = "display:inline-block; width:100%; border:1px solid green; margin:0.5em 0;"
     
     const state3 = render(`
     program
@@ -1407,16 +1417,26 @@ lab2:
     minus
     program`)
 
-    const state4 = render(`ran ran ran program pr78ra`)
+        const state33 = render(`program
+    plus minus zeroplusminuszero
+label:
+    plus
+    labelzero
+    program`)
+
+    const state4 = render(`ran ran ran program + -0+-0 7 9+++i999-i0999999999999 777 pr78ra`)
 
     const state = state4
 
     console.log("N:" + state.slice(-1)[0][1])
 
     tg("br")
+    tg("hr").style=hrstyle
     const span99 = tg("span", "res")
-    span99.textContent = "INPUT: " + parse(state)
+    span99.style.whiteSpace = 'pre-wrap'
+    span99.textContent = parse(state)
     span99.style.color = "green"
+    tg("hr").style=hrstyle
     tg("br")
     tg("br")
 
@@ -1446,6 +1466,7 @@ lab2:
 
     tg("br")
     tg("br")
+    tg("hr").style=hrstyle
 
 
     const ctx2 = {}
@@ -1455,8 +1476,13 @@ lab2:
     ctx2.applyMacroses = true
     console.log("STREAM")
     const span4 = tg("span", "res")
-    span4.textContent = "STREAM: " + parse(predictContinuously(state, ctx2)) + "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing?.length
+    span4.style.whiteSpace = 'pre-wrap'
+    span4.textContent = parse(predictContinuously(state, ctx2)) //+ "   ;;; loop = " + ctx2.loop + " ;;; turingLength=" + ctx2.turing?.length
     span4.style.color = "green"
+    
+    tg("hr").style=hrstyle
+
+    
 
     //span4.textContent = stringifyWithBigInt(ctx2)
     console.log(ctx2)
