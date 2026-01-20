@@ -911,7 +911,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                     if (simillarity > ctx.simillarity && fuzzy) {
                         //emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
                         emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, sMask, pMask, start);
-                        
+                        ctx.patSkip = Math.min(...[...pMask])
+                        ctx.n = pattern.length - ctx.patSkip
                     }
                     ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
                     
@@ -989,6 +990,8 @@ for (const [k,v] of map) console.log(k, '->', v);
             return fuzzyMatches
         }
 
+        ctx.n = len - 1
+
         return matches
 
     }
@@ -1004,11 +1007,12 @@ for (const [k,v] of map) console.log(k, '->', v);
 
             const matches = findFuzzy(state, ctx, len, previousMany)
 
-            ctx.n = len - 1
+            
 
             if (matches.length === 0) {
                 return previousMany
             } else {
+                
                 previousMany = matches;
                 continue;
             }
@@ -1045,6 +1049,7 @@ for (const [k,v] of map) console.log(k, '->', v);
         let result = predict(state, ctx); 
         ctx.roll = false 
         ctx.nores = false
+        ctx.nn = ctx.n
 
         if (!result || result.length === 1) {
             ctx.nores = true
@@ -1350,12 +1355,25 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         ctx.loop = false
 
+        ctx.initialPrefix = undefined
+
         let counter = 0
 
         while (true) {
             counter++
 
             let next = predictDeterministic(state, ctx);
+
+            if (ctx.initialPrefix === undefined) {
+                ctx.initialPrefix = initState.slice(-ctx.nn)
+            } else if (output.length > ctx.initialPrefix.length){
+                const prefixRepeat = state.slice(-ctx.initialPrefix.length).every((x, i) => x[1] === ctx.initialPrefix[i][1])
+                if (prefixRepeat) {
+                    ctx.loop = true
+                    output.splice(-ctx.initialPrefix.length)
+                    break;
+                }
+            }
 
             if (ctx.order && output.length > 0) {
                 if (next[1] !== output[output.length - 1][1] + 1) {
@@ -1366,8 +1384,11 @@ for (const [k,v] of map) console.log(k, '->', v);
             if (!next) break;
             output.push(next);
 
+            
+
             const limit = countUniqueBy(output, x => x[1])
 
+            //todo check if matched prefix with output
             if (counter > limit) {
                 output.forEach(el => {
                     el[1] = 0
