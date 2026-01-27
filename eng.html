@@ -865,7 +865,7 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 if (pMask.has(0) && simillarity > 0) {
                     inferredMask.sort((a,b) => a < b ? -1:+1)
-                    let edge = allBreaks(inferredMask)[0] ?? inferredMask.length
+                    let edge = allBreaks(inferredMask)[0] ?? inferredMask.length - 1
 
                     if (edge !== 0) {
                        for (let shift = -edge; shift <= edge; shift++) {
@@ -1531,7 +1531,7 @@ label:
     console.log('CTXF')
     console.log(ctxf)
 
-   //throw "end"
+    //throw "end"
 
     tg("br")
 
