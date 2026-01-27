@@ -923,14 +923,13 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 if (next && simillarity > 0) {
                     //console.log(parse(enrichSeqNo(pattern)))
-                    
+
                     if (simillarity > ctx.simillarity && fuzzy) {
-
-
                         ctx.transform = new Map();
-
                         ctx.transformStr = new Map();
-
+                    }
+                    
+                    if (simillarity >= ctx.simillarity && fuzzy) {
                         emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, sMask, pMask, start);
                         const inferredMask = [...pMask]
                         inferredMask.sort((a,b) => a < b ? -1:+1)
@@ -1526,7 +1525,7 @@ label:
 
     const span2 = tg("span", "res")
     const ctxf = {}
-    const str = `name is fge! name? `
+    const str = `name is fgeh! name? `
     span2.textContent = "FIND: " + parse(find(state, render(
         str
     ).map(x => x[0]), ctxf, true)) + " --- " + str.slice(-ctxf.n)
