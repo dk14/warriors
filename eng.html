@@ -775,6 +775,8 @@ for (const [k,v] of map) console.log(k, '->', v);
 
     const makeKey = (arr) => arr.map(x => x.toString()).join(",")
 
+
+    //todo FIX
     const emitRules = (stateArr, patternArr, next, ctx, sMask, pMask, start) => {
         let i = 0;
         let j = 0; 
@@ -877,6 +879,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                                 //console.log("[[[[newSimillarity]]]]= " + newSimillarity)
                                 simillarity = newSimillarity
                                 if (simillarity > ctx.simillarity) {
+                                    //ctx.inferredMask = inferredMask
                                     ctx.edge = edge
                                     ctx.edgeStr = parse(enrichSeqNo(pattern.slice(edge + 1)))
                                     ctx.shift = shift
@@ -884,17 +887,19 @@ for (const [k,v] of map) console.log(k, '->', v);
                                 
                                 pMask = new Set(newMask)
                                 sMask = new Set(newMask)
+
+                                continue //todo fix
                                 if (shift > 0) {
-                                    //pMask.add(edge + 1)
+                                    sMask = new Set([...sMask]
+                                        .map(i => i <= edge ? (i + shift <= edge? i + shift : undefined) : i)
+                                        .filter(x => x !== undefined))
+                                   
                                 } else if (shift < 0) {
-                                    
+                                    sMask = new Set([...sMask]
+                                        .map(i => i <= edge ? i + shift : i))
                                     for (let i = 0; i < -shift; i++) {
-                                        if (edge + i < pattern.length) {
-                                            //sMask.add(edge + i)
-                                           
-                                        }
+                                        sMask.add(edge + i)
                                     }
-                                    
                                 }
                             }
                         }
@@ -925,11 +930,11 @@ for (const [k,v] of map) console.log(k, '->', v);
                     }
                     
                     if (simillarity >= ctx.simillarity && fuzzy) {
-                        emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, sMask, pMask, start);
+                        emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, pMask, sMask, start);
                         const inferredMask = [...pMask]
                         inferredMask.sort((a,b) => a < b ? -1:+1)
                         ctx.pattern = [...parse(enrichSeqNo(pattern))].map((x, i) => pMask.has(i) ? '*' : x).join('')
-                        ctx.match = [...parse(state.slice(start, nextIdx))].map((x, i) => x).join('')
+                        ctx.match = [...parse(state.slice(start, nextIdx))].map((x, i) => sMask.has(i) ? '_' : x).join('')
                         ctx.patSkip = pMask.has(0) ? allBreaks(inferredMask)[0] ?? inferredMask.length : 0
                         ctx.n = pattern.length - ctx.patSkip
 
@@ -1522,7 +1527,7 @@ label:
 
     const span2 = tg("span", "res")
     const ctxf = {}
-    const str = `name is fgeh! name? `
+    const str = `name is fg! name? `
     span2.textContent = "FIND: " + parse(find(state, render(
         str
     ).map(x => x[0]), ctxf, true)) + " --- " + str.slice(-ctxf.n)
