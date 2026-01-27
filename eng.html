@@ -862,62 +862,41 @@ for (const [k,v] of map) console.log(k, '->', v);
                 simillarity = pattern.length - inferredMask.length
 
 
-                if (pMask.has(0)) {
+                if (pMask.has(0) && simillarity > 0) {
                     inferredMask.sort()
                     const edge = allBreaks(inferredMask)[0]
-                    for (let shift = -edge; shift < edge; shift++) {
-                        const newMask = pattern.map((x, i) => x !== (state[i < edge ? start + i + shift : start + i] ?? [])[0] ? i : undefined)
-                        const newSimillarity =  pattern.length - newMask.length
-                        if (newSimillarity > simillarity) {
-                            simillarity = newSimillarity
-                            if (shift > 0) {
-                                sMask = newMask
-                            } else {
-                                pMask = newMask
+                    if (edge !== undefined && edge !== 0) {
+                        //console.log("++++" + edge + "[[]]" + parse(enrichSeqNo(pattern.slice(0, edge))))
+                        for (let shift = -edge; shift < edge; shift++) {
+                            const newMask = pattern
+                                .map((x, i) => x !== (state[i < edge ? start + i + shift : start + i] ?? [])[0] ? i : undefined)
+                                .filter(x => x !== undefined)
+                            const newSimillarity =  pattern.length - newMask.length
+                            if (newSimillarity > simillarity) {
+                                simillarity = newSimillarity
+                                if (shift > 0) {
+                                    pMask = new Set(newMask)
+                                } else {
+                                   sMask = new Set(newMask.map(i => i < edge ? i + shift : i))
+                                }
                             }
                         }
+
                     }
+                    
                 }
             } else {
-                simillarity = pattern.length
+                simillarity = pattern.every((x, i) => x === state[start + i][0]) ? pattern.length : 0
             }
 
-            const blurredPattern = blurArray(pattern, bMask);
-            const windowSlice = state
-                .slice(start, start + blurredPattern.length)
-                .map(cell => cell[0]); 
-
-            const blurredWindow = blurArray(windowSlice, bMask);
-
-            let patIdx = 0;
-            let winIdx = 0;
-            
-            let ok = true;
-            while (patIdx < blurredPattern.length) {
-                if (pMask.has(patIdx)) {
-                    patIdx++;
-                    continue;
-                }
-
-                while (sMask.has(winIdx)) winIdx++;
-                const stateVal = blurredWindow[winIdx];
-                const patVal   = blurredPattern[patIdx];
-                if (stateVal !== patVal || stateVal === undefined || patVal === undefined) {
-                    ok = false;
-                    break;
-                }
-                patIdx++;
-                winIdx++;
-            }
-
-            if (ok) { 
+            if (simillarity > 0) { 
 
                 const origStateSeg = state
                     .slice(start, start + pattern.length)
 
                 const origPatternSeg = pattern.slice(); 
 
-                const nextIdx = start + winIdx;
+                const nextIdx = start + pattern.length;
                 const next = state[nextIdx];
 
                 if (next && simillarity > 0) {
@@ -1491,11 +1470,11 @@ label:
 
     const state4 = render(`ran ran ran program + -0+-0 7 9+++i999-i0999999999999 777 pr78ra`)
 
-    const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is ddd! name? `)
+    const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is fgeh! name? `)
 
     const lambda = render(` -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> ; x.yyyyy x -> yyyyy; h.l.l h 5 -> `)
 
-    const state = lambda
+    const state = state5
 
     console.log("N:" + state.slice(-1)[0][1])
 
