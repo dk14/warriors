@@ -875,16 +875,31 @@ for (const [k,v] of map) console.log(k, '->', v);
                         //console.log("++++" + edge + "[[]]" + Array.from(parse(state.slice(start, start + pattern.length))).map((x, i) => sMask.has(i) ? '*': x).join(''))
                         for (let shift = -edge; shift < edge; shift++) {
                             const newMask = pattern
-                                .map((x, i) => x !== (state[i < edge ? start + i + shift : start + i] ?? [])[0] ? i : undefined)
+                                .map((x, i) => x !== (state[i <= edge ? start + i + shift : start + i] ?? [])[0] ? i : undefined)
                                 .filter(x => x !== undefined)
                             const newSimillarity =  pattern.length - newMask.length
                             if (newSimillarity > simillarity) {
                                 //console.log("[[[[newSimillarity]]]]= " + newSimillarity)
                                 simillarity = newSimillarity
+                                if (simillarity > ctx.simillarity) {
+                                    ctx.edge = edge
+                                    ctx.edgeStr = parse(enrichSeqNo(pattern.slice(edge + 1)))
+                                    ctx.shift = shift
+                                }
+                                
+                                pMask = new Set(newMask)
+                                sMask = new Set(newMask)
                                 if (shift > 0) {
-                                   masks.patternMask = pMask = new Set(newMask)
-                                } else {
-                                   masks.stateMask = sMask = new Set(newMask.map(i => i < edge ? i + shift : i))
+                                    pMask.add(edge + 1)
+                                } else if (shift < 0) {
+                                    
+                                    for (let i = 0; i < -shift; i++) {
+                                        if (edge + i < pattern.length) {
+                                            //sMask.add(edge + i)
+                                           
+                                        }
+                                    }
+                                    
                                 }
                             }
                         }
@@ -903,20 +918,32 @@ for (const [k,v] of map) console.log(k, '->', v);
 
                 const origPatternSeg = pattern.slice(); 
 
-                const shift = sMask.size - pMask.size
-
-                const nextIdx = start + pattern.length - shift;
+                const nextIdx = start + pattern.length;
                 const next = state[nextIdx];
 
                 if (next && simillarity > 0) {
                     //console.log(parse(enrichSeqNo(pattern)))
                     
                     if (simillarity > ctx.simillarity && fuzzy) {
-                        //emitRules(origStateSeg, origPatternSeg, next, ctx, sMask, pMask, start);
+
+
+                        ctx.transform = new Map();
+
+                        ctx.transformStr = new Map();
+
                         emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, sMask, pMask, start);
-                        ctx.patSkip = Math.min(...[...pMask])
+                        const inferredMask = [...pMask]
+                        inferredMask.sort((a,b) => a < b ? -1:+1)
+                        ctx.pattern = [...parse(enrichSeqNo(pattern))].map((x, i) => pMask.has(i) ? '*' : x).join('')
+                        ctx.match = [...parse(state.slice(start, nextIdx))].map((x, i) => x).join('')
+                        ctx.patSkip = pMask.has(0) ? allBreaks(inferredMask)[0] ?? 0 : 0
                         ctx.n = pattern.length - ctx.patSkip
+
+                        masks.patternMask = pMask
+                        masks.stateMask = sMask
                     }
+
+
                     ctx.simillarity = ctx.simillarity > simillarity ? ctx.simillarity : simillarity
                     
                     ctx.scores.push(simillarity)
@@ -1499,7 +1526,7 @@ label:
 
     const span2 = tg("span", "res")
     const ctxf = {}
-    const str = `name is fgeh! name? `
+    const str = `name is fge! name? `
     span2.textContent = "FIND: " + parse(find(state, render(
         str
     ).map(x => x[0]), ctxf, true)) + " --- " + str.slice(-ctxf.n)
@@ -1508,7 +1535,7 @@ label:
     console.log('CTXF')
     console.log(ctxf)
 
-    //throw "end"
+   //throw "end"
 
     tg("br")
 
