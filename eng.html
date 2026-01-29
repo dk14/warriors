@@ -850,8 +850,8 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         const sMaskSect = sections(sMask)
         const pMaskSect = sections(pMask)
-        ctx.pMaskSect = pMaskSect
-        ctx.sMaskSect = sMaskSect
+        //ctx.pMaskSect = pMaskSect
+        //ctx.sMaskSect = sMaskSect
         const ctxcopy = structuredClone(ctx)
         align(sMaskSect, pMaskSect)
 
@@ -1562,7 +1562,7 @@ label:
 
     const span2 = tg("span", "res")
     const ctxf = {}
-    const str = `name is fg! name? `
+    const str = `name is fgeh! name? `
     span2.textContent = "FIND: " + parse(find(state, render(
         str
     ).map(x => x[0]), ctxf, true)) + " --- " + str.slice(-ctxf.n)
