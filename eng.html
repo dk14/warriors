@@ -80,9 +80,6 @@
     // input: introSection: BigInt[], state: BigInt[]
     // output: Map<string, {count: number, firstStart: number}>
 
-    // TODO: does not work
-
-    //TODO: EXCLUDE OTHER INTROSECTIONS FROM STATE!!!
     function tokenize(introSection, state) {
         const nIntro = introSection.length, nState = state.length;
         const serialize = (arr, start, len) => {
@@ -780,6 +777,18 @@ for (const [k,v] of map) console.log(k, '->', v);
     const emitRules = (stateArr, patternArr, next, ctx, sMask, pMask, start) => {
         let i = 0;
         let j = 0; 
+
+        const sections = (set) => {
+            const arr = [...set].sort(a,b=>a<b?-1:1)
+            const breaks = allBreaks(arr)
+            const res = [];
+            const pairs = [0, ...breaks].map((x, i) => [x, breaks[i]])
+            return pairs.map(range => new Set(arr.slice(range[0], range[1])))
+        }
+
+        const align = (sections1, sections2) => {
+
+        }
 
         while (i < patternArr.length || j < stateArr.length) {
             const stateMasked   = sMask.has(j);
