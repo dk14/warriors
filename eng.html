@@ -773,58 +773,76 @@ for (const [k,v] of map) console.log(k, '->', v);
     const makeKey = (arr) => arr.map(x => x.toString()).join(",")
 
 
-    //todo FIX
+    const registerRule = (stateRun, patternRun, ctx, next) => {
+        const stateRule   = stateRun.map(v => v.toString()).join(',');
+        const patternRule = patternRun.map(v => v.toString()).join(',');
+
+        if (!ctx.transform.has(patternRule)) {
+            ctx.transform.set(patternRule, {});
+            ctx.transformStr.set(parse(enrichSeqNo(patternRun)), {});
+        }
+        if (ctx.transform.get(patternRule)[makeKey(next)] === undefined) {
+            ctx.transform.get(patternRule)[makeKey(next)] = []
+            ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])] = [];
+        }
+        ctx.transform.get(patternRule)[makeKey(next)].push(stateRun)
+        ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])].push(parse(stateRun));
+    }
+
     const emitRules = (stateArr, patternArr, next, ctx, sMask, pMask, start) => {
         let i = 0;
         let j = 0; 
 
         const sections = (set) => {
-            const arr = [...set].sort(a,b=>a<b?-1:1)
+            const arr = [...set].sort((a,b)=>a<b?-1:1)
             const breaks = allBreaks(arr)
             const res = [];
             const pairs = [0, ...breaks].map((x, i) => [x, breaks[i]])
             return pairs.map(range => new Set(arr.slice(range[0], range[1])))
         }
 
+        const isMatch = (set1, set2) => {
+            for (el of [...set1]){
+                if (set2.has(el)) return true
+            }
+            return false
+        }
+
+        const isLess = (set1, set2) => {
+            if (set2.size === 0) return false
+            if (set1.size === 0) return true
+            return [...set1][0] < [...set2][0]
+        }
+
         const align = (sections1, sections2) => {
+            let i = 0
+            
+            while (i < sections1.length || i < sections2.length) {
+                if (!isMatch(sections1[i], sections2[i])) {
+                    if (isLess(sections1[i], sections2[i])){
+                        sections2.splice(i, 0, new Set())
+                    } else {
+                        sections1.splice(i, 0, new Set())
+                    }
+                }
+                i++
+            }
 
         }
 
-        while (i < patternArr.length || j < stateArr.length) {
-            const stateMasked   = sMask.has(j);
-            const patternMasked = pMask.has(i);
+        const applyMask = (mask, arr) => {
+            const maskArr = [...mask].sort((a,b)=>a<b?-1:1)
+            return maskArr.map(i => arr[i])
+        }
 
-            if (stateMasked || patternMasked) {
-                const stateRun   = [];
-                const patternRun = [];
+        const sMaskSect = sections(sMask)
+        const pMaskSect = sections(pMask)
+        align(sMaskSect, pMaskSect)
 
-                while (j < stateArr.length && sMask.has(j)) {
-                    stateRun.push(stateArr[j]);
-                    j++;
-                }
-
-                while (i < patternArr.length && pMask.has(i)) {
-                    patternRun.push(patternArr[i]);
-                    i++;
-                }
-
-                const stateRule   = stateRun.map(v => v.toString()).join(',');
-                const patternRule = patternRun.map(v => v.toString()).join(',');
-
-                if (!ctx.transform.has(patternRule)) {
-                    ctx.transform.set(patternRule, {});
-                    ctx.transformStr.set(parse(enrichSeqNo(patternRun)), {});
-                }
-                if (ctx.transform.get(patternRule)[makeKey(next)] === undefined) {
-                    ctx.transform.get(patternRule)[makeKey(next)] = []
-                    ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])] = [];
-                }
-                ctx.transform.get(patternRule)[makeKey(next)].push(stateRun)
-                ctx.transformStr.get(parse(enrichSeqNo(patternRun)))[parse([next])].push(parse(stateRun));
-            } else {
-                if (i < patternArr.length) i++;
-                if (j < stateArr.length)   j++;
-            }
+        for (let i = 0; i < sMaskSect.length; i++) {
+            const stateRun = applyMask(sMaskSect[i], stateArr)
+            const patternRun = applyMask(pMaskSect[i], patternArr)
+            registerRule(stateRun, patternRun, ctx, next)
         }
     };
 
