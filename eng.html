@@ -840,17 +840,11 @@ for (const [k,v] of map) console.log(k, '->', v);
         if (!ctx.simillarity) ctx.simillarity = 0;
         if (!ctx.transformStr) ctx.transformStr = new Map();
 
-        ctx.masks = {
-            stateMask:   new Set(),
-            patternMask: new Set(),
-            blurMask:    new Set(),
-        };
+        ctx.masks = ctx.masks ?? {}
         const masks = ctx.masks 
-        let sMask = masks.stateMask 
+        let sMask = masks.stateMask
         let pMask = masks.patternMask 
-        const bMask = masks.blurMask
 
-    
         const result = [];
 
         ctx.scores = []
@@ -873,6 +867,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                     inferredMask.sort((a,b) => a < b ? -1:+1)
 
                     //todo apply mask and look to the next unmatched repeatedly
+                    //todo disallow section deletions/insertions (to keep masked sections aligned)
                     let edge = allBreaks(inferredMask)[0] ?? inferredMask.length - 1
 
                     if (edge !== 0) {
@@ -882,10 +877,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                                 .filter(x => x !== undefined)
                             const newSimillarity =  pattern.length - newMask.length
                             if (newSimillarity > simillarity) {
-                                //console.log("[[[[newSimillarity]]]]= " + newSimillarity)
                                 simillarity = newSimillarity
                                 if (simillarity > ctx.simillarity) {
-                                    //ctx.inferredMask = inferredMask
                                     ctx.edge = edge
                                     ctx.edgeStr = parse(enrichSeqNo(pattern.slice(edge + 1)))
                                     ctx.shift = shift
@@ -1503,7 +1496,7 @@ label:
 
     const state4 = render(`ran ran ran program + -0+-0 7 9+++i999-i0999999999999 777 pr78ra`)
 
-    const state5 = render(`name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is fge! name? `)
+    const state5 = render(`! name?! name?! name?!name?! name? name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is abc! name? abc! name is fge! name? `)
 
     const lambda = render(` -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> ; x.yyyyy x -> yyyyy; h.l.l h 5 -> `)
 
@@ -1540,6 +1533,9 @@ label:
     const ctx7 = {target:2}
     span7.textContent = "PREDICT: " + parse(predict(state, ctx7))
     span7.style.color = "green"
+
+    console.log('CTXP')
+    console.log(ctx7)
 
     tg("br")
 
