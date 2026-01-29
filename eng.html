@@ -913,7 +913,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                 if (pMask.has(0) && simillarity > 0) {
                     inferredMask.sort((a,b) => a < b ? -1:+1)
 
-                    //todo look inside sections
+                    //todo apply mask and look to the next unmatched repeatedly
                     let edge = allBreaks(inferredMask)[0] ?? inferredMask.length - 1
 
                     if (edge !== 0) {
