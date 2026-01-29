@@ -790,25 +790,39 @@ for (const [k,v] of map) console.log(k, '->', v);
     }
 
     const emitRules = (stateArr, patternArr, next, ctx, sMask, pMask, start) => {
+        if (sMask.size === 0 && pMask.size === 0) return
         let i = 0;
         let j = 0; 
 
         const sections = (set) => {
             const arr = [...set].sort((a,b)=>a<b?-1:1)
             const breaks = allBreaks(arr)
+            if (breaks.length === 0) {
+                return [set]
+            }
+            breaks.push(arr.length - 1)
             const res = [];
             const pairs = [0, ...breaks].map((x, i) => [x, breaks[i]])
-            return pairs.map(range => new Set(arr.slice(range[0], range[1])))
+            return pairs.map(range => new Set(arr.slice(range[0], range[1] + 1)))
         }
 
         const isMatch = (set1, set2) => {
+            if (!set1) return false
             for (el of [...set1]){
-                if (set2.has(el)) return true
+                if (set2 && set2.has(el)) return true
             }
             return false
         }
 
+        
+
         const isLess = (set1, set2) => {
+            if (!set2) {
+                return true
+            }
+            if (!set1) {
+                return false
+            }
             if (set2.size === 0) return false
             if (set1.size === 0) return true
             return [...set1][0] < [...set2][0]
@@ -816,7 +830,6 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         const align = (sections1, sections2) => {
             let i = 0
-            
             while (i < sections1.length || i < sections2.length) {
                 if (!isMatch(sections1[i], sections2[i])) {
                     if (isLess(sections1[i], sections2[i])){
@@ -832,12 +845,17 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         const applyMask = (mask, arr) => {
             const maskArr = [...mask].sort((a,b)=>a<b?-1:1)
-            return maskArr.map(i => arr[i])
+            return maskArr.map(i => arr[i]).filter(x => x !== undefined)
         }
 
         const sMaskSect = sections(sMask)
         const pMaskSect = sections(pMask)
+        ctx.pMaskSect = pMaskSect
+        ctx.sMaskSect = sMaskSect
+        const ctxcopy = structuredClone(ctx)
         align(sMaskSect, pMaskSect)
+
+
 
         for (let i = 0; i < sMaskSect.length; i++) {
             const stateRun = applyMask(sMaskSect[i], stateArr)
@@ -915,7 +933,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                                 pMask = new Set(newMask)
                                 sMask = new Set(newMask)
 
-                                continue //todo fix
+                                //continue //todo fix
                                 if (shift > 0) {
                                     sMask = new Set([...sMask]
                                         .map(i => i <= edge ? (i + shift <= edge? i + shift : undefined) : i)
@@ -957,7 +975,7 @@ for (const [k,v] of map) console.log(k, '->', v);
                     }
                     
                     if (simillarity >= ctx.simillarity && fuzzy) {
-                        emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, pMask, sMask, start);
+                        
                         const inferredMask = [...pMask]
                         inferredMask.sort((a,b) => a < b ? -1:+1)
                         ctx.pattern = [...parse(enrichSeqNo(pattern))].map((x, i) => pMask.has(i) ? '*' : x).join('')
@@ -969,6 +987,8 @@ for (const [k,v] of map) console.log(k, '->', v);
                         //console.log(" ")
                         masks.patternMask = pMask
                         masks.stateMask = sMask
+
+                        emitRules(enrichSeqNo(origPatternSeg), eraseSeqNo(origStateSeg), next, ctx, pMask, sMask, start);
                     }
 
 
@@ -1017,27 +1037,15 @@ for (const [k,v] of map) console.log(k, '->', v);
 
         if (!matches || matches.length === 0) {
             
-            //return matches
             if (!ctx.fuzzyBound) {
                 ctx.fuzzyBound = previousMany?.length ?? 0
             }
 
             if (len > ctx.simillarity + ctx.fuzzyBound) {
                 return []
-            }
-
-            //console.log(ctx.fuzzyBound)
-            //console.log(len)
-
-            
+            }  
             
             const fuzzyMatches = find(space, pattern, ctx, true);
-            //console.log(`${len} > ${ctx.simillarity + ctx.fuzzyBound}`)
-            //console.log(parse(state) + "\n\n")
-
-            //console.log(parse(fuzzyMatches))
-
-            //return []
 
             if (previousMany === undefined || fuzzyMatches === undefined) {
                 return previousMany ?? []
