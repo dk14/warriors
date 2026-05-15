@@ -317,12 +317,10 @@ const am0 = {
     instrbound: 0n,
     inputLengthBound: 0n,
     inputCellBound: 0n,
+    inputNo: 0n,
+    machineNo: 0n,
     input: [],
     machine: []
-
-}
-
-const nextInput = (input, bound) => {
 
 }
 
@@ -331,6 +329,18 @@ const genInputAndMachine = (am) => {
 }
 
 const nextAm = (am) => {
+    am.machineNo++
+    if (am.machineNo < (3n ** am.instrbound) * (am.instrbound ** am.instrbound)) {
+        return genInputAndMachine(am)
+    }
+    am.machineNo = 0n
+
+    am.inputNo++
+    if (am.inputNo < inputCellBound ** inputLengthBound) {
+        return genInputAndMachine(am)
+    }
+    am.inputNo = 0n
+
     am.membound++
     if (am.membound < am.radix) {     
         return genInputAndMachine(am)
