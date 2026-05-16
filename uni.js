@@ -314,7 +314,6 @@ console.log("TURING END\n\n\n")
 const am0 = {
     radix: 0n,
     membound: 0n,
-    timebound: 0n,
     instrbound: 0n,
     inputLengthBound: 0n,
     inputCellBound: 0n,
