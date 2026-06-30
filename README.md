@@ -17,7 +17,7 @@ All HCI create impression of mind reading - since human mind is expressed throug
 
 > e.g. internal speech is covert movement of jaw / TMJ, but human can redirect thought to any muscle - e.g. "internal" typing, `kb.html` allows for up to 20 cpm input without prediction and training (prediction can make it faster). While covert "flappy birding" works flawlessly in `bird2.html` game.
 >
-> `index.html` simply visualizes human heat envelope. note on graphics - it is more optimal to use radial gradient with alpha-blending (blur is useless for vector graphics), akin to how `bird2.html` does.
+> `index.html` simply visualizes human heat envelope. note on graphics - it is more optimal to use radial gradient with alpha-blending (blur is useless for vector graphics), akin to how `bird2.html` does. Animation is impressive to human eye - it's "fire from within"
 
 
 
