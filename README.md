@@ -2,7 +2,7 @@
 
 This repository contains a collection of HTML notebooks (to run experiments) presenting an experimental reasearch into:
 - Human-Computer Interaction
-- Artificial Intelligence (transform grammars, `eng.html` aka Enigma)
+- Artificial Intelligence (transform grammars and abstract-machines/automated-theorem-provers, `eng.html` aka Enigma)
 
 HCI: 
 Most HCI notebooks are actually interactive apps, and games. 
