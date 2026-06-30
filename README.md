@@ -11,7 +11,9 @@ Many use "human covert animation" as input (gyro/mouse - only amount of movement
 Sefiroth (sefirot and sfr files) learns user's covert animation and uses it to involve user in interaction.
 It's akin to predictive input. 
 
-All HCI create impression of mind reading - sice human mind is expressed through covert animation (e.g. internal speech is covert movement of jaw / TMJ, but human can redirect thought to any muscle - e.g. "internal" typing, `kb.html` allows for up to 20 cpm without prediction).
+All HCI create impression of mind reading - sice human mind is expressed through covert animation 
+
+> e.g. internal speech is covert movement of jaw / TMJ, but human can redirect thought to any muscle - e.g. "internal" typing, `kb.html` allows for up to 20 cpm without prediction, while covert "flappy birding" works flawlessly in `bird2.html` game. 
 
 
 
