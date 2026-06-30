@@ -2,7 +2,7 @@
 
 This repository contains a collection of HTML notebooks (to run experiments) presenting an experimental reasearch into:
 - Human-Computer Interaction
-- Artificial Intelligence (transform grammars)
+- Artificial Intelligence (transform grammars, `eng.html` aka Enigma)
 
 HCI: 
 Most HCI notebooks are actually interactive apps, and games. 
@@ -10,6 +10,8 @@ Many use "human covert animation" as input (gyro/mouse - only amount of movement
 
 > Sefiroth (sefirot and sfr files) learns user's covert animation and uses it to involve user in non-verbal interaction.
 It's akin to predictive input...of non-verbal thought, but with audio-visual feedback
+>
+> This approach allows to learn user's covert animation patterns. It allows to predict let's say entropy generated for btc wallets.
 
 All HCI create impression of mind reading - since human mind is expressed through covert animation 
 
