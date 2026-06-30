@@ -21,7 +21,9 @@ All HCI create impression of mind reading - since human mind is expressed throug
 
 
 
-This is part of [doomsday ecosystem](https://doomsdayexplorer.online/)
+This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
+
+Repo is exposed as [https://warriors.doomsdayexplorer.online/](https://warriors.doomsdayexplorer.online/)
 
 | File | Link |
 |------|------|
