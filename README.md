@@ -8,10 +8,10 @@ HCI:
 Most HCI notebooks are actually interactive apps, and games. 
 Many use "human covert animation" as input (gyro/mouse - only amount of movement, not direction). 
 
-Sefiroth (sefirot and sfr files) learns user's covert animation and uses it to involve user in interaction.
-It's akin to predictive input. 
+> Sefiroth (sefirot and sfr files) learns user's covert animation and uses it to involve user in non-verbal interaction.
+It's akin to predictive input...of non-verbal thought, but with audio-visual feedback
 
-All HCI create impression of mind reading - sice human mind is expressed through covert animation 
+All HCI create impression of mind reading - since human mind is expressed through covert animation 
 
 > e.g. internal speech is covert movement of jaw / TMJ, but human can redirect thought to any muscle - e.g. "internal" typing, `kb.html` allows for up to 20 cpm without prediction, while covert "flappy birding" works flawlessly in `bird2.html` game. 
 
