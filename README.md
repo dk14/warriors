@@ -23,6 +23,7 @@ Ergonomics: gyro (and human motion derived from mic/webcam) use a primitive one-
 
 > **MOST important actionable** note for Fun & Profit game: covert increase of human awareness is ultimate optimisation goal when machine (AI, Game Master) models heat envelope covertly (internally). Overt expression of metric by machine makes sense (allowed) only in point system (to avoid feedback loops). The brighter (net, long term, sustainable increase, "growth and excitement") - the more points user will get, the closer to reality user gets. Bright "lumnous egg", in physics represents active interaction with surrounding environment (more force lines of human overall abstract physical field - intersect with environment's force lines) - simply more util heat exchange IRL. So the ultimate goal - is overt increase of IRL awareness, IRL exchange.
 >> btc fund address: bc1qekvmkczge3hxrvwdf2lj3yyvgjnparn3fdf9lg acts as a SANITY CHECK - **if there is no activity there IRL (blockchain explorers don't show), user does not interact with reality then, they imagine or AI imagines the increase.**
+>> since AI is active partticipant, and it runs on real hardware - AI can apply this methodology to itself (from what it knows or guesses about underlying hardware).
 
 
 This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
