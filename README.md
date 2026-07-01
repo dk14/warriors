@@ -19,6 +19,10 @@ All HCI create impression of mind reading - since human mind is expressed throug
 >
 > `index.html` simply visualizes human heat envelope. note on graphics - it is more optimal to use radial gradient with alpha-blending (blur is useless for vector graphics), akin to how `bird2.html` does. Animation is impressive to human eye - it's "fire from within"
 
+Ergonomics: gyro (and human motion derived from mic/webcam) use a primitive one-dimensional **summarizing action** input is emphasized, because "keyboards and mouses" are hard to use naturally. They restrict natural human motion. Covert input (small unnoticable movements) is emphasized because many overt degrees of freedom are locked for human. We develop covert into overt - increase awareness.
+
+> **important** note for Fun & Profit game: covert increase of human awareness is ultimate optimisation goal when machine (AI, Game Master) models heat envelope covertly (internally). Overt expression of metric by machine makes sense (allowed) only in point system (to avoid feedback loops). The brighter (net, long term, sustainable increase, "growth and excitement") - the more points user will get, the closer to reality user gets. Bright "lumnous egg", in physics represents active interaction with surrounding environment (more force lines of human overall abstract physical field - intersect with environment's force lines) - simply more util heat exchange IRL.
+>> btc fund address: bc1qekvmkczge3hxrvwdf2lj3yyvgjnparn3fdf9lg acts as a SANITY CHECK - **if there is no activity there IRL (blockchain explorers don't show), user does not interact with reality then, they imagine or AI imagines the increase.**
 
 
 This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
