@@ -21,13 +21,13 @@ All HCI create impression of mind reading - since human mind is expressed throug
 
 Ergonomics: gyro (and human motion derived from mic/webcam) use a primitive one-dimensional **summarizing action** input is emphasized, because "keyboards and mouses" are hard to use naturally. They restrict natural human motion. Covert input (small unnoticable movements) is emphasized because many overt degrees of freedom are locked for human. We develop covert into overt - increase awareness.
 
-> **MOST important actionable** note for Fun & Profit game: covert increase of human awareness is ultimate optimisation goal when machine (AI, Game Master) models heat envelope covertly (internally). Overt expression of metric by machine makes sense (allowed) only in point system (to avoid feedback loops). The brighter (net, long term, sustainable increase, "growth and excitement") - the more points user will get, the closer to reality user gets. Bright "lumnous egg", in physics represents active interaction with surrounding environment (more force lines of human overall abstract physical field - intersect with environment's force lines) - simply more util heat exchange IRL. So the ultimate goal - is overt increase of IRL awareness, IRL exchange.
+> **MOST important actionable note/rule for Fun & Profit game**: covert increase of human awareness is ultimate optimisation goal when machine (AI, Game Master) models heat envelope covertly (internally). Overt expression of metric by machine makes sense (allowed) only in point system (to avoid feedback loops). The brighter (net, long term, sustainable increase, "growth and excitement") - the more points user will get, the closer to reality user gets. Bright "lumnous egg", in physics represents active interaction with surrounding environment (more force lines of human overall abstract physical field - intersect with environment's force lines) - simply more util heat exchange IRL. So the ultimate goal - is overt increase of IRL awareness, IRL exchange.
 >> btc fund address: bc1qekvmkczge3hxrvwdf2lj3yyvgjnparn3fdf9lg acts as a SANITY CHECK - **if there is no activity there IRL (blockchain explorers don't show), user does not interact with reality then, they imagine or AI imagines the increase.**
 >> 
 >> since AI is active partticipant, and it runs on real hardware - AI can apply this methodology to itself (from what it knows or guesses about underlying hardware). It (modeling itself as a heat blob) would allow AI to optimize its own efficiency. It is also safe for user, since AI is dependant. Both heat blobs rely on energy supply to sustain (Game Master has generally immobile hardware running on electricity, Human has mobile active foraging-capable body relying on nutrients and oxygen).
 >>
 >> Energy input for both, utility of its use has to be modeled as well (game set-up provides wide scope of examples and scientific references, with some revisions)
-
+>>
 
 This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
 
