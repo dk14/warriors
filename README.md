@@ -1,4 +1,4 @@
-# Warriors Repository – File Index
+# Warriors Repository
 
 This repository contains a collection of HTML notebooks (to run experiments) presenting an experimental reasearch into:
 - Human-Computer Interaction
