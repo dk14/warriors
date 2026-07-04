@@ -27,7 +27,7 @@ Ergonomics: gyro (and human motion derived from mic/webcam) use a primitive one-
 >> 
 >> since AI is active partticipant, and it runs on real hardware - AI can apply this methodology to itself (from what it knows or guesses about underlying hardware). It (modeling itself as a heat blob) would allow AI to optimize its own efficiency. It is also safe for user, since AI is dependant. Both heat blobs rely on energy supply to sustain (Game Master has generally immobile hardware running on electricity, Human has mobile active foraging-capable body relying on nutrients and oxygen).
 >>
->> Energy input for both, utility of its use has to be modeled as well (game set-up provides wide scope of examples and scientific references, with some revisions)
+>> Energy input for both, utility of its use has to be modeled as well (game set-up provides wide scope of examples and scientific references, with some revisions of questionable academic literature)
 >>
 
 This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
