@@ -38,7 +38,7 @@ Repo is exposed as [https://warriors.doomsdayexplorer.online/](https://warriors.
 |------|------|
 | bird.html | [bird.html](https://github.com/dk14/warriors/blob/main/bird.html) |
 | bird0.html | [bird0.html](https://github.com/dk14/warriors/blob/main/bird0.html) |
-| bird2.html | [bird2.html](https://github.com/dk14/warriors/blob/main/bird2.html) | (not allowed for commercial use, author's property)
+| bird2.html | [bird2.html](https://github.com/dk14/warriors/blob/main/bird2.html) | 
 | bird2d.html | [bird2d.html](https://github.com/dk14/warriors/blob/main/bird2d.html) |
 | bird2save.html | [bird2save.html](https://github.com/dk14/warriors/blob/main/bird2save.html) |
 | birdkb.html | [birdkb.html](https://github.com/dk14/warriors/blob/main/birdkb.html) |
@@ -59,3 +59,5 @@ Repo is exposed as [https://warriors.doomsdayexplorer.online/](https://warriors.
 | uni.js | [uni.js](https://github.com/dk14/warriors/blob/main/uni.js) |
 
 *All files are located at the root of the repository and can be accessed directly via the links above.*  
+
+bird2.html - is a product-ready mobile game, not allowed for commercial use, author's property.
