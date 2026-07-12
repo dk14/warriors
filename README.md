@@ -60,4 +60,4 @@ Repo is exposed as [https://warriors.doomsdayexplorer.online/](https://warriors.
 
 *All files are located at the root of the repository and can be accessed directly via the links above.*  
 
-bird2.html - is a product-ready mobile game, not allowed for commercial use, author's property.
+bird2.html - is a product-ready mobile game, not allowed for commercial use, author's property. Preparing to release on the AppStore/Android.
