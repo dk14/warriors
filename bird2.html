@@ -1305,5 +1305,25 @@
 
 
         </script>
+        <script>
+          // Receive the coordinates from the parent
+          window.addEventListener('message', ev => {
+            if (!ev.data || ev.data.type !== 'parent-mousemove') return;
+            const { x, y } = ev.data;
+        
+            // Create a synthetic mousemove event inside the iframe
+            const mouseEvent = new MouseEvent('mousemove', {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+              clientX: x,          // coordinates relative to the viewport
+              clientY: y
+            });
+        
+            // Dispatch the event on the element you want (e.g., document)
+            document.dispatchEvent(mouseEvent);
+          });
+        </script>
+
     </body>
 </html>
