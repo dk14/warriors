@@ -1312,16 +1312,16 @@
             const { x, y } = ev.data;
         
             // Create a synthetic mousemove event inside the iframe
-            const mouseEvent = new MouseEvent('mousemove', {
+            const mouseEvent = {
               view: window,
               bubbles: true,
               cancelable: true,
               clientX: x,          // coordinates relative to the viewport
               clientY: y
-            });
+            };
         
             // Dispatch the event on the element you want (e.g., document)
-            document.dispatchEvent(mouseEvent);
+            onmousemove(mouseEvent);
           });
         </script>
 
