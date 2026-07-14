@@ -36,6 +36,14 @@ Ergonomics: gyro (and human motion derived from mic/webcam) use a primitive one-
 >> Energy input for both, utility of its use has to be modeled as well (game set-up provides wide scope of examples and scientific references, with some revisions of questionable academic literature)
 >>
 
+
+> Q: How 'mind reading' presented here relates to BCI? A: It critisizes invasive BCI, as well as non-invasive. Nervous system is electrical system, energy conservation binds signals in it to either: output to muscles right away, be memorized and output to muscles eventually or simply disperse as excess heat (be forgotten).
+>> Thus using gyro as mind-computer interface makes more sense simply, than EEG or invasive neuralinks. Even coma patient, has minimal access to muscles. Activity in brain reflexts sensory-motor activity. It is more appropriate to decode trivially observed (gyro or equivalents) covert motor activity than EEG, signal-to-noise ratio is better.
+>> 
+>> Relation to perception: memorized signals are not perceived by subject, dispersed are not perceived in focus. Only signals that found motor output are subjectively perceived. Perception is input-output, thus sampling subjective perception has nothing to do with brain ("CPU").
+>> 
+>>> More examples: signals on retina are filtered, most of what we "see" subjectively comes from eye-muscle activity - since it reflects what was amplified by nervous system supported by metabolism. The overall human physical perception is not in nervous or even muscular system - it cannot be by definition - those are internal organs. Overall human (or any other mechanical, actively animated system's) physical perception is on the physical contact boundary - "heat envelope". Perception is pressure, "heat exchange". All other examples (muscles) are subset. Structure - focused "bright" (in space and time) parts of heat ebevelope reflect util work (inluding muscular work, but also metabolic), unfocused - rejected heat due to inefficiency.  We aim at overall increase of brightness - because heat rejected due to inefficiency accumulates in environment and prevents heat exchange (e.g. it is hard to biologically reject heat in extreme environments created by time-spanned accumulated inefficient activities: hot and humid, dry desert, freezing winter; "heat predators" live in such environments, "very unfriendly spirits, outnumbering humans").
+
 This is part of [doomsday ecosystem](https://doomsdayexplorer.online/).
 
 Repo is exposed as [https://warriors.doomsdayexplorer.online/](https://warriors.doomsdayexplorer.online/)
