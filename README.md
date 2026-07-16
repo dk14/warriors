@@ -1,5 +1,5 @@
 # Warriors Repository
-> **NOT AI-generated, used as basis for AI-generated code.**
+> **NOT AI-generated, novel, used as basis for AI-generated code.**
 
 This repository contains a collection of HTML notebooks (to run experiments) presenting an experimental reasearch into:
 - Human-Computer Interaction
